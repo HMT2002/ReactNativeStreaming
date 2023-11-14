@@ -1,5 +1,5 @@
 /* eslint-disable*/
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState,useCallback} from 'react';
 import AppContext, {AppContextProvider} from './src/utils/AppContext';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import MainScreen from './src/screen/MainScreen';

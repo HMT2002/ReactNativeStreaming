@@ -1,11 +1,34 @@
-import { React, useRef, useEffect, useState } from 'react';
+import { React, useRef, useEffect, useState,useCallback } from 'react';
 import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, FlatList,Modal } from 'react-native';
 import Swiper from 'react-native-swiper';
 import { useNavigation } from '@react-navigation/native';
+import { GETAllThreadAction } from '../apis/thread-apis';
+import { videoItem } from '../components/movieItem/movieItem.js';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
   const [modalVisible, setModalVisible] = useState(false);
+
+
+  const [threads, setThreads] = useState([]); // all threads in loaded in homepage
+
+  const fetchThreadsHandler = useCallback(async () => {
+    try {
+      const response = await GETAllThreadAction();
+
+      if (response.status === 'ok') {
+        setThreads(response.data.allInfo);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }, []);
+
+  // load all threads for the first time access homepage
+  // should change to load a set (10-15) of newest threads for #Popular secion
+  useEffect(() => {
+    fetchThreadsHandler();
+  }, [fetchThreadsHandler]);
 
   const handleLogout = () => {
     navigation.navigate('Login', );
@@ -117,19 +140,27 @@ const HomeScreen = () => {
       <View style={styles.contentContainer}>
         <Text style={styles.sectionTitle}>Popular Movies</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {movies.map((movie) => (
+          {threads.map((thread) => {
+                // console.log(thread);
+                let video = new videoItem(
+                  thread.filmInfo.name,
+                  thread.filmInfo.first_air_date,
+                  thread.filmInfo.poster_path,
+                  thread.filmType
+                );
+                console.log(video.img)
+            return (
             <TouchableOpacity
-              key={movie.id}
+              key={thread._id}
               style={styles.movieContainer}
-              onPress={() => handleMoviePress(movie)}
+              onPress={() => handleMoviePress(thread)}
             >
-              <Image source={movie.poster} style={styles.poster} />
+              <Image source={{uri:video.img}} style={styles.poster} />
               <View style={styles.movieDetails}>
-                <Text style={styles.title}>{movie.title}</Text>
-                <Text style={styles.genre}>{movie.genre}</Text>
+                <Text style={styles.title}>{video.title}</Text>
               </View>
             </TouchableOpacity>
-          ))}
+          )})}
         </ScrollView>
 
         {/* Add more sections as needed */}

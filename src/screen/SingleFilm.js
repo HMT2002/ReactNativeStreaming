@@ -1,4 +1,4 @@
-import {React, useContext, useRef, useEffect, useState} from 'react';
+import {React, useContext, useRef, useEffect, useState,useCallback} from 'react';
 import {
   View,
   Text,
@@ -59,93 +59,92 @@ const MovieDetailScreen = ({route, navigation}) => {
   const [videoHLSURL, setVideoHLSURL] = useState({uri: ''});
 
   const [showVideo, setShowVideo] = useState(false);
-  useEffect(() => {
-    const CheckVideoAndEncode = async () => {};
-    const LoadVideo = async () => {
-      try {
-        // var obj_play;
-        // let url = 'http://192.168.1.99:9000/redirect/hls/World Domination How-To';
 
-        // console.log(videoRef)
-        // const config = {
-        //   startPosition: 0, // can be any number you want
-        // };
-        // obj_play = {
-        //   fill: true,
-        //   fluid: true,
-        //   autoplay: true,
-        //   controls: true,
-        //   preload: 'auto',
-        //   loop: true,
-        //   sources: [
-        //     // {
-        //     //   src: data.path,
-        //     //   type: 'application/x-mpegURL',
-        //     //   withCredentials: true,
-        //     // },
-        //   ],
-        // };
-        // const hls = new Hls(config);
-        // hls.loadSource(url);
-        // hls.attachMedia(videoRef.current);
-        // hls.subtitleDisplay = true;
+  const LoadVideo = useCallback(async () => {
+    try {
+      // var obj_play;
+      // let url = 'http://192.168.1.99:9000/redirect/hls/World Domination How-To';
 
-        // const _player = videojs(
-        //   videoRef.current,
-        //   obj_play,
-        //   function onPlayerReady() {
-        //     videojs.log('Your player is ready!');
+      // console.log(videoRef)
+      // const config = {
+      //   startPosition: 0, // can be any number you want
+      // };
+      // obj_play = {
+      //   fill: true,
+      //   fluid: true,
+      //   autoplay: true,
+      //   controls: true,
+      //   preload: 'auto',
+      //   loop: true,
+      //   sources: [
+      //     // {
+      //     //   src: data.path,
+      //     //   type: 'application/x-mpegURL',
+      //     //   withCredentials: true,
+      //     // },
+      //   ],
+      // };
+      // const hls = new Hls(config);
+      // hls.loadSource(url);
+      // hls.attachMedia(videoRef.current);
+      // hls.subtitleDisplay = true;
 
-        //     // In this context, `this` is the player that was created by Video.js.
-        //     this.play();
+      // const _player = videojs(
+      //   videoRef.current,
+      //   obj_play,
+      //   function onPlayerReady() {
+      //     videojs.log('Your player is ready!');
 
-        //     // volume scale 0 - 1
-        //     const defaultVolume = 0.4;
-        //     this.volume(defaultVolume);
+      //     // In this context, `this` is the player that was created by Video.js.
+      //     this.play();
 
-        //     // How about an event listener?
-        //     this.on('ended', function () {
-        //       videojs.log('Awww...over so soon?!');
-        //     });
-        //   },
-        // );
-        // console.log(_player);
+      //     // volume scale 0 - 1
+      //     const defaultVolume = 0.4;
+      //     this.volume(defaultVolume);
 
-        var urlDash = await getDashUrl('sF06Unx');
-        setVideoDASHURL(() => {
-          return {uri: urlDash};
-        });
+      //     // How about an event listener?
+      //     this.on('ended', function () {
+      //       videojs.log('Awww...over so soon?!');
+      //     });
+      //   },
+      // );
+      // console.log(_player);
 
-        var urlHls = await getHlsUrl('eHQcQgU');
-        setVideoHLSURL(() => {
-          return {uri: urlHls};
-        });
+      var urlDash = await getDashUrl(movie.videos[0].videoname);
+      setVideoDASHURL(() => {
+        return urlDash;
+      });
 
-        console.log(urlHls);
-        console.log(urlDash);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    //CheckVideoAndEncode();
-    LoadVideo();
+      var urlHls = await getHlsUrl(movie.videos[0].videoname);
+      setVideoHLSURL(() => {
+        return urlHls;
+      });
+    } catch (error) {
+      console.log(error);
+    }
   }, []);
+
+  useEffect(() => {
+    LoadVideo();
+  }, [LoadVideo]);
   const handleGoBack = () => {
     navigation.goBack();
   };
   const handlePlay = async () => {
-    var urlDash = await getDashUrl('sF06Unx');
+    var urlDash = await getDashUrl(movie.videos[0].videoname);
+    console.log(urlDash);
+
     setVideoDASHURL(() => {
       return urlDash;
     });
 
-    var urlHls = await getHlsUrl('eHQcQgU');
+    var urlHls = await getHlsUrl(movie.videos[0].videoname);
+    console.log('HLS là');
+    console.log(urlHls);
+
     setVideoHLSURL(() => {
       return urlHls;
     });
-
-    console.log(urlHls);
-    console.log(urlDash);
     setShowVideo(true);
   };
   return (
