@@ -42,9 +42,10 @@ const AppChild = () => {
 
   function HomeStack() {
     return (
-      <Stack.Navigator>
-        <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
+      <Stack.Navigator> 
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
+       
         <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
         <Stack.Screen name="MovieDetail" component={MovieDetailScreen} options={{ headerShown: false }} />
         <Stack.Screen name="HotMovie" component={MovieDetailScreen} options={{ headerShown: false}} />

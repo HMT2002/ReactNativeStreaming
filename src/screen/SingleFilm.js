@@ -4,6 +4,7 @@ import { Avatar } from 'react-native-elements';
 import {GetNoteAction} from '../actions/GetNote';
 import Video from 'react-native-video';
 import WDHT from './test.mp4'
+
 // import WDHT from './World Domination How-To.m3u8'
 import AppController from '../controllers/AppController';
 import AppContext from '../utils/AppContext';
@@ -11,85 +12,45 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import {useIsFocused} from '@react-navigation/native';
 import videojs from 'video.js';
 import Hls from 'hls.js';
+import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 const MovieDetailScreen = ({ route, navigation }) => {
+
+  
   const { movie } = route.params;
   const isFocus = useIsFocused();
   const appContext = useContext(AppContext);
   const videoRef = useRef();
-
+     
  
   const [showVideo, setShowVideo] = useState(false);
+  const [datas,setData]=useState('loveu');
   useEffect(() => {
-    const CheckVideoAndEncode = async () => {
+           
+    axios.get('http://192.168.1.10:9000/redirect/hls/'+movie.videos[0].videoname,{
+      headers: {myaxiosfetch:"123"},
+    })
+  .then(function (response) {
+
+setData(response.data.subserverurl);
+
+  })
+  .catch(function (error) {
+    console.log(error);
+  });
+ 
+  },[]);
+    const url = 'https://jsonplaceholder.typicode.com/todos/1';
+
+    const fetchUsers =  () => {
+     fetch(url).then((res)=>{
+      return res.json();
+     }).then(async (data)=>{
+      console.log(data);
+      setData(data);
+     })   
     };
-    const LoadVideo = async () => {
-      try {
-        var obj_play;
-        let url = 'http://192.168.1.99:9000/redirect/hls/World Domination How-To';
 
-        console.log(videoRef)
-        const config = {
-          startPosition: 0, // can be any number you want
-        };
-        obj_play = {
-          fill: true,
-          fluid: true,
-          autoplay: true,
-          controls: true,
-          preload: 'auto',
-          loop: true,
-          sources: [
-            // {
-            //   src: data.path,
-            //   type: 'application/x-mpegURL',
-            //   withCredentials: true,
-            // },
-          ],
-        };
-        const hls = new Hls(config);
-        hls.loadSource(url);
-        hls.attachMedia(videoRef.current);
-        hls.subtitleDisplay = true;
-
-        const _player = videojs(
-          videoRef.current,
-          obj_play,
-          function onPlayerReady() {
-            videojs.log('Your player is ready!');
-
-            // In this context, `this` is the player that was created by Video.js.
-            this.play();
-
-            // volume scale 0 - 1
-            const defaultVolume = 0.4;
-            this.volume(defaultVolume);
-
-            // How about an event listener?
-            this.on('ended', function () {
-              videojs.log('Awww...over so soon?!');
-            });
-          },
-        );
-        console.log(_player);
-
-        // _player.on('xhr-hooks-ready', () => {
-        //   const playerRequestHook = (options) => {
-        //     options.beforeSend = (xhr) => {
-        //       xhr.setRequestHeader('foo', 'bar');
-        //     };
-        //     console.log(options)
-        //     return options;
-        //   };
-        //   _player.tech().vhs.xhr.onResponse(playerRequestHook);
-        // });
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    //CheckVideoAndEncode();
-    LoadVideo();
-  }, []);
   const handleGoBack = () => {
     navigation.goBack();
   };  
@@ -99,20 +60,18 @@ const MovieDetailScreen = ({ route, navigation }) => {
   return (
     <ScrollView style={styles.container}>
        <TouchableOpacity style={{width:"20%"}} onPress={handleGoBack}>
-        <Text style={styles.buttonText}> Back</Text>
+        <Text style={styles.buttonText}>{datas}</Text>
       </TouchableOpacity>
       {showVideo ? (
       <Video
-      //HOW THE FUCK???? TẠI SAO HLS NGƯỜI KHÁC COI ĐC CÒN CỦA T THÌ ÉO?????
-      source={WDHT} // the video file
-      // source={{uri: "https://tzvodacomcontent.s3.amazonaws.com/video-1654952965085/video-1654952965085.m3u8"}}
-      // source={{uri: "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8"}}
-
-      paused={false} // make it start    r
-      style={styles.image} // any style you want
-      repeat={true} // make it a loop
-      ref={videoRef} // Store reference
-      onBuffer={this.onBuffer} // Callback when remote video is buffering
+  
+      source={{uri: "http://192.168.1.10:9100/videos/flyingwitch_ep01Hls/flyingwitch_ep01.m3u8"}}// the video file
+     
+      controls={true}
+      style={styles.image} 
+      repeat={true} 
+      ref={videoRef} 
+      onBuffer={this.onBuffer} 
       onError={error => {
         console.log(error);
       }}

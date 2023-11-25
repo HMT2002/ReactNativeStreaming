@@ -2,13 +2,37 @@ import { React, useRef, useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, FlatList,Modal } from 'react-native';
 import Swiper from 'react-native-swiper';
 import { useNavigation } from '@react-navigation/native';
-
+import axios from 'axios';
 const HomeScreen = () => {
   const navigation = useNavigation();
   const [modalVisible, setModalVisible] = useState(false);
+  const [datas,setData]=useState({});
+  useEffect(() => {
+           
+    axios.get('http://192.168.1.10:9000/api/v1/info')
+  .then(function (response) {
 
+setData(response.data.data.allInfo);
+console.log(response.data)
+  })
+  .catch(function (error) {
+    console.log(error);
+  });
+  const timer = setInterval(() => {
+    if (flatListRef.current) {
+      flatListRef.current.scrollToIndex({
+        animated: true,
+        index: (currentIndex + 1) % bannerData.length,
+      });
+    }
+  }, 3000);
+
+  return () => {
+    clearInterval(timer);
+  };
+  },[]);
   const handleLogout = () => {
-    navigation.navigate('Login', );
+    navigation.navigate('Login',);
   };
 
   const bannerData = [
@@ -41,20 +65,7 @@ const HomeScreen = () => {
 
   const flatListRef = useRef(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-  useEffect(() => {
-    const timer = setInterval(() => {
-      if (flatListRef.current) {
-        flatListRef.current.scrollToIndex({
-          animated: true,
-          index: (currentIndex + 1) % bannerData.length,
-        });
-      }
-    }, 3000);
-
-    return () => {
-      clearInterval(timer);
-    };
-  }, []);
+ 
 
   const handleMoviePress = (movie) => {
     navigation.navigate('MovieDetail', { movie });
@@ -117,19 +128,20 @@ const HomeScreen = () => {
       <View style={styles.contentContainer}>
         <Text style={styles.sectionTitle}>Popular Movies</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {movies.map((movie) => (
+         
+          { datas.length > 0 ? ( datas.map((movie) => (
             <TouchableOpacity
               key={movie.id}
               style={styles.movieContainer}
               onPress={() => handleMoviePress(movie)}
             >
-              <Image source={movie.poster} style={styles.poster} />
+              <Image source={{uri:'https://image.tmdb.org/t/p/w600_and_h900_bestv2/'+movie.filmInfo.backdrop_path}} style={styles.poster} />
               <View style={styles.movieDetails}>
                 <Text style={styles.title}>{movie.title}</Text>
                 <Text style={styles.genre}>{movie.genre}</Text>
               </View>
             </TouchableOpacity>
-          ))}
+          ))):(<Text>loadding</Text>)}
         </ScrollView>
 
         {/* Add more sections as needed */}
