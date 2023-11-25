@@ -16,8 +16,9 @@ const HomeScreen = () => {
     try {
       const response = await GETAllThreadAction();
 
+      console.log(response)
       if (response.status === 'ok') {
-        setThreads(response.data.allInfo);
+        setThreads(response.data);
       }
     } catch (error) {
       console.log(error);

@@ -19,8 +19,8 @@ import { useIsFocused } from '@react-navigation/native';
 import videojs from 'video.js';
 import Hls from 'hls.js';
 import axios from 'axios';
-
-import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
+import Orientation from 'react-native-orientation-locker';
 
 const getHlsUrl = async filename => {
   console.log(filename);
@@ -48,11 +48,6 @@ const getDashUrl = async filename => {
   var url = data.subserverurl;
   return url;
 };
-
-const MovieDetailScreen = ({route, navigation}) => {
-  const {movie} = route.params;
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
-import Orientation from 'react-native-orientation-locker';
 
 const MovieDetailScreen = ({ route, navigation }) => {
   const { movie } = route.params;
