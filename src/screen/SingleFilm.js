@@ -15,7 +15,7 @@ import WDHT from './test.mp4';
 import AppController from '../controllers/AppController';
 import AppContext from '../utils/AppContext';
 import Clipboard from '@react-native-clipboard/clipboard';
-import {useIsFocused} from '@react-navigation/native';
+import { useIsFocused } from '@react-navigation/native';
 import videojs from 'video.js';
 import Hls from 'hls.js';
 import axios from 'axios';
@@ -51,6 +51,11 @@ const getDashUrl = async filename => {
 
 const MovieDetailScreen = ({route, navigation}) => {
   const {movie} = route.params;
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
+import Orientation from 'react-native-orientation-locker';
+
+const MovieDetailScreen = ({ route, navigation }) => {
+  const { movie } = route.params;
   const isFocus = useIsFocused();
   const appContext = useContext(AppContext);
   const videoRef = useRef();
@@ -147,6 +152,14 @@ const MovieDetailScreen = ({route, navigation}) => {
     });
     setShowVideo(true);
   };
+
+  // const onFullscreenPlayerWillPresent = () => {
+  //   Orientation.lockToLandscape();
+  // };
+
+  // const onFullscreenPlayerWillDismiss = () => {
+  //   Orientation.lockToPortrait();
+  // };
   return (
     <ScrollView style={styles.container}>
       <TouchableOpacity style={{width: '20%'}} onPress={handleGoBack}>
@@ -173,6 +186,7 @@ const MovieDetailScreen = ({route, navigation}) => {
       <Text style={styles.episodes}>Episodes: 10</Text>
       <Text style={styles.ageRestriction}>Age Restriction: 18+</Text>
       <Text style={styles.numMovies}>Number of Movies: 5</Text>
+
 
       <TouchableOpacity style={styles.button} onPress={handlePlay}>
         <Text style={styles.buttonText}>Play Video</Text>
