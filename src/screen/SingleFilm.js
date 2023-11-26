@@ -66,12 +66,12 @@ setData(response.data.subserverurl);
   return (
     <ScrollView style={styles.container}>
        <TouchableOpacity style={{width:"20%"}} onPress={handleGoBack}>
-        <Text style={styles.buttonText}>Back</Text>
+        <Text style={styles.buttonText}>{datas}</Text>
       </TouchableOpacity>
       {showVideo ? (
       <Video
   
-      source={{uri: "http://192.168.1.10:9100/videos/flyingwitch_ep01Hls/flyingwitch_ep01.m3u8"}}// the video file
+      source={{uri: datas}}// the video file
      
       controls={true}
       style={styles.image} 

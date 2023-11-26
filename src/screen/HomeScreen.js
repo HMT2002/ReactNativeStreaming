@@ -7,12 +7,15 @@ const HomeScreen = () => {
   const navigation = useNavigation();
   const [modalVisible, setModalVisible] = useState(false);
   const [datas,setData]=useState({});
+  const [TvList,setTv]=useState({});
+  const [MovieList,setMovie]=useState({});
   useEffect(() => {
            
     axios.get('http://192.168.1.10:9000/api/v1/info')
   .then(function (response) {
 
 setData(response.data.data.allInfo);
+
 console.log(response.data)
   })
   .catch(function (error) {
@@ -147,39 +150,57 @@ console.log(response.data)
         {/* Add more sections as needed */}
       </View>
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>New Releases</Text>
+        <Text style={styles.sectionTitle}>TV Show</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {movies.map((movie) => (
+        { datas.length > 0 ? ( datas.filter((x)=>x.filmType==="TV").map((movie) => (
             <TouchableOpacity
               key={movie.id}
               style={styles.movieContainer}
               onPress={() => handleMoviePress(movie)}
             >
-              <Image source={movie.poster} style={styles.poster} />
+              <Image source={{uri:'https://image.tmdb.org/t/p/w600_and_h900_bestv2/'+movie.filmInfo.backdrop_path}} style={styles.poster} />
               <View style={styles.movieDetails}>
                 <Text style={styles.title}>{movie.title}</Text>
                 <Text style={styles.genre}>{movie.genre}</Text>
               </View>
             </TouchableOpacity>
-          ))}
+          ))):(<Text>loadding</Text>)}
         </ScrollView>
       </View>
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Continue Watching</Text>
+        <Text style={styles.sectionTitle}>Movie</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {movies.map((movie) => (
+        { datas.length > 0 ? ( datas.filter((x)=>x.filmType==="Movie").map((movie) => (
             <TouchableOpacity
               key={movie.id}
               style={styles.movieContainer}
               onPress={() => handleMoviePress(movie)}
             >
-              <Image source={movie.poster} style={styles.poster} />
+              <Image source={{uri:'https://image.tmdb.org/t/p/w600_and_h900_bestv2/'+movie.filmInfo.backdrop_path}} style={styles.poster} />
               <View style={styles.movieDetails}>
                 <Text style={styles.title}>{movie.title}</Text>
                 <Text style={styles.genre}>{movie.genre}</Text>
               </View>
             </TouchableOpacity>
-          ))}
+          ))):(<Text>loadding</Text>)}
+        </ScrollView>
+      </View>
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>continue Watching</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        { datas.length > 0 ? ( datas.filter((x)=>x.filmType==="TV").map((movie) => (
+            <TouchableOpacity
+              key={movie.id}
+              style={styles.movieContainer}
+              onPress={() => handleMoviePress(movie)}
+            >
+              <Image source={{uri:'https://image.tmdb.org/t/p/w600_and_h900_bestv2/'+movie.filmInfo.backdrop_path}} style={styles.poster} />
+              <View style={styles.movieDetails}>
+                <Text style={styles.title}>{movie.title}</Text>
+                <Text style={styles.genre}>{movie.genre}</Text>
+              </View>
+            </TouchableOpacity>
+          ))):(<Text>loadding</Text>)}
         </ScrollView>
       </View>
       <View style={styles.navigationBar}>

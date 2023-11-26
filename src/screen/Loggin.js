@@ -40,7 +40,7 @@ const LoginScreen = () => {
     }
     else{
       Alert.alert(
-        'wrong user name or password',
+        'wong username or password',
         getEmailId ,
         [
           { text: 'OK', onPress: () => console.log('OK Pressed') }
@@ -48,7 +48,7 @@ const LoginScreen = () => {
         { cancelable: false }
       );
     }
-  }
+    }
       const moveToRegister = () => {
         // Perform login logic here
     
