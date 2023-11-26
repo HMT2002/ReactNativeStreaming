@@ -1,5 +1,5 @@
 import {React,useContext,useRef,useEffect,useState} from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView,Button } from 'react-native';
 import { Avatar } from 'react-native-elements';
 import {GetNoteAction} from '../actions/GetNote';
 import Video from 'react-native-video';
@@ -40,6 +40,12 @@ setData(response.data.subserverurl);
   });
  
   },[]);
+  const [isCollapsed, setIsCollapsed] = useState(true);
+
+  const toggleCollapse = () => {
+    setIsCollapsed(!isCollapsed);
+  };
+
     const url = 'https://jsonplaceholder.typicode.com/todos/1';
 
     const fetchUsers =  () => {
@@ -60,7 +66,7 @@ setData(response.data.subserverurl);
   return (
     <ScrollView style={styles.container}>
        <TouchableOpacity style={{width:"20%"}} onPress={handleGoBack}>
-        <Text style={styles.buttonText}>{datas}</Text>
+        <Text style={styles.buttonText}>Back</Text>
       </TouchableOpacity>
       {showVideo ? (
       <Video
@@ -79,23 +85,28 @@ setData(response.data.subserverurl);
     ) : (
  
        <Image
-        source={movie.poster}
+       source={{uri:'https://image.tmdb.org/t/p/w600_and_h900_bestv2/'+movie.filmInfo.backdrop_path}}
         style={styles.image}
         resizeMode="cover"
       />
        
     
     )}
-      <Text style={styles.episodes}>Episodes: 10</Text>
-      <Text style={styles.ageRestriction}>Age Restriction: 18+</Text>
-      <Text style={styles.numMovies}>Number of Movies: 5</Text>
+      <Text style={styles.episodes}>Episodes: {movie.filmInfo.number_of_episodes}</Text>
+      {movie.filmInfo.adult?(<Text style={styles.ageRestriction}>Age Restriction:18+</Text>):(<Text style={styles.ageRestriction}>Age Restriction:6+</Text>)} 
+      <Text style={styles.numMovies}>Number of Movies: {Object.keys(movie.videos).length }</Text>
    
       <TouchableOpacity style={styles.button} onPress={handlePlay}>
         <Text style={styles.buttonText}>Play Video</Text>
       </TouchableOpacity>
-      <Text style={styles.description}>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae nunc eget nunc consectetur tincidunt. Nulla facilisi. Sed euismod, nisl ac tincidunt tincidunt, mi mauris aliquet odio, vitae aliquam nunc nunc id nunc. Sed vitae nunc eget nunc consectetur tincidunt. Nulla facilisi. Sed euismod, nisl ac tincidunt tincidunt, mi mauris aliquet odio, vitae aliquam nunc nunc id nunc.
-      </Text>
+     
+      <View>
+      <Text style={styles.description} numberOfLines={isCollapsed ? 3 : undefined}>  {movie.filmInfo.overview}</Text>
+      {movie.filmInfo.overview.length > 100 && (
+        <Button color="#000"
+        style={styles.readmore} title={isCollapsed ? 'Read More' : 'Read Less'} onPress={toggleCollapse} />
+      )}
+    </View>
       <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={() => console.log('Add to Playlist')}>
             <Text style={styles.buttonText}>Add to Playlist</Text>
@@ -217,6 +228,11 @@ const styles = StyleSheet.create({
     borderColor: '#fff',
     borderRadius: 4,
     padding: 8,
+  },readmore:{
+    width:'20%',
+    justifyContent: 'start',
+      alignItems: 'center'
+  
   },
   commentContainer: {
     flexDirection: 'row',

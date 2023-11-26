@@ -4,11 +4,11 @@ import { ActivityIndicator,
   StatusBar,
   StyleSheet,
   Text,
-  TouchableOpacity,
+  TouchableOpacity,Alert ,
   View,} from 'react-native';
   import CustomBox from "react-native-customized-box";
 import { useNavigation } from '@react-navigation/native';
-
+import axios from 'axios';
 const LoginScreen = () => {
   const [getEmailId, setEmailId] = useState("");
   const [getPassword, setPassword] = useState("");
@@ -20,14 +20,35 @@ const LoginScreen = () => {
   const [passwordError, setPasswordError] = useState("");
   const [loading, setLoading] = useState(false);
     const navigation = useNavigation();
-    const handleLogin = () => {
+    const handleLogin = async () => {
         // Perform login logic here
-    console.log("hihi");
+      
         // Navigate to the home screen
-        navigation.navigate('Home');
+     
+      const response = await fetch('http://192.168.1.10:9000/api/v1/users/signin', {
+        method: 'POST',
+        mode: "cors",
+        body: JSON.stringify({account:getEmailId,password:getPassword}),
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+    const data = await response.json();
 
-    
-      };
+   if (data.status === 'success sign in') {
+    navigation.navigate('Home');
+    }
+    else{
+      Alert.alert(
+        'wrong user name or password',
+        getEmailId ,
+        [
+          { text: 'OK', onPress: () => console.log('OK Pressed') }
+        ],
+        { cancelable: false }
+      );
+    }
+  }
       const moveToRegister = () => {
         // Perform login logic here
     
