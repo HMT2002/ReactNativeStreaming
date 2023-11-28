@@ -9,6 +9,7 @@ import { ActivityIndicator,
   import CustomBox from "react-native-customized-box";
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const LoginScreen = () => {
   const [getEmailId, setEmailId] = useState("");
   const [getPassword, setPassword] = useState("");
@@ -25,7 +26,7 @@ const LoginScreen = () => {
       
         // Navigate to the home screen
      
-      const response = await fetch('http://192.168.1.10:9000/api/v1/users/signin', {
+      const response = await fetch('http://10.45.17.175:9000/api/v1/users/signin', {
         method: 'POST',
         mode: "cors",
         body: JSON.stringify({account:getEmailId,password:getPassword}),
@@ -36,7 +37,19 @@ const LoginScreen = () => {
     const data = await response.json();
 
    if (data.status === 'success sign in') {
-    navigation.navigate('Home');
+    // Assuming you have obtained user data after login
+const userData = data.data;
+console.log(userData);
+// Save the user data to AsyncStorage
+await AsyncStorage.setItem('userData', JSON.stringify(userData))
+  .then(() => {
+    console.log('User data saved successfully');   navigation.navigate('Home');
+  })
+  .catch((error) => {
+    console.error('Error saving user data: ', error);
+  });
+
+ 
     }
     else{
       Alert.alert(
@@ -61,16 +74,12 @@ const LoginScreen = () => {
       <StatusBar barStyle="light-content" />
       <Image
         style={styles.myLogo}
-        source={{
-          uri: "https://raw.githubusercontent.com/hirishu10/my-assets/main/top_log.png",
-        }}
+        source={require('../assets/logo.jpg')}
       />
-      <Text style={styles.header}>react-native-login-register-ui</Text>
+      <Text style={styles.header}>Login</Text>
       <Image
         style={styles.loginImage}
-        source={{
-          uri: "https://raw.githubusercontent.com/hirishu10/my-assets/main/login.png",
-        }}
+        source={require('../assets/loginbg.jpg')}
       />
       {getError ? (
         <View style={styles.errorCard}>

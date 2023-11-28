@@ -3,15 +3,18 @@ import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, FlatList,M
 import Swiper from 'react-native-swiper';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { height } from '@fortawesome/free-solid-svg-icons/faMugSaucer';
 const HomeScreen = () => {
   const navigation = useNavigation();
   const [modalVisible, setModalVisible] = useState(false);
   const [datas,setData]=useState({});
   const [TvList,setTv]=useState({});
   const [MovieList,setMovie]=useState({});
+  const [userData,setUser]=useState({});
   useEffect(() => {
            
-    axios.get('http://192.168.1.10:9000/api/v1/info')
+    axios.get('http://10.45.17.175:9000/api/v1/info')
   .then(function (response) {
 
 setData(response.data.data.allInfo);
@@ -21,6 +24,26 @@ console.log(response.data)
   .catch(function (error) {
     console.log(error);
   });
+
+// Retrieve the user data from AsyncStorage
+const retrieveUserData = async () => {
+  try {
+    const Data = await AsyncStorage.getItem('userData');
+    if (Data !== null) {
+      const parsedUserData = JSON.parse(Data);
+      setUser(parsedUserData);
+      console.log('Retrieved user data: ', Data);
+      // You can use the user data as needed
+    } else {
+      console.log('No user data found');
+    }
+  } catch (error) {
+    console.error('Error retrieving user data: ', error);
+  }
+};
+
+retrieveUserData();
+
   const timer = setInterval(() => {
     if (flatListRef.current) {
       flatListRef.current.scrollToIndex({
@@ -85,8 +108,11 @@ console.log(response.data)
     <ScrollView style={styles.container}>
       <Image source={require('../imagePoster/local/logo.png')} style={styles.logo} />
       <TouchableOpacity style={styles.set} onPress={() => setModalVisible(!modalVisible)}>
-        <Text style={styles.buttonText}>Settings</Text>
-      </TouchableOpacity>
+        <Text style={{width:100 ,height:50}}>{userData.username}  
+       
+        </Text>
+      </TouchableOpacity> 
+      <Image style={styles.logo} source={{uri:userData.avatar}}/>
       <Modal visible={modalVisible} animationType="slide" transparent>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
@@ -120,7 +146,7 @@ console.log(response.data)
         renderItem={renderBannerItem}
         keyExtractor={(item) => item.id.toString()}
         horizontal
-        showsHorizontalScrollIndicator={false}
+        showsHorizontalScrollIndicator={true}
         pagingEnabled
         onMomentumScrollEnd={(event) => {
           const contentOffset = event.nativeEvent.contentOffset;
@@ -306,6 +332,9 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingVertical: 10,
     paddingHorizontal: 20,
+    display:'flex',
+    
+
   },
 });
 

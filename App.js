@@ -15,10 +15,14 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { MenuProvider } from "react-native-popup-menu";
 import { Button, Snackbar } from "@react-native-material/core";
+import { faHomeUser } from '@fortawesome/free-solid-svg-icons/faHomeUser'
+import { faHotTub } from '@fortawesome/free-solid-svg-icons/faHotTub'
+import { faSearch } from '@fortawesome/free-solid-svg-icons/faSearch'
+import { faUserCircle } from '@fortawesome/free-solid-svg-icons/faUserCircle'
 
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import { setAttributes } from "video.js/dist/types/utils/dom";
-
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 const Tab = createMaterialBottomTabNavigator();
 
 const Stack = createNativeStackNavigator();
@@ -69,10 +73,30 @@ const AppChild = () => {
           },
         }}>
         
-      <Tab.Screen name="Home" component={HomeStack} />
-      <Tab.Screen name="Hot Movies" component={HotFilm} />
-      <Tab.Screen name="Search" component={SearchScreen} />
-      <Tab.Screen name="Profile" component={Profile} />
+      <Tab.Screen name="Home" component={HomeStack} options={{
+            tabBarLabel: 'Home',
+            tabBarIcon: ({ color, size }) => (
+              <FontAwesomeIcon style={{color:"red"}} icon={ faHomeUser    } /> // Use the icon instead of text
+            ),
+          }} />
+      <Tab.Screen name="Hot Movies" component={HotFilm} options={{
+            tabBarLabel: 'Hot Movies',
+            tabBarIcon: ({ color, size }) => (
+              <FontAwesomeIcon style={{color:"red"}} icon={ faHotTub    } /> // Use the icon instead of text
+            ),
+          }}/>
+      <Tab.Screen name="Search" component={SearchScreen} options={{
+            tabBarLabel: 'Search',
+            tabBarIcon: ({ color, size }) => (
+              <FontAwesomeIcon style={{color:"red"}} icon={ faSearch    } /> // Use the icon instead of text
+            ),
+          }}/>
+      <Tab.Screen name="Profile" component={Profile}options={{
+            tabBarLabel: 'Profile',
+            tabBarIcon: ({ color, size }) => (
+              <FontAwesomeIcon style={{color:"red"}} icon={ faUserCircle    } /> // Use the icon instead of text
+            ),
+          }} />
     </Tab.Navigator>
   </NavigationContainer>
   )

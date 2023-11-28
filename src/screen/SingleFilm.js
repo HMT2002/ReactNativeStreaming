@@ -4,7 +4,7 @@ import { Avatar } from 'react-native-elements';
 import {GetNoteAction} from '../actions/GetNote';
 import Video from 'react-native-video';
 import WDHT from './test.mp4'
-
+import Icon from 'react-native-vector-icons/FontAwesome';
 // import WDHT from './World Domination How-To.m3u8'
 import AppController from '../controllers/AppController';
 import AppContext from '../utils/AppContext';
@@ -13,6 +13,15 @@ import {useIsFocused} from '@react-navigation/native';
 import videojs from 'video.js';
 import Hls from 'hls.js';
 import axios from 'axios';
+import { faMugSaucer } from '@fortawesome/free-solid-svg-icons/faMugSaucer'
+import { faAdd } from '@fortawesome/free-solid-svg-icons/faAdd'
+import { faArrowDown } from '@fortawesome/free-solid-svg-icons/faArrowDown'
+import { faShare } from '@fortawesome/free-solid-svg-icons/faShare'
+import { faRankingStar } from '@fortawesome/free-solid-svg-icons/faRankingStar'
+import { faHomeUser } from '@fortawesome/free-solid-svg-icons/faHomeUser'
+import RatingModal from './RatingModal';
+import Slider from '@react-native-community/slider';
+
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 const MovieDetailScreen = ({ route, navigation }) => {
 
@@ -21,13 +30,23 @@ const MovieDetailScreen = ({ route, navigation }) => {
   const isFocus = useIsFocused();
   const appContext = useContext(AppContext);
   const videoRef = useRef();
-     
+  const [speed, setSpeed] = useState(1.0);
+  const [quality, setQuality] = useState('auto');
+
+  const handleSpeedChange = (value) => {
+    setSpeed(value); // Set the playback speed based on the slider value
+  };
+
+  const handleQualityChange = (value) => {
+    setQuality(value === 0 ? 'auto' : '720'); // Set the video quality based on the slider value
+  };
+
  
   const [showVideo, setShowVideo] = useState(false);
   const [datas,setData]=useState('loveu');
   useEffect(() => {
            
-    axios.get('http://192.168.1.10:9000/redirect/hls/'+movie.videos[0].videoname,{
+    axios.get('http://10.45.17.175:9000/redirect/hls/'+movie.videos[0].videoname,{
       headers: {myaxiosfetch:"123"},
     })
   .then(function (response) {
@@ -56,7 +75,15 @@ setData(response.data.subserverurl);
       setData(data);
      })   
     };
+    const [modalVisible, setModalVisible] = useState(false);
 
+    const handleRatingButtonPress = () => {
+      setModalVisible(true);
+    };
+  
+    const handleCloseModal = () => {
+      setModalVisible(false);
+    };
   const handleGoBack = () => {
     navigation.goBack();
   };  
@@ -66,22 +93,42 @@ setData(response.data.subserverurl);
   return (
     <ScrollView style={styles.container}>
        <TouchableOpacity style={{width:"20%"}} onPress={handleGoBack}>
-        <Text style={styles.buttonText}>{datas}</Text>
+        <Text style={styles.buttonText}><FontAwesomeIcon style={{color:"white"}} icon={ faHomeUser    } /></Text>
       </TouchableOpacity>
       {showVideo ? (
-      <Video
-  
-      source={{uri: datas}}// the video file
-     
-      controls={true}
-      style={styles.image} 
-      repeat={true} 
-      ref={videoRef} 
-      onBuffer={this.onBuffer} 
-      onError={error => {
-        console.log(error);
-      }}
-    />
+        <View style={styles.containerr}>
+        <Video
+          source={{ uri: datas }}
+          style={styles.video}
+          controls={true}
+          rate={speed}
+          resizeMode={quality}
+        />
+        <View style={styles.sliderContainer}>
+          <Text style={styles.label}>Adjust Speed:</Text>
+          <Slider
+            style={styles.slider}
+            minimumValue={0.5}
+            maximumValue={2.0}
+            step={0.1}
+            value={speed}
+            onValueChange={handleSpeedChange}
+          />
+          <Text style={styles.value}>{speed.toFixed(2)}x</Text>
+        </View>
+        <View style={styles.sliderContainer}>
+          <Text style={styles.label}>Adjust Quality:</Text>
+          <Slider
+            style={styles.slider}
+            minimumValue={0}
+            maximumValue={1}
+            step={1}
+            value={quality === 'auto' ? 0 : 1}
+            onValueChange={handleQualityChange}
+          />
+          <Text style={styles.value}>{quality === 'auto' ? 'Auto' : '720p'}</Text>
+        </View>
+      </View>
     ) : (
  
        <Image
@@ -108,17 +155,20 @@ setData(response.data.subserverurl);
       )}
     </View>
       <View style={styles.buttonContainer}>
+        
           <TouchableOpacity style={styles.button} onPress={() => console.log('Add to Playlist')}>
-            <Text style={styles.buttonText}>Add to Playlist</Text>
+            <Text style={styles.buttonText}>Add to Playlist   <FontAwesomeIcon style={{color:"white"}} icon={ faAdd  } /></Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => console.log('Rate Movie')}>
-            <Text style={styles.buttonText}>Rate Movie</Text>
+          <TouchableOpacity style={styles.button} onPress={handleRatingButtonPress}>
+            <Text style={styles.buttonText}>Rate Movie  <FontAwesomeIcon style={{color:"white"}} icon={ faRankingStar  } /></Text>
+          
           </TouchableOpacity>
+          <RatingModal visible={modalVisible} onClose={handleCloseModal} />
           <TouchableOpacity style={styles.button} onPress={() => console.log('Share')}>
-            <Text style={styles.buttonText}>Share</Text>
+            <Text style={styles.buttonText}> <FontAwesomeIcon style={{color:"white"}} icon={ faShare  } /></Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={() => console.log('Download')}>
-            <Text style={styles.buttonText}>Download</Text>
+            <Text style={styles.buttonText}> <FontAwesomeIcon style={{color:"white"}} icon={ faArrowDown  } /></Text>
           </TouchableOpacity>
         </View>
 
@@ -267,6 +317,31 @@ const styles = StyleSheet.create({
     right: 0,
     width: 300,
     height: 500,
+  },containerr: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  video: {
+    width: '100%',
+    height: 200,
+    marginBottom: 16,
+  },
+  sliderContainer: {
+    width: '80%',
+    marginBottom: 16,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    color:'white'
+  },
+  slider: {
+    width: '100%',
+  },
+  value: {
+    textAlign: 'center',
   },
 });
 
