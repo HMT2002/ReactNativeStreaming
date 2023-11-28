@@ -1,4 +1,11 @@
-import {React, useContext, useRef, useEffect, useState,useCallback} from 'react';
+import {
+  React,
+  useContext,
+  useRef,
+  useEffect,
+  useState,
+  useCallback,
+} from 'react';
 import {
   View,
   Text,
@@ -15,11 +22,11 @@ import WDHT from './test.mp4';
 import AppController from '../controllers/AppController';
 import AppContext from '../utils/AppContext';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { useIsFocused } from '@react-navigation/native';
+import {useIsFocused} from '@react-navigation/native';
 import videojs from 'video.js';
 import Hls from 'hls.js';
 import axios from 'axios';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
+import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import Orientation from 'react-native-orientation-locker';
 
 const getHlsUrl = async filename => {
@@ -49,8 +56,8 @@ const getDashUrl = async filename => {
   return url;
 };
 
-const MovieDetailScreen = ({ route, navigation }) => {
-  const { movie } = route.params;
+const MovieDetailScreen = ({route, navigation}) => {
+  const {movie} = route.params;
   const isFocus = useIsFocused();
   const appContext = useContext(AppContext);
   const videoRef = useRef();
@@ -162,6 +169,9 @@ const MovieDetailScreen = ({ route, navigation }) => {
       </TouchableOpacity>
       {showVideo ? (
         <Video
+          setControls
+          controls
+          resizeMode="cover"
           source={{uri: videoHLSURL}}
           // source={{uri: 'http://192.168.1.99:9200/videos/sF06UnxDash/init.mpd'}}
           // source={{uri: "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8"}}
@@ -181,7 +191,6 @@ const MovieDetailScreen = ({ route, navigation }) => {
       <Text style={styles.episodes}>Episodes: 10</Text>
       <Text style={styles.ageRestriction}>Age Restriction: 18+</Text>
       <Text style={styles.numMovies}>Number of Movies: 5</Text>
-
 
       <TouchableOpacity style={styles.button} onPress={handlePlay}>
         <Text style={styles.buttonText}>Play Video</Text>
