@@ -1,9 +1,18 @@
-import {React,useContext,useRef,useEffect,useState} from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { Avatar } from 'react-native-elements';
+import {React, useContext, useRef, useEffect, useState} from 'react';
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Button,
+} from 'react-native';
+import {Avatar} from 'react-native-elements';
 import {GetNoteAction} from '../actions/GetNote';
 import Video from 'react-native-video';
-import WDHT from './test.mp4'
+import WDHT from './test.mp4';
+import Icon from 'react-native-vector-icons/FontAwesome';
 // import WDHT from './World Domination How-To.m3u8'
 import AppController from '../controllers/AppController';
 import AppContext from '../utils/AppContext';
@@ -11,146 +20,206 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import {useIsFocused} from '@react-navigation/native';
 import videojs from 'video.js';
 import Hls from 'hls.js';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
-const MovieDetailScreen = ({ route, navigation }) => {
-  const { movie } = route.params;
+import axios from 'axios';
+import {faMugSaucer} from '@fortawesome/free-solid-svg-icons/faMugSaucer';
+import {faAdd} from '@fortawesome/free-solid-svg-icons/faAdd';
+import {faArrowDown} from '@fortawesome/free-solid-svg-icons/faArrowDown';
+import {faShare} from '@fortawesome/free-solid-svg-icons/faShare';
+import {faRankingStar} from '@fortawesome/free-solid-svg-icons/faRankingStar';
+import {faHomeUser} from '@fortawesome/free-solid-svg-icons/faHomeUser';
+import RatingModal from './RatingModal';
+import Slider from '@react-native-community/slider';
+
+import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
+const MovieDetailScreen = ({route, navigation}) => {
+  const {movie} = route.params;
+  console.log(movie.videos[0].videoname);
   const isFocus = useIsFocused();
   const appContext = useContext(AppContext);
   const videoRef = useRef();
+  const [speed, setSpeed] = useState(1.0);
+  const [quality, setQuality] = useState('auto');
 
- 
+  const handleSpeedChange = value => {
+    setSpeed(value); // Set the playback speed based on the slider value
+  };
+
+  const handleQualityChange = value => {
+    setQuality(value === 0 ? 'auto' : '720'); // Set the video quality based on the slider value
+  };
+
   const [showVideo, setShowVideo] = useState(false);
+  const [datas, setData] = useState('loveu');
   useEffect(() => {
-    const CheckVideoAndEncode = async () => {
-    };
-    const LoadVideo = async () => {
-      try {
-        var obj_play;
-        let url = 'http://192.168.1.99:9000/redirect/hls/World Domination How-To';
-
-        console.log(videoRef)
-        const config = {
-          startPosition: 0, // can be any number you want
-        };
-        obj_play = {
-          fill: true,
-          fluid: true,
-          autoplay: true,
-          controls: true,
-          preload: 'auto',
-          loop: true,
-          sources: [
-            // {
-            //   src: data.path,
-            //   type: 'application/x-mpegURL',
-            //   withCredentials: true,
-            // },
-          ],
-        };
-        const hls = new Hls(config);
-        hls.loadSource(url);
-        hls.attachMedia(videoRef.current);
-        hls.subtitleDisplay = true;
-
-        const _player = videojs(
-          videoRef.current,
-          obj_play,
-          function onPlayerReady() {
-            videojs.log('Your player is ready!');
-
-            // In this context, `this` is the player that was created by Video.js.
-            this.play();
-
-            // volume scale 0 - 1
-            const defaultVolume = 0.4;
-            this.volume(defaultVolume);
-
-            // How about an event listener?
-            this.on('ended', function () {
-              videojs.log('Awww...over so soon?!');
-            });
-          },
-        );
-        console.log(_player);
-
-        // _player.on('xhr-hooks-ready', () => {
-        //   const playerRequestHook = (options) => {
-        //     options.beforeSend = (xhr) => {
-        //       xhr.setRequestHeader('foo', 'bar');
-        //     };
-        //     console.log(options)
-        //     return options;
-        //   };
-        //   _player.tech().vhs.xhr.onResponse(playerRequestHook);
-        // });
-      } catch (error) {
+    axios
+      .get(
+        'http://172.30.50.78:9000/redirect/hls/' + movie.videos[0].videoname,
+        {
+          headers: {myaxiosfetch: '123'},
+        },
+      )
+      .then(function (response) {
+        console.log(response.data);
+        setData(response.data.subserverurl);
+      })
+      .catch(function (error) {
         console.log(error);
-      }
-    };
-    //CheckVideoAndEncode();
-    LoadVideo();
+      });
   }, []);
+  const [isCollapsed, setIsCollapsed] = useState(true);
+
+  const toggleCollapse = () => {
+    setIsCollapsed(!isCollapsed);
+  };
+
+  const url = 'https://jsonplaceholder.typicode.com/todos/1';
+
+  const fetchUsers = () => {
+    fetch(url)
+      .then(res => {
+        return res.json();
+      })
+      .then(async data => {
+        console.log(data);
+        setData(data);
+      });
+  };
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const handleRatingButtonPress = () => {
+    setModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalVisible(false);
+  };
   const handleGoBack = () => {
     navigation.goBack();
-  };  
+  };
   const handlePlay = () => {
     setShowVideo(true);
-  };  
+  };
   return (
     <ScrollView style={styles.container}>
-       <TouchableOpacity style={{width:"20%"}} onPress={handleGoBack}>
-        <Text style={styles.buttonText}> Back</Text>
+      <TouchableOpacity style={{width: '20%'}} onPress={handleGoBack}>
+        <Text style={styles.buttonText}>
+          <FontAwesomeIcon style={{color: 'white'}} icon={faHomeUser} />
+        </Text>
       </TouchableOpacity>
       {showVideo ? (
-      <Video
-      //HOW THE FUCK???? TẠI SAO HLS NGƯỜI KHÁC COI ĐC CÒN CỦA T THÌ ÉO?????
-      source={WDHT} // the video file
-      // source={{uri: "https://tzvodacomcontent.s3.amazonaws.com/video-1654952965085/video-1654952965085.m3u8"}}
-      // source={{uri: "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8"}}
+        <View style={styles.containerr}>
+          <Video
+            source={{uri: datas}}
+            style={styles.video}
+            controls={true}
+            rate={speed}
+            resizeMode={quality}
+          />
+          <View style={styles.sliderContainer}>
+            <Text style={styles.label}>Adjust Speed:</Text>
+            <Slider
+              style={styles.slider}
+              minimumValue={0.5}
+              maximumValue={2.0}
+              step={0.1}
+              value={speed}
+              onValueChange={handleSpeedChange}
+            />
+            <Text style={styles.value}>{speed.toFixed(2)}x</Text>
+          </View>
+          <View style={styles.sliderContainer}>
+            <Text style={styles.label}>Adjust Quality:</Text>
+            <Slider
+              style={styles.slider}
+              minimumValue={0}
+              maximumValue={1}
+              step={1}
+              value={quality === 'auto' ? 0 : 1}
+              onValueChange={handleQualityChange}
+            />
+            <Text style={styles.value}>
+              {quality === 'auto' ? 'Auto' : '720p'}
+            </Text>
+          </View>
+        </View>
+      ) : (
+        <Image
+          source={{
+            uri:
+              'https://image.tmdb.org/t/p/w600_and_h900_bestv2/' +
+              movie.filmInfo.backdrop_path,
+          }}
+          style={styles.image}
+          resizeMode="cover"
+        />
+      )}
+      <Text style={styles.episodes}>
+        Episodes: {movie.filmInfo.number_of_episodes}
+      </Text>
+      {movie.filmInfo.adult ? (
+        <Text style={styles.ageRestriction}>Age Restriction:18+</Text>
+      ) : (
+        <Text style={styles.ageRestriction}>Age Restriction:6+</Text>
+      )}
+      <Text style={styles.numMovies}>
+        Number of Movies: {Object.keys(movie.videos).length}
+      </Text>
 
-      paused={false} // make it start    r
-      style={styles.image} // any style you want
-      repeat={true} // make it a loop
-      ref={videoRef} // Store reference
-      onBuffer={this.onBuffer} // Callback when remote video is buffering
-      onError={error => {
-        console.log(error);
-      }}
-    />
-    ) : (
- 
-       <Image
-        source={movie.poster}
-        style={styles.image}
-        resizeMode="cover"
-      />
-       
-    
-    )}
-      <Text style={styles.episodes}>Episodes: 10</Text>
-      <Text style={styles.ageRestriction}>Age Restriction: 18+</Text>
-      <Text style={styles.numMovies}>Number of Movies: 5</Text>
-   
       <TouchableOpacity style={styles.button} onPress={handlePlay}>
         <Text style={styles.buttonText}>Play Video</Text>
       </TouchableOpacity>
-      <Text style={styles.description}>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae nunc eget nunc consectetur tincidunt. Nulla facilisi. Sed euismod, nisl ac tincidunt tincidunt, mi mauris aliquet odio, vitae aliquam nunc nunc id nunc. Sed vitae nunc eget nunc consectetur tincidunt. Nulla facilisi. Sed euismod, nisl ac tincidunt tincidunt, mi mauris aliquet odio, vitae aliquam nunc nunc id nunc.
-      </Text>
+
+      <View>
+        <Text
+          style={styles.description}
+          numberOfLines={isCollapsed ? 3 : undefined}>
+          {' '}
+          {movie.filmInfo.overview}
+        </Text>
+        {movie.filmInfo.overview.length > 100 && (
+          <Button
+            color="#000"
+            style={styles.readmore}
+            title={isCollapsed ? 'Read More' : 'Read Less'}
+            onPress={toggleCollapse}
+          />
+        )}
+      </View>
       <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={() => console.log('Add to Playlist')}>
-            <Text style={styles.buttonText}>Add to Playlist</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => console.log('Rate Movie')}>
-            <Text style={styles.buttonText}>Rate Movie</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => console.log('Share')}>
-            <Text style={styles.buttonText}>Share</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => console.log('Download')}>
-            <Text style={styles.buttonText}>Download</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => console.log('Add to Playlist')}>
+          <Text style={styles.buttonText}>
+            Add to Playlist{' '}
+            <FontAwesomeIcon style={{color: 'white'}} icon={faAdd} />
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={handleRatingButtonPress}>
+          <Text style={styles.buttonText}>
+            Rate Movie{' '}
+            <FontAwesomeIcon style={{color: 'white'}} icon={faRankingStar} />
+          </Text>
+        </TouchableOpacity>
+        <RatingModal visible={modalVisible} onClose={handleCloseModal} />
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => console.log('Share')}>
+          <Text style={styles.buttonText}>
+            {' '}
+            <FontAwesomeIcon style={{color: 'white'}} icon={faShare} />
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => console.log('Download')}>
+          <Text style={styles.buttonText}>
+            {' '}
+            <FontAwesomeIcon style={{color: 'white'}} icon={faArrowDown} />
+          </Text>
+        </TouchableOpacity>
+      </View>
 
       <View style={styles.commentsContainer}>
         <Text style={styles.commentsTitle}>Comments</Text>
@@ -259,6 +328,11 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     padding: 8,
   },
+  readmore: {
+    width: '20%',
+    justifyContent: 'start',
+    alignItems: 'center',
+  },
   commentContainer: {
     flexDirection: 'row',
     marginBottom: 8,
@@ -277,14 +351,16 @@ const styles = StyleSheet.create({
   commentText: {
     fontSize: 16,
     color: '#fff',
-  }, description: {
+  },
+  description: {
     fontSize: 16,
     color: '#fff',
   },
   buttonContainer: {
     flexDirection: 'row',
     marginBottom: 8,
-  },backgroundVideo: {
+  },
+  backgroundVideo: {
     position: 'absolute',
     top: 50,
     left: 0,
@@ -292,6 +368,32 @@ const styles = StyleSheet.create({
     right: 0,
     width: 300,
     height: 500,
+  },
+  containerr: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  video: {
+    width: '100%',
+    height: 200,
+    marginBottom: 16,
+  },
+  sliderContainer: {
+    width: '80%',
+    marginBottom: 16,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    color: 'white',
+  },
+  slider: {
+    width: '100%',
+  },
+  value: {
+    textAlign: 'center',
   },
 });
 

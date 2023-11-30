@@ -1,20 +1,78 @@
-import { React, useRef, useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, FlatList,Modal } from 'react-native';
+import {React, useRef, useEffect, useState} from 'react';
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  FlatList,
+  Modal,
+} from 'react-native';
 import Swiper from 'react-native-swiper';
-import { useNavigation } from '@react-navigation/native';
-
+import {useNavigation} from '@react-navigation/native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {height} from '@fortawesome/free-solid-svg-icons/faMugSaucer';
 const HomeScreen = () => {
   const navigation = useNavigation();
   const [modalVisible, setModalVisible] = useState(false);
+  const [datas, setData] = useState({});
+  const [TvList, setTv] = useState({});
+  const [MovieList, setMovie] = useState({});
+  const [userData, setUser] = useState({});
+  useEffect(() => {
+    axios
+      .get('http://172.30.50.78:9000/api/v1/info')
+      .then(function (response) {
+        setData(response.data.data);
 
+        console.log(response.data);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+
+    // Retrieve the user data from AsyncStorage
+    const retrieveUserData = async () => {
+      try {
+        const Data = await AsyncStorage.getItem('userData');
+        if (Data !== null) {
+          const parsedUserData = JSON.parse(Data);
+          setUser(parsedUserData);
+          console.log('Retrieved user data: ', Data);
+          // You can use the user data as needed
+        } else {
+          console.log('No user data found');
+        }
+      } catch (error) {
+        console.error('Error retrieving user data: ', error);
+      }
+    };
+
+    retrieveUserData();
+
+    const timer = setInterval(() => {
+      if (flatListRef.current) {
+        flatListRef.current.scrollToIndex({
+          animated: true,
+          index: (currentIndex + 1) % bannerData.length,
+        });
+      }
+    }, 3000);
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, []);
   const handleLogout = () => {
-    navigation.navigate('Login', );
+    navigation.navigate('Login');
   };
 
   const bannerData = [
-    { id: 1, image: require('../imagePoster/local/banner1.png') },
-    { id: 2, image: require('../imagePoster/local/banner2.png') },
-    { id: 3, image: require('../imagePoster/local/banner3.png') },
+    {id: 1, image: require('../imagePoster/local/banner1.png')},
+    {id: 2, image: require('../imagePoster/local/banner2.png')},
+    {id: 3, image: require('../imagePoster/local/banner3.png')},
     // Add more banner items as needed
   ];
   const movies = [
@@ -22,7 +80,7 @@ const HomeScreen = () => {
       id: 1,
       title: 'Movie 1',
       genre: 'Action',
-      poster: require('../imagePoster/ironman.png')
+      poster: require('../imagePoster/ironman.png'),
     },
     {
       id: 2,
@@ -41,25 +99,11 @@ const HomeScreen = () => {
 
   const flatListRef = useRef(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-  useEffect(() => {
-    const timer = setInterval(() => {
-      if (flatListRef.current) {
-        flatListRef.current.scrollToIndex({
-          animated: true,
-          index: (currentIndex + 1) % bannerData.length,
-        });
-      }
-    }, 3000);
 
-    return () => {
-      clearInterval(timer);
-    };
-  }, []);
-
-  const handleMoviePress = (movie) => {
-    navigation.navigate('MovieDetail', { movie });
+  const handleMoviePress = movie => {
+    navigation.navigate('MovieDetail', {movie});
   };
-  const renderBannerItem = ({ item }) => {
+  const renderBannerItem = ({item}) => {
     return (
       <View style={styles.bannerItem}>
         <Image source={item.image} style={styles.bannerImage} />
@@ -69,32 +113,40 @@ const HomeScreen = () => {
 
   return (
     <ScrollView style={styles.container}>
-      <Image source={require('../imagePoster/local/logo.png')} style={styles.logo} />
-      <TouchableOpacity style={styles.set} onPress={() => setModalVisible(!modalVisible)}>
-        <Text style={styles.buttonText}>Settings</Text>
+      <Image
+        source={require('../imagePoster/local/logo.png')}
+        style={styles.logo}
+      />
+      <TouchableOpacity
+        style={styles.set}
+        onPress={() => setModalVisible(!modalVisible)}>
+        <Text style={{width: 100, height: 50}}>{userData.username}</Text>
       </TouchableOpacity>
+      <Image style={styles.logo} source={{uri: userData.avatar}} />
       <Modal visible={modalVisible} animationType="slide" transparent>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <TouchableOpacity style={styles.logoutButton} >
+            <TouchableOpacity style={styles.logoutButton}>
               <Text style={styles.logoutButtonText}>setting1</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.logoutButton}>
               <Text style={styles.logoutButtonText}>setting1</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.logoutButton} >
+            <TouchableOpacity style={styles.logoutButton}>
               <Text style={styles.logoutButtonText}>setting1</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.logoutButton} >
+            <TouchableOpacity style={styles.logoutButton}>
               <Text style={styles.logoutButtonText}>setting1</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.logoutButton} >
+            <TouchableOpacity style={styles.logoutButton}>
               <Text style={styles.logoutButtonText}>setting1</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.logoutButton} >
+            <TouchableOpacity style={styles.logoutButton}>
               <Text style={styles.logoutButtonText}>setting1</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+            <TouchableOpacity
+              style={styles.logoutButton}
+              onPress={handleLogout}>
               <Text style={styles.logoutButtonText}>Logout</Text>
             </TouchableOpacity>
           </View>
@@ -104,11 +156,11 @@ const HomeScreen = () => {
         ref={flatListRef}
         data={bannerData}
         renderItem={renderBannerItem}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={item => item.id.toString()}
         horizontal
-        showsHorizontalScrollIndicator={false}
+        showsHorizontalScrollIndicator={true}
         pagingEnabled
-        onMomentumScrollEnd={(event) => {
+        onMomentumScrollEnd={event => {
           const contentOffset = event.nativeEvent.contentOffset;
           const viewSize = event.nativeEvent.layoutMeasurement;
           setCurrentIndex(Math.floor(contentOffset.x / viewSize.width));
@@ -117,57 +169,121 @@ const HomeScreen = () => {
       <View style={styles.contentContainer}>
         <Text style={styles.sectionTitle}>Popular Movies</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {movies.map((movie) => (
-            <TouchableOpacity
-              key={movie.id}
-              style={styles.movieContainer}
-              onPress={() => handleMoviePress(movie)}
-            >
-              <Image source={movie.poster} style={styles.poster} />
-              <View style={styles.movieDetails}>
-                <Text style={styles.title}>{movie.title}</Text>
-                <Text style={styles.genre}>{movie.genre}</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
+          {datas.length > 0 ? (
+            datas.map(movie => (
+              <TouchableOpacity
+                key={movie.id}
+                style={styles.movieContainer}
+                onPress={() => handleMoviePress(movie)}>
+                <Image
+                  source={{
+                    uri:
+                      'https://image.tmdb.org/t/p/w600_and_h900_bestv2/' +
+                      movie.filmInfo.backdrop_path,
+                  }}
+                  style={styles.poster}
+                />
+                <View style={styles.movieDetails}>
+                  <Text style={styles.title}>{movie.title}</Text>
+                  <Text style={styles.genre}>{movie.genre}</Text>
+                </View>
+              </TouchableOpacity>
+            ))
+          ) : (
+            <Text>loadding</Text>
+          )}
         </ScrollView>
 
         {/* Add more sections as needed */}
       </View>
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>New Releases</Text>
+        <Text style={styles.sectionTitle}>TV Show</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {movies.map((movie) => (
-            <TouchableOpacity
-              key={movie.id}
-              style={styles.movieContainer}
-              onPress={() => handleMoviePress(movie)}
-            >
-              <Image source={movie.poster} style={styles.poster} />
-              <View style={styles.movieDetails}>
-                <Text style={styles.title}>{movie.title}</Text>
-                <Text style={styles.genre}>{movie.genre}</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
+          {datas.length > 0 ? (
+            datas
+              .filter(x => x.filmType === 'TV')
+              .map(movie => (
+                <TouchableOpacity
+                  key={movie.id}
+                  style={styles.movieContainer}
+                  onPress={() => handleMoviePress(movie)}>
+                  <Image
+                    source={{
+                      uri:
+                        'https://image.tmdb.org/t/p/w600_and_h900_bestv2/' +
+                        movie.filmInfo.backdrop_path,
+                    }}
+                    style={styles.poster}
+                  />
+                  <View style={styles.movieDetails}>
+                    <Text style={styles.title}>{movie.title}</Text>
+                    <Text style={styles.genre}>{movie.genre}</Text>
+                  </View>
+                </TouchableOpacity>
+              ))
+          ) : (
+            <Text>loadding</Text>
+          )}
         </ScrollView>
       </View>
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Continue Watching</Text>
+        <Text style={styles.sectionTitle}>Movie</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {movies.map((movie) => (
-            <TouchableOpacity
-              key={movie.id}
-              style={styles.movieContainer}
-              onPress={() => handleMoviePress(movie)}
-            >
-              <Image source={movie.poster} style={styles.poster} />
-              <View style={styles.movieDetails}>
-                <Text style={styles.title}>{movie.title}</Text>
-                <Text style={styles.genre}>{movie.genre}</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
+          {datas.length > 0 ? (
+            datas
+              .filter(x => x.filmType === 'Movie')
+              .map(movie => (
+                <TouchableOpacity
+                  key={movie.id}
+                  style={styles.movieContainer}
+                  onPress={() => handleMoviePress(movie)}>
+                  <Image
+                    source={{
+                      uri:
+                        'https://image.tmdb.org/t/p/w600_and_h900_bestv2/' +
+                        movie.filmInfo.backdrop_path,
+                    }}
+                    style={styles.poster}
+                  />
+                  <View style={styles.movieDetails}>
+                    <Text style={styles.title}>{movie.title}</Text>
+                    <Text style={styles.genre}>{movie.genre}</Text>
+                  </View>
+                </TouchableOpacity>
+              ))
+          ) : (
+            <Text>loadding</Text>
+          )}
+        </ScrollView>
+      </View>
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>continue Watching</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          {datas.length > 0 ? (
+            datas
+              .filter(x => x.filmType === 'TV')
+              .map(movie => (
+                <TouchableOpacity
+                  key={movie.id}
+                  style={styles.movieContainer}
+                  onPress={() => handleMoviePress(movie)}>
+                  <Image
+                    source={{
+                      uri:
+                        'https://image.tmdb.org/t/p/w600_and_h900_bestv2/' +
+                        movie.filmInfo.backdrop_path,
+                    }}
+                    style={styles.poster}
+                  />
+                  <View style={styles.movieDetails}>
+                    <Text style={styles.title}>{movie.title}</Text>
+                    <Text style={styles.genre}>{movie.genre}</Text>
+                  </View>
+                </TouchableOpacity>
+              ))
+          ) : (
+            <Text>loadding</Text>
+          )}
         </ScrollView>
       </View>
       <View style={styles.navigationBar}>
@@ -206,8 +322,7 @@ const styles = StyleSheet.create({
   banner: {
     height: 200,
 
-
-    backgroundColor: '#FFFFFF'
+    backgroundColor: '#FFFFFF',
   },
   bannerImage: {
     flex: 1,
@@ -243,7 +358,8 @@ const styles = StyleSheet.create({
   genre: {
     fontSize: 14,
     color: '#fff',
-  }, modalContainer: {
+  },
+  modalContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
@@ -273,6 +389,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingVertical: 10,
     paddingHorizontal: 20,
+    display: 'flex',
   },
 });
 
