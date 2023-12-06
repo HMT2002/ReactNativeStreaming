@@ -2,6 +2,7 @@ import { React, useRef, useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, FlatList,Modal } from 'react-native';
 import Swiper from 'react-native-swiper';
 import { useNavigation } from '@react-navigation/native';
+import WatchList from '../components/watchList/watchList.js';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -154,8 +155,8 @@ const HomeScreen = () => {
       </View>
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Continue Watching</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {movies.map((movie) => (
+        <ScrollView horizontal showsHorizontalScrollIndicator={true}>
+          {/* {movies.map((movie) => (
             <TouchableOpacity
               key={movie.id}
               style={styles.movieContainer}
@@ -167,7 +168,9 @@ const HomeScreen = () => {
                 <Text style={styles.genre}>{movie.genre}</Text>
               </View>
             </TouchableOpacity>
-          ))}
+          ))} */}
+
+          <WatchList/>
         </ScrollView>
       </View>
       <View style={styles.navigationBar}>
