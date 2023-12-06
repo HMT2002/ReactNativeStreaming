@@ -13,6 +13,7 @@ import videojs from 'video.js';
 import Hls from 'hls.js';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import Orientation from 'react-native-orientation-locker';
+import CommentList from '../components/commentList/commentList.js';
 
 const MovieDetailScreen = ({ route, navigation }) => {
   const { movie } = route.params;
@@ -207,6 +208,7 @@ const MovieDetailScreen = ({ route, navigation }) => {
             </View>
           </View>
           {/* Add more comments here */}
+          <CommentList/>
         </ScrollView>
       </View>
     </ScrollView>
