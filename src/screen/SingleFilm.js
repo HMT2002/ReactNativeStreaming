@@ -20,7 +20,14 @@ const MovieDetailScreen = ({ route, navigation }) => {
   const isFocus = useIsFocused();
   const appContext = useContext(AppContext);
   const videoRef = useRef();
+  const { watchList, setWatchList } = useContext(AppContext);
 
+  const handleAddToWatchList = () => {
+    // Check if the movie is not already in the watch list
+    if (!watchList.some((item) => item.id === movie.id)) {
+      setWatchList([...watchList, movie]);
+    }
+  };
 
   const [showVideo, setShowVideo] = useState(false);
   useEffect(() => {
@@ -162,6 +169,9 @@ const MovieDetailScreen = ({ route, navigation }) => {
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={() => console.log('Share')}>
           <Text style={styles.buttonText}>Share</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={handleAddToWatchList}>
+          <Text style={styles.buttonText}>Add to Watch List</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={() => console.log('Download')}>
           <Text style={styles.buttonText}>Download</Text>
