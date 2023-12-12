@@ -1,21 +1,62 @@
-import { React, useRef, useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, FlatList,Modal } from 'react-native';
+import {
+  React,
+  useRef,
+  useEffect,
+  useState,
+  useCallback,
+  useContext,
+} from 'react';
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  FlatList,
+  Modal,
+} from 'react-native';
 import Swiper from 'react-native-swiper';
-import { useNavigation } from '@react-navigation/native';
-import WatchList from '../components/watchList/watchList.js';
+import {useNavigation} from '@react-navigation/native';
+import {GETAllThreadAction} from '../apis/movie-apis';
+import {videoItem} from '../components/movieItem/movieItem.js';
+import AuthContext from '../store/auth-context';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
   const [modalVisible, setModalVisible] = useState(false);
 
+  const [threads, setThreads] = useState([]); // all threads in loaded in homepage
+
+  const authCtx = useContext(AuthContext);
+  const fetchThreadsHandler = useCallback(async () => {
+    try {
+      const data = await GETAllThreadAction();
+      if (data !== null) {
+        setThreads(prevState => {
+          return data;
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }, []);
+
+  // load all threads for the first time access homepage
+  // should change to load a set (10-15) of newest threads for #Popular secion
+  useEffect(() => {
+    fetchThreadsHandler();
+  }, [fetchThreadsHandler]);
+
   const handleLogout = () => {
-    navigation.navigate('Login', );
+    authCtx.OnUserLogout();
+    navigation.navigate('Login');
   };
 
   const bannerData = [
-    { id: 1, image: require('../imagePoster/local/banner1.png') },
-    { id: 2, image: require('../imagePoster/local/banner2.png') },
-    { id: 3, image: require('../imagePoster/local/banner3.png') },
+    {id: 1, image: require('../imagePoster/local/banner1.png')},
+    {id: 2, image: require('../imagePoster/local/banner2.png')},
+    {id: 3, image: require('../imagePoster/local/banner3.png')},
     // Add more banner items as needed
   ];
   const movies = [
@@ -23,7 +64,7 @@ const HomeScreen = () => {
       id: 1,
       title: 'Movie 1',
       genre: 'Action',
-      poster: require('../imagePoster/ironman.png')
+      poster: require('../imagePoster/ironman.png'),
     },
     {
       id: 2,
@@ -57,10 +98,10 @@ const HomeScreen = () => {
     };
   }, []);
 
-  const handleMoviePress = (movie) => {
-    navigation.navigate('MovieDetail', { movie });
+  const handleMoviePress = movie => {
+    navigation.navigate('MovieDetail', {movie});
   };
-  const renderBannerItem = ({ item }) => {
+  const renderBannerItem = ({item}) => {
     return (
       <View style={styles.bannerItem}>
         <Image source={item.image} style={styles.bannerImage} />
@@ -70,32 +111,39 @@ const HomeScreen = () => {
 
   return (
     <ScrollView style={styles.container}>
-      <Image source={require('../imagePoster/local/logo.png')} style={styles.logo} />
-      <TouchableOpacity style={styles.set} onPress={() => setModalVisible(!modalVisible)}>
+      <Image
+        source={require('../imagePoster/local/logo.png')}
+        style={styles.logo}
+      />
+      <TouchableOpacity
+        style={styles.set}
+        onPress={() => setModalVisible(!modalVisible)}>
         <Text style={styles.buttonText}>Settings</Text>
       </TouchableOpacity>
       <Modal visible={modalVisible} animationType="slide" transparent>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <TouchableOpacity style={styles.logoutButton} >
+            <TouchableOpacity style={styles.logoutButton}>
               <Text style={styles.logoutButtonText}>setting1</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.logoutButton}>
               <Text style={styles.logoutButtonText}>setting1</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.logoutButton} >
+            <TouchableOpacity style={styles.logoutButton}>
               <Text style={styles.logoutButtonText}>setting1</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.logoutButton} >
+            <TouchableOpacity style={styles.logoutButton}>
               <Text style={styles.logoutButtonText}>setting1</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.logoutButton} >
+            <TouchableOpacity style={styles.logoutButton}>
               <Text style={styles.logoutButtonText}>setting1</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.logoutButton} >
+            <TouchableOpacity style={styles.logoutButton}>
               <Text style={styles.logoutButtonText}>setting1</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+            <TouchableOpacity
+              style={styles.logoutButton}
+              onPress={handleLogout}>
               <Text style={styles.logoutButtonText}>Logout</Text>
             </TouchableOpacity>
           </View>
@@ -105,11 +153,11 @@ const HomeScreen = () => {
         ref={flatListRef}
         data={bannerData}
         renderItem={renderBannerItem}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={item => item.id.toString()}
         horizontal
         showsHorizontalScrollIndicator={false}
         pagingEnabled
-        onMomentumScrollEnd={(event) => {
+        onMomentumScrollEnd={event => {
           const contentOffset = event.nativeEvent.contentOffset;
           const viewSize = event.nativeEvent.layoutMeasurement;
           setCurrentIndex(Math.floor(contentOffset.x / viewSize.width));
@@ -118,19 +166,26 @@ const HomeScreen = () => {
       <View style={styles.contentContainer}>
         <Text style={styles.sectionTitle}>Popular Movies</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {movies.map((movie) => (
-            <TouchableOpacity
-              key={movie.id}
-              style={styles.movieContainer}
-              onPress={() => handleMoviePress(movie)}
-            >
-              <Image source={movie.poster} style={styles.poster} />
-              <View style={styles.movieDetails}>
-                <Text style={styles.title}>{movie.title}</Text>
-                <Text style={styles.genre}>{movie.genre}</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
+          {threads.map(thread => {
+            // console.log(thread);
+            let video = new videoItem(
+              thread.filmInfo.name,
+              thread.filmInfo.first_air_date,
+              thread.filmInfo.poster_path,
+              thread.filmType,
+            );
+            return (
+              <TouchableOpacity
+                key={thread._id}
+                style={styles.movieContainer}
+                onPress={() => handleMoviePress(thread)}>
+                <Image source={{uri: video.img}} style={styles.poster} />
+                <View style={styles.movieDetails}>
+                  <Text style={styles.title}>{video.title}</Text>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
         </ScrollView>
 
         {/* Add more sections as needed */}
@@ -138,39 +193,51 @@ const HomeScreen = () => {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>New Releases</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {movies.map((movie) => (
-            <TouchableOpacity
-              key={movie.id}
-              style={styles.movieContainer}
-              onPress={() => handleMoviePress(movie)}
-            >
-              <Image source={movie.poster} style={styles.poster} />
-              <View style={styles.movieDetails}>
-                <Text style={styles.title}>{movie.title}</Text>
-                <Text style={styles.genre}>{movie.genre}</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
+          {threads.map(thread => {
+            // console.log(thread);
+            let video = new videoItem(
+              thread.filmInfo.name,
+              thread.filmInfo.first_air_date,
+              thread.filmInfo.poster_path,
+              thread.filmType,
+            );
+            return (
+              <TouchableOpacity
+                key={thread._id}
+                style={styles.movieContainer}
+                onPress={() => handleMoviePress(thread)}>
+                <Image source={{uri: video.img}} style={styles.poster} />
+                <View style={styles.movieDetails}>
+                  <Text style={styles.title}>{video.title}</Text>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
         </ScrollView>
       </View>
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Continue Watching</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={true}>
-          {/* {movies.map((movie) => (
-            <TouchableOpacity
-              key={movie.id}
-              style={styles.movieContainer}
-              onPress={() => handleMoviePress(movie)}
-            >
-              <Image source={movie.poster} style={styles.poster} />
-              <View style={styles.movieDetails}>
-                <Text style={styles.title}>{movie.title}</Text>
-                <Text style={styles.genre}>{movie.genre}</Text>
-              </View>
-            </TouchableOpacity>
-          ))} */}
-
-          <WatchList/>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          {threads.map(thread => {
+            // console.log(thread);
+            let video = new videoItem(
+              thread.filmInfo.name,
+              thread.filmInfo.first_air_date,
+              thread.filmInfo.poster_path,
+              thread.filmType,
+            );
+            return (
+              <TouchableOpacity
+                key={thread._id}
+                style={styles.movieContainer}
+                onPress={() => handleMoviePress(thread)}>
+                <Image source={{uri: video.img}} style={styles.poster} />
+                <View style={styles.movieDetails}>
+                  <Text style={styles.title}>{video.title}</Text>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
         </ScrollView>
       </View>
       <View style={styles.navigationBar}>
@@ -209,8 +276,7 @@ const styles = StyleSheet.create({
   banner: {
     height: 200,
 
-
-    backgroundColor: '#FFFFFF'
+    backgroundColor: '#FFFFFF',
   },
   bannerImage: {
     flex: 1,
@@ -246,7 +312,8 @@ const styles = StyleSheet.create({
   genre: {
     fontSize: 14,
     color: '#fff',
-  }, modalContainer: {
+  },
+  modalContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',

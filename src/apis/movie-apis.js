@@ -1,6 +1,9 @@
-export const GETThreadAction = async (slug) => {
+import axios from 'axios';
+import {PROXY_CLOUD, PROXY_TUE_LOCAL} from '@env';
+
+export const GETThreadAction = async slug => {
   if (!slug) {
-    return { status: 'fail' };
+    return {status: 'fail'};
   }
   // const storedToken = localStorage.getItem('token');
   const response = await fetch('/api/v1/threads/' + slug, {
@@ -19,20 +22,22 @@ export const GETThreadAction = async (slug) => {
 };
 
 export const GETAllThreadAction = async () => {
-  const response = await fetch('http://192.168.1.99:9000/api/v1/info', {
-    method: 'GET',
-    headers: {
-      // 'Content-Type': 'application/json',
-    },
-  });
-  if (!response.status || response.status === 'error') {
-    throw new Error('Something went wrong!');
+  try {
+    const {data} = await axios({
+      method: 'get',
+      url: PROXY_TUE_LOCAL + '/api/v1/info',
+      validateStatus: () => true,
+      headers: {
+        authorization:
+          'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NWVmMjczODBjMjY4YmE2MjgxNGJlMyIsImlhdCI6MTcwMDcyMTI2OCwiZXhwIjoxNzA4NDk3MjY4fQ.R3bCwb1b78bicyW5aw_koTLOpUtiwPZOlkNqlb4QZ0g',
+      },
+    });
+    return data.data;
+  } catch (error) {
+    console.log(error);
+    return null;
   }
-  const data = await response.json();
-  // console.log(response.status);
-  return data;
 };
-
 export const GETAllThreadsByUserAction = async (account, token) => {
   const response = await fetch('/api/v1/threads/content-creator/' + account, {
     method: 'GET',
@@ -52,7 +57,7 @@ export const GETAllThreadsByUserAction = async (account, token) => {
 
 export const POSTThreadAction = async (thread, token) => {
   if (!thread) {
-    return { status: 'fail' };
+    return {status: 'fail'};
   }
 
   const response = await fetch('/api/v1/threads', {
@@ -68,9 +73,9 @@ export const POSTThreadAction = async (thread, token) => {
   return data;
 };
 
-export const POSTVideoUploadAction = async (formData) => {
+export const POSTVideoUploadAction = async formData => {
   if (!formData) {
-    return { status: 'fail' };
+    return {status: 'fail'};
   }
   const response = await fetch('/api/v1/threads/upload-video', {
     method: 'POST',
@@ -78,9 +83,9 @@ export const POSTVideoUploadAction = async (formData) => {
   });
 };
 
-export const POSTLargeVideoUploadAction = async (formData) => {
+export const POSTLargeVideoUploadAction = async formData => {
   if (!formData) {
-    return { status: 'fail' };
+    return {status: 'fail'};
   }
   const response = await fetch('/api/test/upload-video', {
     method: 'POST',
@@ -101,26 +106,29 @@ export const POSTLargeVideoMultipartUploadHlsAction = async (
   filename,
   ext,
   title,
-  infoID
+  infoID,
 ) => {
   if (!formData) {
-    return { status: 'fail' };
+    return {status: 'fail'};
   }
 
-  const response = await fetch('/api/v1/video/upload-video-large-multipart-hls', {
-    method: 'POST',
-    body: formData,
-    headers: {
-      type: 'blob',
-      index: index,
-      chunkname: chunkName,
-      filename: filename,
-      arrayChunkName,
-      ext,
-      title,
-      infoID:infoID,
+  const response = await fetch(
+    '/api/v1/video/upload-video-large-multipart-hls',
+    {
+      method: 'POST',
+      body: formData,
+      headers: {
+        type: 'blob',
+        index: index,
+        chunkname: chunkName,
+        filename: filename,
+        arrayChunkName,
+        ext,
+        title,
+        infoID: infoID,
+      },
     },
-  });
+  );
   const data = await response.json();
   // console.log(data);
   return data;
@@ -134,43 +142,54 @@ export const POSTLargeVideoMultipartUploadDashAction = async (
   filename,
   ext,
   title,
-  infoID
+  infoID,
 ) => {
   if (!formData) {
-    return { status: 'fail' };
+    return {status: 'fail'};
   }
-  const response = await fetch('/api/v1/video/upload-video-large-multipart-dash', {
-    method: 'POST',
-    body: formData,
-    headers: {
-      type: 'blob',
-      index: index,
-      chunkname: chunkName,
-      filename: filename,
-      arrayChunkName,
-      ext,
-      title,
-      infoID,
+  const response = await fetch(
+    '/api/v1/video/upload-video-large-multipart-dash',
+    {
+      method: 'POST',
+      body: formData,
+      headers: {
+        type: 'blob',
+        index: index,
+        chunkname: chunkName,
+        filename: filename,
+        arrayChunkName,
+        ext,
+        title,
+        infoID,
+      },
     },
-  });
+  );
   const data = await response.json();
   // console.log(data);
   return data;
 };
 
-export const POSTLargeVideoMultipartUploadConcatenateAction = async (arrayChunkName, filename, destination, ext) => {
-  const response = await fetch('/api/test/upload-video-large-multipart-concatenate', {
-    method: 'POST',
-    body: JSON.stringify({
-      arraychunkname: arrayChunkName,
-    }),
-    headers: {
-      'Content-Type': 'application/json',
-      filename,
-      destination,
-      ext,
+export const POSTLargeVideoMultipartUploadConcatenateAction = async (
+  arrayChunkName,
+  filename,
+  destination,
+  ext,
+) => {
+  const response = await fetch(
+    '/api/test/upload-video-large-multipart-concatenate',
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        arraychunkname: arrayChunkName,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+        filename,
+        destination,
+        ext,
+      },
     },
-  });
+  );
   const data = await response.json();
   // console.log(data);
   return data;
@@ -182,10 +201,10 @@ export const OPTIONSLargeVideoMultipartUploadAction = async (
   chunkName,
   arrayChunkName,
   filename,
-  ext
+  ext,
 ) => {
   if (!formData) {
-    return { status: 'fail' };
+    return {status: 'fail'};
   }
   const response = await fetch('/redirect/upload-video-large-multipart', {
     method: 'OPTIONS',
@@ -204,24 +223,31 @@ export const OPTIONSLargeVideoMultipartUploadAction = async (
   return data;
 };
 
-export const OPTIONSLargeVideoMultipartUploadConcatenateAction = async (arrayChunkName, filename, destination, ext) => {
-  const response = await fetch('/redirect/upload-video-large-multipart-concatenate', {
-    method: 'OPTIONS',
-    body: JSON.stringify({
-      arraychunkname: arrayChunkName,
-    }),
-    headers: {
-      'Content-Type': 'application/json',
-      filename,
-      destination,
-      ext,
+export const OPTIONSLargeVideoMultipartUploadConcatenateAction = async (
+  arrayChunkName,
+  filename,
+  destination,
+  ext,
+) => {
+  const response = await fetch(
+    '/redirect/upload-video-large-multipart-concatenate',
+    {
+      method: 'OPTIONS',
+      body: JSON.stringify({
+        arraychunkname: arrayChunkName,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+        filename,
+        destination,
+        ext,
+      },
     },
-  });
+  );
   const data = await response.json();
   // console.log(data);
   return data;
 };
-
 
 export const DELETEThreadAction = async (token, payload) => {
   try {
@@ -259,7 +285,7 @@ export const PATCHThreadUpdateAction = async (token, oldSlug, payload) => {
   }
 };
 
-export const GETAllThreadsByTitleAction = async (title) => {
+export const GETAllThreadsByTitleAction = async title => {
   try {
     const response = await fetch('/api/v1/threads/search/' + title, {
       method: 'GET',
@@ -280,7 +306,7 @@ export const GETAllThreadsByTitleAction = async (title) => {
   }
 };
 
-export const GETAllThreadsByTagAction = async (tag) => {
+export const GETAllThreadsByTagAction = async tag => {
   try {
     const response = await fetch('/api/v1/threads/tag/' + tag, {
       method: 'GET',
@@ -300,7 +326,7 @@ export const GETAllThreadsByTagAction = async (tag) => {
   }
 };
 
-export const GETAllThreadsByUserIdAction = async (id) => {
+export const GETAllThreadsByUserIdAction = async id => {
   try {
     const response = await fetch('/api/v1/threads/user/' + id, {
       method: 'GET',
@@ -321,7 +347,21 @@ export const GETAllThreadsByUserIdAction = async (id) => {
   }
 };
 
-const threadAPIs = {
+export const getDashUrl = async filename => {
+  var url = PROXY_TUE_LOCAL + '/redirect/dash/' + filename + '/' + filename;
+
+  const {data} = await axios({
+    method: 'get',
+    url: url,
+    validateStatus: () => true,
+    headers: {myaxiosfetch: '123'},
+  });
+  console.log(data);
+  var subserverurl = data.subserverurl;
+  return subserverurl;
+};
+
+const movieAPIs = {
   GETThreadAction,
   GETAllThreadAction,
   GETAllThreadsByUserAction,
@@ -339,6 +379,7 @@ const threadAPIs = {
   POSTLargeVideoMultipartUploadConcatenateAction,
   OPTIONSLargeVideoMultipartUploadAction,
   OPTIONSLargeVideoMultipartUploadConcatenateAction,
+  getDashUrl,
 };
 
-export default threadAPIs;
+export default movieAPIs;

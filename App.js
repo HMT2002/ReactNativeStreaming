@@ -1,5 +1,5 @@
 /* eslint-disable*/
-import React, {useContext, useEffect, useState,useCallback} from 'react';
+import React, {useContext, useEffect, useState, useCallback} from 'react';
 import AppContext, {AppContextProvider} from './src/utils/AppContext';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import MainScreen from './src/screen/MainScreen';
@@ -18,6 +18,8 @@ import {Button, Snackbar} from '@react-native-material/core';
 
 import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
 import {setAttributes} from 'video.js/dist/types/utils/dom';
+import AuthContext, {AuthContextProvider} from './src/store/auth-context';
+import PlaylistScreen from './src/screen/Playlist';
 
 const Tab = createMaterialBottomTabNavigator();
 
@@ -42,15 +44,16 @@ const AppChild = () => {
     return (
       <Stack.Navigator>
         <Stack.Screen
-          name="Home"
-          component={HomeScreen}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
           name="Login"
           component={LoginScreen}
           options={{headerShown: false}}
         />
+        <Stack.Screen
+          name="Home"
+          component={HomeScreen}
+          options={{headerShown: false}}
+        />
+
         <Stack.Screen
           name="Register"
           component={RegisterScreen}
@@ -76,6 +79,11 @@ const AppChild = () => {
           component={MovieDetailScreen}
           options={{headerShown: false}}
         />
+        <Stack.Screen
+          name="Playlist"
+          component={PlaylistScreen}
+          options={{headerShown: false}}
+        />
       </Stack.Navigator>
     );
   }
@@ -94,8 +102,9 @@ const AppChild = () => {
             fontWeight: 'bold',
           },
         }}>
-        <Tab.Screen name="Home" component={HomeStack} />
+        <Tab.Screen name="HomeStack" component={HomeStack} />
         <Tab.Screen name="Hot Movies" component={HotFilm} />
+        <Tab.Screen name="Playlist" component={PlaylistScreen} />
         <Tab.Screen name="Search" component={SearchScreen} />
         <Tab.Screen name="Profile" component={Profile} />
       </Tab.Navigator>
@@ -106,7 +115,9 @@ const AppChild = () => {
 const App = () => {
   return (
     <AppContextProvider>
-      <AppChild />
+      <AuthContextProvider>
+        <AppChild />
+      </AuthContextProvider>
     </AppContextProvider>
   );
 };
