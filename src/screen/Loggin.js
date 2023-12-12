@@ -1,14 +1,21 @@
 import React, { useState } from "react";
+import Modal from 'react-native-modal';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
+import { I18nextProvider, useTranslation } from 'react-i18next';
+import {ip,cc} from'@env'
 import { ActivityIndicator,
   Image,
   StatusBar,
   StyleSheet,
+  ImageBackground,
   Text,
+  Button,
   TouchableOpacity,Alert ,
   View,} from 'react-native';
   import CustomBox from "react-native-customized-box";
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
+import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 const LoginScreen = () => {
   const [getEmailId, setEmailId] = useState("");
@@ -16,34 +23,39 @@ const LoginScreen = () => {
   const [getError, setError] = useState(false);
   const [throwError, setThrowError] = useState("");
   const [getDisabled, setDisabled] = useState(false);
-
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const { t } = useTranslation();
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [loading, setLoading] = useState(false);
     const navigation = useNavigation();
     const handleLogin = async () => {
-        // Perform login logic here
-      
-        // Navigate to the home screen
-     
-      const response = await fetch('http://10.45.17.175:9000/api/v1/users/signin', {
-        method: 'POST',
-        mode: "cors",
-        body: JSON.stringify({account:getEmailId,password:getPassword}),
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    });
-    const data = await response.json();
+    
+      try {
+        const response = await axios.post(`http://${ip}:9000/api/v1/users/signin`, {
+            account: getEmailId,
+            password: getPassword
+        }, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+    
+        
 
-   if (data.status === 'success sign in') {
+   if (response.data) {
     // Assuming you have obtained user data after login
-const userData = data.data;
+const userData = response.data.data;
 console.log(userData);
 // Save the user data to AsyncStorage
 await AsyncStorage.setItem('userData', JSON.stringify(userData))
   .then(() => {
-    console.log('User data saved successfully');   navigation.navigate('Home');
+    console.log('User data saved successfully');  
+    setEmailId("");
+    setPassword("");
+    setPasswordError("");
+    setEmailError("");
+    navigation.navigate('Home');
   })
   .catch((error) => {
     console.error('Error saving user data: ', error);
@@ -52,15 +64,12 @@ await AsyncStorage.setItem('userData', JSON.stringify(userData))
  
     }
     else{
-      Alert.alert(
-        'wong username or password',
-        getEmailId ,
-        [
-          { text: 'OK', onPress: () => console.log('OK Pressed') }
-        ],
-        { cancelable: false }
-      );
+      
     }
+    } catch (error) {
+       setShowErrorModal(true);
+    }
+    
     }
       const moveToRegister = () => {
         // Perform login logic here
@@ -69,18 +78,62 @@ await AsyncStorage.setItem('userData', JSON.stringify(userData))
         navigation.navigate('Register');
     
       };
+
+      const handleEmailChange = (value) => {
+        setEmailId(value);
+        setError(false);
+        setEmailError('');
+      
+        // Validate email format
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailPattern.test(value)) {
+        
+          setEmailError('Please enter a valid email address.');
+        }
+        // ... rest of the function
+      };
+      const handlePasswordChange = (value) => {
+        setPassword(value);
+        setError(false);
+        setPasswordError("");
+        // Validate password complexity
+        if (
+          value.length < 8 ||
+          !/[A-Z]/.test(value) ||
+          !/[a-z]/.test(value) ||
+          !/[!@#$%^&*?.]/.test(value)
+        ) {
+         
+          setPasswordError(
+            
+            ' Password must be at least 8 characters long,\n Contain at least one uppercase letter,\n One special character (!@#$%^&*).'
+          );
+        }
+        else{
+          setPasswordError(
+            <Text style={{ color: 'green' ,marginTop:'10'}}>
+              Password is valid.
+              <FontAwesomeIcon style={{color:"green"}} icon={ faCheckCircle    } ></FontAwesomeIcon>
+            </Text>
+          );
+        }
+      };
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
-      <Image
+    <ImageBackground
+      source={require('../assets/bg.png')}
+      style={styles.backgroundImage}
+    >
+        <View style={styles.container}><Text style={styles.header}>{t('loggin')}</Text>
+     
+      {/* <Image
         style={styles.myLogo}
         source={require('../assets/logo.jpg')}
       />
-      <Text style={styles.header}>Login</Text>
+     
       <Image
         style={styles.loginImage}
         source={require('../assets/loginbg.jpg')}
-      />
+      /> */}
       {getError ? (
         <View style={styles.errorCard}>
           <TouchableOpacity
@@ -95,6 +148,8 @@ await AsyncStorage.setItem('userData', JSON.stringify(userData))
         </View>
       ) : null}
       <CustomBox
+      style={{backgroundColor:'white'}}
+      tabIndex={1}
         placeholder={"Email"}
         boxColor={"dodgerblue"}
         focusColor={"#e65c40"}
@@ -114,16 +169,15 @@ await AsyncStorage.setItem('userData', JSON.stringify(userData))
           },
         }}
         requiredConfig={{
-          text: <Text>{emailError}</Text>,
+          text: <Text style={{ color: 'black' }}>{emailError}</Text>,
         }}
         values={getEmailId}
         onChangeText={(value) => {
-          setEmailId(value);
-          setError(false);
-          setEmailError("");
+          handleEmailChange(value)
         }}
       />
       <CustomBox
+      tabIndex={2}    
         placeholder={"Password"}
         toggle={true}
         boxColor={"dodgerblue"}
@@ -143,13 +197,11 @@ await AsyncStorage.setItem('userData', JSON.stringify(userData))
           },
         }}
         requiredConfig={{
-          text: <Text>{passwordError}</Text>,
+          text: <Text style={{ color: 'red' }}>{passwordError}</Text>,
         }}
         values={getPassword}
         onChangeText={(value) => {
-          setPassword(value);
-          setError(false);
-          setPasswordError("");
+          handlePasswordChange(value)
         }}
       />
       {/* ForgotPassword */}
@@ -173,7 +225,21 @@ await AsyncStorage.setItem('userData', JSON.stringify(userData))
           <ActivityIndicator style={styles.indicator} color={"white"} />
         ) : null}
       </TouchableOpacity>
-
+     
+      <Modal isVisible={showErrorModal}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+          <Image
+           source={require('../assets/logginfail.png')}
+          
+              style={styles.modalImage}
+            />
+            <Text style={styles.modalTitle}>Login Failed</Text>
+            <Text style={styles.modalText}>Incorrect username or password. Please try again.</Text>
+            <Button title="Try Again" onPress={() => setShowErrorModal(false)} />
+          </View>
+        </View>
+      </Modal>
       {/* Register Button */}
       <View style={styles.createAccount}>
         <Text style={styles.createAccountText}>
@@ -187,13 +253,25 @@ await AsyncStorage.setItem('userData', JSON.stringify(userData))
         </TouchableOpacity>
       </View>
     </View>
+    </ImageBackground>
   );
+
+  
 };
 
 const styles = StyleSheet.create({
-  container: {
+  backgroundImage: {
     flex: 1,
-    backgroundColor: "#fff",
+    resizeMode: 'cover', // or 'stretch' or 'contain'
+    // Other styling properties
+  },
+  container: {
+    alignSelf: 'center',
+    marginTop:200,
+  padding:30,
+  paddingTop:50,
+  borderRadius:10,
+   backgroundColor:'white',
     alignItems: "center",
     justifyContent: "center",
   },
@@ -227,7 +305,12 @@ const styles = StyleSheet.create({
     height: 200,
   },
   header: {
-    fontSize: 25,
+    fontSize: 35,
+    fontWeight: "bold",
+    color: "#0e0e21",
+    textAlign: "center",
+    marginTop: 20,
+    textTransform: "uppercase"
   },
   loginBtn: {
     marginTop: 10,
@@ -276,6 +359,30 @@ const styles = StyleSheet.create({
     left: 150,
     top: 10,
     marginBottom: 10,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 20,
+    marginBottom: 10,
+    fontWeight: 'bold',
+  },
+  modalText: {
+    marginBottom: 20,
+    textAlign: 'center',
+  },  modalImage: {
+    width: 100,
+    height: 100,
+    marginBottom: 20,
   },
 });
 export default LoginScreen;
