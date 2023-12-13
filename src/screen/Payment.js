@@ -57,7 +57,7 @@ const PaymentSceen = () => {
                 >
                     <WebView
 
-                        source={{ uri: `http://${ip}:9000/pay` }}
+                        source={{ uri: `http://192.168.1.8:9000/pay` }}
                         onNavigationStateChange={data =>
                             this.handleResponse(data)
                         }

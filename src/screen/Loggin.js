@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Modal from 'react-native-modal';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { I18nextProvider, useTranslation } from 'react-i18next';
-import {ip,cc} from'@env'
+import {ip,met} from'@env'
 import { ActivityIndicator,
   Image,
   StatusBar,
@@ -30,9 +30,9 @@ const LoginScreen = () => {
   const [loading, setLoading] = useState(false);
     const navigation = useNavigation();
     const handleLogin = async () => {
-    
+
       try {
-        const response = await axios.post(`http://${ip}:9000/api/v1/users/signin`, {
+        const response = await axios.post(`http://192.168.1.8:9000/api/v1/users/signin`, {
             account: getEmailId,
             password: getPassword
         }, {
@@ -123,7 +123,7 @@ await AsyncStorage.setItem('userData', JSON.stringify(userData))
       source={require('../assets/bg.png')}
       style={styles.backgroundImage}
     >
-        <View style={styles.container}><Text style={styles.header}>{t('loggin')}</Text>
+        <View style={styles.container}><Text style={styles.header}>{t('loggin')}{ip}</Text>
      
       {/* <Image
         style={styles.myLogo}

@@ -27,6 +27,7 @@
     "@react-navigation/native-stack": "^6.9.12",
     "@reduxjs/toolkit": "^1.9.3",
     "axios": "^1.6.2",
+    "fuse.js": "^7.0.0",
     "hls.js": "^1.4.12",
     "i18next": "^23.7.7",
     "intl-pluralrules": "^2.0.1",

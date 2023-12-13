@@ -37,7 +37,7 @@ const resources = {
       "share":"Share",
       "download":"Download",
       "comment":"Comment",
-      "rate":"rate"
+      "rate":"vote"
 
       
 

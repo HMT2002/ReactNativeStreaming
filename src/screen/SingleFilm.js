@@ -47,12 +47,13 @@ const MovieDetailScreen = ({ route, navigation }) => {
 
 
   useEffect(() => {
+    
     const fetchData = async () => {
       try {
         const responses = await Promise.all(
           movie.videos.map((video) =>
 
-            axios.get(`http://${ip}:9000/redirect/hls/` + video.videoname, {
+            axios.get(`http://192.168.1.8:9000/redirect/hls/` + video.videoname, {
               headers: { myaxiosfetch: "123" },
             })
           )

@@ -1,5 +1,5 @@
 import { React, useRef, useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, FlatList, Modal, Dimensions } from 'react-native';
+import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, FlatList, Modal, Dimensions,ImageBackground,Button } from 'react-native';
 import Swiper from 'react-native-swiper';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
@@ -15,8 +15,9 @@ const HomeScreen = () => {
   const [userData, setUser] = useState({});
   const { t, i18n } = useTranslation();
   useEffect(() => {
+    
     axios
-      .get(`http://${ip}:9000/api/v1/info`)
+      .get(`http://192.168.1.8:9000/api/v1/info`)
       .then(function (response) {
         setData(response.data.data);
 
@@ -80,24 +81,28 @@ const HomeScreen = () => {
   };
   const renderBannerItem = ({ item }) => {
     return (
-      <Image key={item.id}
+      <ImageBackground
+        key={item.id}
         source={{ uri: 'https://image.tmdb.org/t/p/w600_and_h900_bestv2/' + item.filmInfo.backdrop_path }}
-        style={{ width: Dimensions.get('window').width, height: 200 }}
-      />
+        style={{ width: Dimensions.get('window').width, height: 300 }}
+      >
+      <Button title="Watch Now"></Button>
+      </ImageBackground>
     );
   };
   const [currentLanguage, setCurrentLanguage] = useState('en');
 
-  const changeLanguage = (lng) => {
-    i18n.changeLanguage(lng);
-    setCurrentLanguage(lng);
+  const changeLanguage = () => {
+   
+    i18n.changeLanguage(currentLanguage === 'en' ? 'vi' : 'en');
+    setCurrentLanguage(currentLanguage === 'en' ? 'vi' : 'en');
   };
 
   const getImageForLanguage = () => {
     if (currentLanguage === 'en') {
-      return require('../assets/engflag.png');
-    } else if (currentLanguage === 'vi') {
       return require('../assets/paypal.png');
+    } else if (currentLanguage === 'vi') {
+      return require('../assets/stipe.png');
     }
     // Add more conditions for other languages as needed
   };
@@ -112,8 +117,9 @@ const HomeScreen = () => {
           <Text style={{ color: 'red', fontSize: 25 }}> Cinema</Text>
         </View>
         <Image source={require('../imagePoster/local/logo.png')} style={styles.logo} />
-        <TouchableOpacity onPress={() => changeLanguage(currentLanguage === 'en' ? 'vi' : 'en')}>
+        <TouchableOpacity onPress={() => changeLanguage()}>
           <Image source={getImageForLanguage()} style={{ width: 50, height: 50 }} />
+          <Text style={{color:"white"}}>{currentLanguage}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.set} onPress={() => setModalVisible(!modalVisible)}>
 
@@ -160,7 +166,7 @@ const HomeScreen = () => {
             ref={flatListRef}
             data={datas}
             renderItem={renderBannerItem}
-            style={{ width: '95%', height: '80%' ,marginBottom:10}}
+            style={{ width: '95%', height: '80%', marginBottom: 10 }}
             horizontal
             pagingEnabled
             showsHorizontalScrollIndicator={false}
@@ -189,11 +195,11 @@ const HomeScreen = () => {
               <Image source={{ uri: 'https://image.tmdb.org/t/p/w600_and_h900_bestv2/' + movie.filmInfo.backdrop_path }} style={styles.poster} />
               <View key={movie.id} style={styles.movieDetails}>
                 <Text style={styles.title}>{movie.filmInfo.title}</Text>
-               <View style={{flexDirection:'row',justifyContent:"space-between"}}>
-                 <Star rating={movie.filmInfo.vote_average / 2} />
-                <Text style={styles.genre}>{movie.filmInfo.vote_count} {t("rate")}</Text>
-               </View>
-               
+                <View style={{ flexDirection: 'row', justifyContent: "space-between" }}>
+                  <Star rating={movie.filmInfo.vote_average / 2} />
+                  <Text style={styles.genre}>{movie.filmInfo.vote_count} {t("rate")}</Text>
+                </View>
+
               </View>
             </TouchableOpacity>
           ))) : (<Text>loadding</Text>)}
@@ -212,12 +218,12 @@ const HomeScreen = () => {
             >
               <Image source={{ uri: 'https://image.tmdb.org/t/p/w600_and_h900_bestv2/' + movie.filmInfo.backdrop_path }} style={styles.poster} />
               <View key={movie.id} style={styles.movieDetails}>
-                <Text style={styles.title}>{movie.filmInfo.title}</Text>
-               <View style={{flexDirection:'row',justifyContent:"space-between"}}>
-                 <Star rating={movie.filmInfo.vote_average / 2} />
-                <Text style={styles.genre}>{movie.filmInfo.vote_count} {t("rate")}</Text>
-               </View>
-               
+                <Text style={styles.title}>{movie.filmInfo.name}</Text>
+                <View style={{ flexDirection: 'row', justifyContent: "space-between" }}>
+                  <Star rating={movie.filmInfo.vote_average / 2} />
+                  <Text style={styles.genre}>{movie.filmInfo.vote_count} {t("rate")}</Text>
+                </View>
+
               </View>
             </TouchableOpacity>
           ))) : (<Text>loadding</Text>)}
@@ -235,11 +241,11 @@ const HomeScreen = () => {
               <Image source={{ uri: 'https://image.tmdb.org/t/p/w600_and_h900_bestv2/' + movie.filmInfo.backdrop_path }} style={styles.poster} />
               <View key={movie.id} style={styles.movieDetails}>
                 <Text style={styles.title}>{movie.filmInfo.title}</Text>
-               <View style={{flexDirection:'row',justifyContent:"space-between"}}>
-                 <Star rating={movie.filmInfo.vote_average / 2} />
-                <Text style={styles.genre}>{movie.filmInfo.vote_count} {t("rate")}</Text>
-               </View>
-               
+                <View style={{ flexDirection: 'row', justifyContent: "space-between" }}>
+                  <Star rating={movie.filmInfo.vote_average / 2} />
+                  <Text style={styles.genre}>{movie.filmInfo.vote_count} {t("rate")}</Text>
+                </View>
+
               </View>
             </TouchableOpacity>
           ))) : (<Text>loadding</Text>)}
@@ -257,11 +263,11 @@ const HomeScreen = () => {
               <Image source={{ uri: 'https://image.tmdb.org/t/p/w600_and_h900_bestv2/' + movie.filmInfo.backdrop_path }} style={styles.poster} />
               <View key={movie.id} style={styles.movieDetails}>
                 <Text style={styles.title}>{movie.filmInfo.title}</Text>
-               <View style={{flexDirection:'row',justifyContent:"space-between"}}>
-                 <Star rating={movie.filmInfo.vote_average / 2} />
-                <Text style={styles.genre}>{movie.filmInfo.vote_count} {t("rate")}</Text>
-               </View>
-               
+                <View style={{ flexDirection: 'row', justifyContent: "space-between" }}>
+                  <Star rating={movie.filmInfo.vote_average / 2} />
+                  <Text style={styles.genre}>{movie.filmInfo.vote_count} {t("rate")}</Text>
+                </View>
+
               </View>
             </TouchableOpacity>
           ))) : (<Text>loadding</Text>)}
@@ -324,12 +330,13 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     marginTop: 8,
+    padding: 3
   },
   title: {
-    
+
     fontSize: 17,
-    width:'100%',
-    textTransform:'uppercase',
+    width: '100%',
+    textTransform: 'uppercase',
     overflow: 'hidden',
     fontWeight: 'bold',
     color: '#fff',
@@ -338,7 +345,8 @@ const styles = StyleSheet.create({
   genre: {
     fontSize: 14,
     color: '#fff',
-    
+    margin: 4
+
   },
   modalContainer: {
     position: 'absolute',
