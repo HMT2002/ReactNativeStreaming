@@ -1,8 +1,16 @@
-import { React, useRef, useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, ScrollView,TouchableOpacity } from 'react-native';
+import {React, useRef, useEffect, useState} from 'react';
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+} from 'react-native';
 import axios from 'axios';
-import { useNavigation } from '@react-navigation/native';
-import {ip} from '@env'
+import {useNavigation} from '@react-navigation/native';
+import {PROXY_CLOUD, PROXY_TUE_LOCAL} from '@env';
+import {ip} from '@env';
 const movies = [
   {
     id: 1,
@@ -59,41 +67,50 @@ const movies = [
 function MovieScreen() {
   const navigation = useNavigation();
   const [datas, setData] = useState({});
-  const handleMoviePress = (movie) => {
-    navigation.navigate('MovieDetail', { movie });
+  const handleMoviePress = movie => {
+    navigation.navigate('MovieDetail', {movie});
   };
-  useEffect(() => {     
+  useEffect(() => {
     axios
-    .get(`http://192.168.1.8:9000/api/v1/info`)
-    .then(function (response) {
-      setData(response.data.data);
+      .get(PROXY_CLOUD + `/api/v1/info`)
+      .then(function (response) {
+        setData(response.data.data);
 
-      console.log(response.data);
-    })
-    .catch(function (error) {
-      console.log("homescreen"+error);
-    });
+        console.log(response.data);
+      })
+      .catch(function (error) {
+        console.log('homescreen' + error);
+      });
   }, []);
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-    { datas.length > 0 ? ( datas.map((movie) => (
-        <TouchableOpacity
-          key={movie.id}
-          style={styles.movieContainer}
-          onPress={() => handleMoviePress(movie)}
-        >
-          <Image source={{uri:'https://image.tmdb.org/t/p/w600_and_h900_bestv2/'+movie.filmInfo.backdrop_path}} style={styles.poster} />
-          <View key={movie.id} style={styles.movieDetails}>
-            <Text style={styles.title}>{movie.title}</Text>
-            <Text style={styles.genre}>{movie.genre}</Text>
-          </View>
-        </TouchableOpacity>
-      ))):(<Text>loadding</Text>)}
+      {datas.length > 0 ? (
+        datas.map(movie => (
+          <TouchableOpacity
+            key={movie.id}
+            style={styles.movieContainer}
+            onPress={() => handleMoviePress(movie)}>
+            <Image
+              source={{
+                uri:
+                  'https://image.tmdb.org/t/p/w600_and_h900_bestv2/' +
+                  movie.filmInfo.backdrop_path,
+              }}
+              style={styles.poster}
+            />
+            <View key={movie.id} style={styles.movieDetails}>
+              <Text style={styles.title}>{movie.title}</Text>
+              <Text style={styles.genre}>{movie.genre}</Text>
+            </View>
+          </TouchableOpacity>
+        ))
+      ) : (
+        <Text>loadding</Text>
+      )}
       <Text>cc t met lam r do </Text>
     </ScrollView>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
@@ -113,8 +130,7 @@ const styles = StyleSheet.create({
   banner: {
     height: 200,
 
-
-    backgroundColor: '#FFFFFF'
+    backgroundColor: '#FFFFFF',
   },
   bannerImage: {
     flex: 1,
@@ -150,9 +166,9 @@ const styles = StyleSheet.create({
   genre: {
     fontSize: 14,
     color: '#fff',
-  }, 
+  },
   modalContainer: {
-    position : 'absolute',
+    position: 'absolute',
     top: 70,
     left: 0,
     right: 0,
@@ -187,9 +203,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingVertical: 3,
     paddingHorizontal: 3,
-    display:'flex',
-    
-
+    display: 'flex',
   },
 });
 export default MovieScreen;
