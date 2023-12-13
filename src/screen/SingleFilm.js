@@ -1,5 +1,5 @@
 import { React, useContext, useRef, useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView, Button, FlatList, ActivityIndicator } from 'react-native';
 import { Avatar } from 'react-native-elements';
 import { GetNoteAction } from '../actions/GetNote';
 import Video from 'react-native-video';
@@ -21,6 +21,8 @@ const MovieDetailScreen = ({ route, navigation }) => {
   const appContext = useContext(AppContext);
   const videoRef = useRef();
   const { watchList, setWatchList } = useContext(AppContext);
+  const [episodes, setEpisodes] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const handleAddToWatchList = () => {
     // Check if the movie is not already in the watch list
@@ -107,6 +109,35 @@ const MovieDetailScreen = ({ route, navigation }) => {
     setShowVideo(true);
   };
 
+  useEffect(() => {
+    // Gọi API để lấy danh sách tập phim khi component được mở
+    setLoading(true);
+
+    fetch(`https://example.com/api/movies/${movie.id}/episodes`)
+      .then((response) => response.json())
+      .then((data) => {
+        setEpisodes(data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error('Error fetching episodes:', error);
+        setLoading(false);
+      });
+  }, []);
+
+  const renderEpisodeItem = ({ item }) => (
+    <TouchableOpacity onPress={() => handleEpisodePress(item)}>
+      <View style={styles.episodeItem}>
+        <Text style={styles.episodeNumber}>{item.episodeNumber}</Text>
+      </View>
+    </TouchableOpacity>
+  );
+
+  const handleEpisodePress = (episode) => {
+    // Xử lý khi người dùng chọn một tập phim
+    navigation.navigate('/SingleFilm', { episode });
+  };
+
   // const onFullscreenPlayerWillPresent = () => {
   //   Orientation.lockToLandscape();
   // };
@@ -160,6 +191,20 @@ const MovieDetailScreen = ({ route, navigation }) => {
       <Text style={styles.description}>
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae nunc eget nunc consectetur tincidunt. Nulla facilisi. Sed euismod, nisl ac tincidunt tincidunt, mi mauris aliquet odio, vitae aliquam nunc nunc id nunc. Sed vitae nunc eget nunc consectetur tincidunt. Nulla facilisi. Sed euismod, nisl ac tincidunt tincidunt, mi mauris aliquet odio, vitae aliquam nunc nunc id nunc.
       </Text>
+
+      {/* Hiển thị danh sách tập phim ngang */}
+      {loading ? (
+        <ActivityIndicator size="large" color="#0000ff" />
+      ) : (
+        <FlatList
+          data={episodes}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderEpisodeItem}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+        />
+      )}
+
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.button} onPress={() => console.log('Add to Playlist')}>
           <Text style={styles.buttonText}>Add to Playlist</Text>
@@ -247,6 +292,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#fff',
     marginBottom: 8,
+  },
+  episodeItem: {
+    width: 60,
+    height: 60,
+    backgroundColor: 'lightgray',
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 5,
+    borderRadius: 5,
+  },
+  episodeNumber: {
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   ageRestriction: {
     fontSize: 16,
