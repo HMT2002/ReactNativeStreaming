@@ -1,4 +1,41 @@
 /* eslint-disable*/
+import React, {useContext, useEffect, useState} from 'react';
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  FlatList,
+  Modal,
+  Dimensions,
+} from 'react-native';
+import AppContext, {AppContextProvider} from './src/utils/AppContext';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+
+import HomeScreen from './src/screen/HomeScreen';
+import HotFilm from './src/screen/HotFilm';
+import SearchScreen from './src/screen/Search';
+import MovieDetailScreen from './src/screen/SingleFilm';
+import Profile from './src/screen/Account';
+import PaymentSceen from './src/screen/Payment';
+import LoginScreen from './src/screen/Loggin';
+import CustomSnackBar from './src/components/tools/CustomSnackBar';
+import RegisterScreen from './src/screen/Register';
+import {NavigationContainer} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {MenuProvider} from 'react-native-popup-menu';
+import {Button, Snackbar} from '@react-native-material/core';
+import {faHomeUser} from '@fortawesome/free-solid-svg-icons/faHomeUser';
+import {faHotTub} from '@fortawesome/free-solid-svg-icons/faHotTub';
+import {faSearch} from '@fortawesome/free-solid-svg-icons/faSearch';
+import {faUserCircle} from '@fortawesome/free-solid-svg-icons/faUserCircle';
+import i18n from './src/utils/i18n';
+import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
+import {setAttributes} from 'video.js/dist/types/utils/dom';
+import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
+import {I18nextProvider, useTranslation} from 'react-i18next';
 import React, {useContext, useEffect, useState, useCallback} from 'react';
 import AppContext, {AppContextProvider} from './src/utils/AppContext';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
@@ -29,6 +66,7 @@ const Tab = createMaterialBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
 const AppChild = () => {
+  const {t, i18n} = useTranslation();
   const appContext = useContext(AppContext);
   const [isSnackbarVisible, setIsSnackbarVisible] = useState(false);
 
@@ -45,59 +83,6 @@ const AppChild = () => {
 
   function HomeStack() {
     return (
-      <Stack.Navigator>
-        <Stack.Screen
-          name="Login"
-          component={LoginScreen}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="Home"
-          component={HomeScreen}
-          options={{headerShown: false}}
-        />
-
-        <Stack.Screen
-          name="Register"
-          component={RegisterScreen}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="MovieDetail"
-          component={MovieDetailScreen}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="HotMovie"
-          component={MovieDetailScreen}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="Search"
-          component={MovieDetailScreen}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="Profile"
-          component={MovieDetailScreen}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="Playlist"
-          component={PlaylistScreen}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="PlaylistInfo"
-          component={PlaylistInfoScreen}
-          options={{headerShown: false}}
-        />
-      </Stack.Navigator>
-    );
-  }
-
-  return (
-    <NavigationContainer>
       <Tab.Navigator
         tabBarOptions={{
           activeTintColor: 'blue',
@@ -110,12 +95,80 @@ const AppChild = () => {
             fontWeight: 'bold',
           },
         }}>
-        <Tab.Screen name="HomeStack" component={HomeStack} />
-        <Tab.Screen name="Hot Movies" component={HotFilm} />
-        <Tab.Screen name="Playlist" component={PlaylistScreen} />
-        <Tab.Screen name="Search" component={SearchScreen} />
-        <Tab.Screen name="Profile" component={Profile} />
+        <Tab.Screen
+          name="HomeScreen"
+          component={HomeScreen}
+          options={{
+            tabBarLabel: <Text style={{color: 'red'}}>{t('home')}</Text>,
+            tabBarIcon: ({color, size}) => (
+              <FontAwesomeIcon style={{color: 'red'}} icon={faHomeUser} /> // Use the icon instead of text
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="Hot Movies"
+          component={HotFilm}
+          options={{
+            tabBarLabel: <Text style={{color: 'red'}}>{t('hot movie')}</Text>,
+            tabBarIcon: ({color, size}) => (
+              <FontAwesomeIcon style={{color: 'red'}} icon={faHotTub} /> // Use the icon instead of text
+            ),
+            tabBarVisible: false,
+          }}
+        />
+        <Tab.Screen
+          name="Search"
+          component={SearchScreen}
+          options={{
+            tabBarLabel: <Text style={{color: 'red'}}>{t('search')}</Text>,
+            tabBarIcon: ({color, size}) => (
+              <FontAwesomeIcon style={{color: 'red'}} icon={faSearch} /> // Use the icon instead of text
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="Profile"
+          component={Profile}
+          options={{
+            tabBarLabel: <Text style={{color: 'red'}}>{t('profile')}</Text>,
+            tabBarIcon: ({color, size}) => (
+              <FontAwesomeIcon style={{color: 'red'}} icon={faUserCircle} /> // Use the icon instead of text
+            ),
+          }}
+        />
       </Tab.Navigator>
+    );
+  }
+
+  return (
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen
+          name="Login"
+          component={LoginScreen}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="Payment"
+          component={PaymentSceen}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="Home"
+          component={HomeStack}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="Register"
+          component={RegisterScreen}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="MovieDetail"
+          component={MovieDetailScreen}
+          options={{headerShown: false}}
+        />
+      </Stack.Navigator>
     </NavigationContainer>
   );
 };
@@ -126,7 +179,9 @@ const App = () => {
       <AppContextProvider>
         <GestureHandlerRootView style={{flex: 1}}>
           <BottomSheetModalProvider>
-            <AppChild />
+            <I18nextProvider i18n={i18n}>
+              <AppChild />
+            </I18nextProvider>
           </BottomSheetModalProvider>
         </GestureHandlerRootView>
       </AppContextProvider>
