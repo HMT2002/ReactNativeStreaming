@@ -2,26 +2,134 @@ import React from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
 
 const ProfileScreen = () => {
+  const [username, setUsername] = useState('John Doe');
+  const [email, setEmail] = useState('JohnDoe@gmail.com');
+  const [address, setAddress] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [password, setPassword] = useState('');
+  const [dob, setDob] = useState('');
+  const [gender, setGender] = useState('male');
+
+  const handleSaveChanges = async () => {
+    try {
+      // Gọi API để cập nhật thông tin người dùng
+      const response = await fetch('https://example.com/api/updateUserProfile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // Đặt token xác thực nếu cần
+          // 'Authorization': 'Bearer your_access_token',
+        },
+        body: JSON.stringify({
+          username,
+          email,
+          address,
+          phoneNumber,
+          password,
+          dob,
+          gender,
+        }),
+      });
+
+      if (response.ok) {
+        console.log('Profile updated successfully');
+      } else {
+        console.error('Failed to update profile');
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+    }
+  };
+
+  const showDatePicker = async () => {
+    try {
+      const { action, year, month, day } = await DatePickerAndroid.open({
+        date: new Date(),
+        mode: 'spinner',
+      });
+      if (action !== DatePickerAndroid.dismissedAction) {
+        const selectedDate = new Date(year, month, day);
+        setDob(selectedDate.toDateString());
+      }
+    } catch (error) {
+      console.warn('Cannot open date picker', error);
+    }
+  };
+
   return (
     <View style={styles.container}>
+      <Text style={styles.header}>Profile</Text>
       <Image
         source={require('../imagePoster/user/userAvatar.jpg')}
         style={styles.profileImage}
       />
-      <Text style={styles.name}>John Doe</Text>
-      <Text style={styles.bio}>Movie enthusiast | React Native developer</Text>
       <View style={styles.infoContainer}>
-        <Text style={styles.infoLabel}>Location:</Text>
-        <Text style={styles.infoText}>New York, USA</Text>
+        <Text style={styles.label}>Username:</Text>
+        <TextInput
+          style={styles.name}
+          value={username}
+          onChangeText={(text) => setUsername(text)}
+        />
       </View>
+
       <View style={styles.infoContainer}>
-        <Text style={styles.infoLabel}>Email:</Text>
-        <Text style={styles.infoText}>johndoe@example.com</Text>
+        <Text style={styles.label}>Email:</Text>
+        <TextInput
+          style={styles.infoText}
+          value={email}
+          onChangeText={(text) => setEmail(text)}
+          keyboardType="email-address"
+        />
       </View>
+      
       <View style={styles.infoContainer}>
-        <Text style={styles.infoLabel}>Website:</Text>
-        <Text style={styles.infoText}>www.johndoe.com</Text>
+        <Text style={styles.label}>Address:</Text>
+        <TextInput
+          style={styles.infoText}
+          value={address}
+          onChangeText={(text) => setAddress(text)}
+        />
       </View>
+
+      <View style={styles.infoContainer}>
+        <Text style={styles.label}>Phone Number:</Text>
+        <TextInput
+          style={styles.infoText}
+          value={phoneNumber}
+          onChangeText={(text) => setPhoneNumber(text)}
+          keyboardType="phone-pad"
+        />
+      </View>
+
+      <View style={styles.infoContainer}>
+        <Text style={styles.label}>Password:</Text>
+        <TextInput
+          style={styles.infoText}
+          value={password}
+          onChangeText={(text) => setPassword(text)}
+          secureTextEntry
+        />
+      </View>
+
+      <View style={styles.infoContainer}>
+        <Text style={styles.label}>Date of Birth:</Text>
+        <Button title="Pick Date" onPress={showDatePicker} />
+        <Text>{dob}</Text>
+      </View>
+
+      <View style={styles.infoContainer}>
+        <Text style={styles.label}>Gender:</Text>
+        <Picker
+          selectedValue={gender}
+          onValueChange={(itemValue) => setGender(itemValue)}
+          style={styles.input}
+        >
+          <Picker.Item label="Male" value="male" />
+          <Picker.Item label="Female" value="female" />
+          <Picker.Item label="Other" value="other" />
+        </Picker>
+      </View>
+      
     </View>
   );
 };
