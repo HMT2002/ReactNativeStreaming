@@ -181,17 +181,7 @@ const MovieDetailScreen = ({ route, navigation }) => {
 
 
       )}
-      <Text style={styles.episodes}>Episodes: 10</Text>
-      <Text style={styles.ageRestriction}>Age Restriction: 18+</Text>
-      <Text style={styles.numMovies}>Number of Movies: 5</Text>
-
-      <TouchableOpacity style={styles.button} onPress={handlePlay}>
-        <Text style={styles.buttonText}>Play Video</Text>
-      </TouchableOpacity>
-      <Text style={styles.description}>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae nunc eget nunc consectetur tincidunt. Nulla facilisi. Sed euismod, nisl ac tincidunt tincidunt, mi mauris aliquet odio, vitae aliquam nunc nunc id nunc. Sed vitae nunc eget nunc consectetur tincidunt. Nulla facilisi. Sed euismod, nisl ac tincidunt tincidunt, mi mauris aliquet odio, vitae aliquam nunc nunc id nunc.
-      </Text>
-
+      <Text style={styles.description}> Playlist </Text>
       {/* Hiển thị danh sách tập phim ngang */}
       {loading ? (
         <ActivityIndicator size="large" color="#0000ff" />
@@ -204,7 +194,16 @@ const MovieDetailScreen = ({ route, navigation }) => {
           showsHorizontalScrollIndicator={false}
         />
       )}
+      <Text style={styles.episodes}>Episodes: 10</Text>
+      <Text style={styles.ageRestriction}>Age Restriction: 18+</Text>
+      <Text style={styles.numMovies}>Number of Movies: 5</Text>
 
+      <TouchableOpacity style={styles.button} onPress={handlePlay}>
+        <Text style={styles.buttonText}>Play Video</Text>
+      </TouchableOpacity>
+      <Text style={styles.description}>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae nunc eget nunc consectetur tincidunt. Nulla facilisi. Sed euismod, nisl ac tincidunt tincidunt, mi mauris aliquet odio, vitae aliquam nunc nunc id nunc. Sed vitae nunc eget nunc consectetur tincidunt. Nulla facilisi. Sed euismod, nisl ac tincidunt tincidunt, mi mauris aliquet odio, vitae aliquam nunc nunc id nunc.
+      </Text>
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.button} onPress={() => console.log('Add to Playlist')}>
           <Text style={styles.buttonText}>Add to Playlist</Text>
