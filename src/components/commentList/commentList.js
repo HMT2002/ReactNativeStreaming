@@ -18,7 +18,6 @@ const CommentList = props => {
   const [newComment, setNewComment] = useState('');
 
   console.log('CommentList');
-  console.log(props);
 
   const authCtx = useContext(AuthContext);
   const handleAddComment = async () => {
@@ -33,6 +32,7 @@ const CommentList = props => {
       );
       console.log('$$$$$$$$$$$$$$$$');
       console.log(result);
+      console.log(authCtx);
       setComments([
         ...comments,
         {

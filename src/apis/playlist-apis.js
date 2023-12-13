@@ -11,8 +11,7 @@ export const GETAllPlaylistByUser = async token => {
       authorization: 'Bearer ' + token,
     },
   });
-  console.log(data);
-  return data;
+  return data.data;
 };
 
 export const POSTCreatePlaylist = async playlistname => {
@@ -31,19 +30,22 @@ export const POSTCreatePlaylist = async playlistname => {
 
 export const POSTAddVideoToPlaylistAction = async (
   videoID,
+  infoID,
   token,
   playlistID,
 ) => {
-  var url = PROXY_TUE_LOCAL + '/api/v1/playlist/add-playlist/' + videoID;
-  const {data} = await axios({
-    method: 'post',
-    url: url,
-    validateStatus: () => true,
-    headers: {
-      authorization: 'Bearer ' + token,
+  console.log({videoID, infoID, token, playlistID});
+  var url = PROXY_TUE_LOCAL + '/api/v1/playlist/add-playlist';
+  const {data} = await axios.post(
+    url,
+    {playlistID: playlistID, videoID: videoID, infoID: infoID},
+    {
+      validateStatus: () => true,
+      headers: {
+        authorization: 'Bearer ' + token,
+      },
     },
-    body: {playlistID},
-  });
+  );
   return data;
 };
 

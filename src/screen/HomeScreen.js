@@ -169,6 +169,7 @@ const HomeScreen = () => {
           {threads.map(thread => {
             // console.log(thread);
             let video = new videoItem(
+              thread.filmInfo._id,
               thread.filmInfo.name,
               thread.filmInfo.first_air_date,
               thread.filmInfo.poster_path,

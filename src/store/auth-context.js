@@ -37,6 +37,8 @@ export const AuthContextProvider = props => {
     setIsStayLoggedIn(true);
     await AsyncStorage.setItem('token', data.token);
     await AsyncStorage.setItem('username', data.username);
+    await AsyncStorage.setItem('avatar', data.avatar);
+
     console.log(data);
 
     console.log('User login!');
@@ -50,11 +52,10 @@ export const AuthContextProvider = props => {
     setDisplayName(null);
     setToken(null);
     setRole(null);
-
-    // localStorage.removeItem('username');
-    // localStorage.removeItem('token');
     await AsyncStorage.removeItem('token');
     await AsyncStorage.removeItem('username');
+    await AsyncStorage.removeItem('avatar');
+
     console.log('User log out!');
   };
 
@@ -92,34 +93,33 @@ export const AuthContextProvider = props => {
     const getAsyncStorageData = async () => {
       const localUsername = await AsyncStorage.getItem('username');
       const localToken = await AsyncStorage.getItem('token');
+      const localAvatar = await AsyncStorage.getItem('avatar');
+
       console.log('@@@@@@@@@@@@@@@@@');
 
-      if (localUsername != null && !localToken != null) {
+      if (localUsername != null && localToken != null && localAvatar != null) {
         console.log('User already logged in!');
         console.log({localToken, localUsername});
         setIsAuthorized(true);
         setIsStayLoggedIn(true);
         setUsername(localUsername);
         setToken(localToken);
+        setAvatar(localAvatar);
         RetrieveUserInfoHandler(localToken);
       }
     };
     getAsyncStorageData();
   }, []);
-
+  const setAsyncStorageData = async () => {
+    console.log('^^^^^^^^^^^');
+    console.log('State changed!');
+    localStorage.setItem('username', username);
+    localStorage.setItem('token', token);
+    localStorage.setItem('avatar', avatar);
+  };
   useEffect(() => {
-    const setAsyncStorageData = async () => {
-      console.log('^^^^^^^^^^^');
-      console.log('State changed!');
-      if (isStayLoggedIn === false) {
-        await AsyncStorage.removeItem('token');
-        await AsyncStorage.removeItem('username');
-      } else {
-        // await AsyncStorage.setItem('token', token);
-        // await AsyncStorage.setItem('username', username);
-      }
-    };
-    if (isStayLoggedIn) {
+    console.log(isStayLoggedIn);
+    if (isStayLoggedIn === true) {
       setAsyncStorageData();
       //   localStorage.setItem('username', username);
       //   localStorage.setItem('token', token);

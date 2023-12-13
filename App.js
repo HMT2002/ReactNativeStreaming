@@ -15,11 +15,14 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {MenuProvider} from 'react-native-popup-menu';
 import {Button, Snackbar} from '@react-native-material/core';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 
 import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
 import {setAttributes} from 'video.js/dist/types/utils/dom';
 import AuthContext, {AuthContextProvider} from './src/store/auth-context';
-import PlaylistScreen from './src/screen/Playlist';
+import PlaylistScreen from './src/screen/PlaylistScreen';
+import PlaylistInfoScreen from './src/screen/PlaylistInfoScreen';
 
 const Tab = createMaterialBottomTabNavigator();
 
@@ -84,6 +87,11 @@ const AppChild = () => {
           component={PlaylistScreen}
           options={{headerShown: false}}
         />
+        <Stack.Screen
+          name="PlaylistInfo"
+          component={PlaylistInfoScreen}
+          options={{headerShown: false}}
+        />
       </Stack.Navigator>
     );
   }
@@ -114,11 +122,15 @@ const AppChild = () => {
 
 const App = () => {
   return (
-    <AppContextProvider>
-      <AuthContextProvider>
-        <AppChild />
-      </AuthContextProvider>
-    </AppContextProvider>
+    <AuthContextProvider>
+      <AppContextProvider>
+        <GestureHandlerRootView style={{flex: 1}}>
+          <BottomSheetModalProvider>
+            <AppChild />
+          </BottomSheetModalProvider>
+        </GestureHandlerRootView>
+      </AppContextProvider>
+    </AuthContextProvider>
   );
 };
 

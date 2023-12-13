@@ -1,4 +1,12 @@
-import {React, useContext, useRef, useEffect, useState} from 'react';
+import {
+  React,
+  useContext,
+  useRef,
+  useEffect,
+  useState,
+  useMemo,
+  useCallback,
+} from 'react';
 import {
   View,
   Text,
@@ -23,12 +31,16 @@ import Orientation from 'react-native-orientation-locker';
 import CommentList from '../components/commentList/commentList.js';
 import movieAPIs from '../apis/movie-apis';
 import commentAPIs from '../apis/comment-apis';
-
+import NewPlaylistBottomSheet from '../components/newPlaylistBottomSheet/NewPlaylistBottomSheet';
+import {BottomSheetModal, BottomSheetModalProvider} from '@gorhom/bottom-sheet';
+import playlistAPIs from '../apis/playlist-apis';
 const MovieDetailScreen = ({route, navigation}) => {
   const {movie} = route.params;
   const isFocus = useIsFocused();
   const [videoUri, setVideoUri] = useState({uri: ''});
-  const [comments, setComments] = useState([]);
+
+  const bottomSheetModalRef = useRef(BottomSheetModal);
+  const snapPoints = useMemo(() => ['25%', '50%'], []);
 
   const videoRef = useRef();
   console.log('movie SingleFilm');
@@ -38,82 +50,24 @@ const MovieDetailScreen = ({route, navigation}) => {
       setWatchList([...watchList, movie]);
     }
   };
+  const LoadVideo = async () => {
+    let url = '';
+    if (
+      movie.videos.length !== 0 &&
+      movie.videos !== null &&
+      movie !== undefined &&
+      movie !== null
+    ) {
+      url = await movieAPIs.getDashUrl(movie.videos[0].videoname);
+      setVideoUri(prevState => {
+        return {uri: url};
+      });
+    }
+  };
 
   const [showVideo, setShowVideo] = useState(false);
   useEffect(() => {
-    const CheckVideoAndEncode = async () => {};
-    const LoadVideo = async () => {
-      // try {
-
-      //   console.log(videoRef)
-      //   const config = {
-      //     startPosition: 0, // can be any number you want
-      //   };
-      //   var obj_play = {
-      //     fill: true,
-      //     fluid: true,
-      //     autoplay: true,
-      //     controls: true,
-      //     preload: 'auto',
-      //     loop: true,
-      //     sources: [
-      //       {
-      //         src: data.path,
-      //       },
-      //     ],
-      //   };
-      //   const _player = videojs(
-      //     videoRef.current,
-      //     obj_play,
-      //     function onPlayerReady() {
-      //       videojs.log('Your player is ready!');
-
-      //       // In this context, `this` is the player that was created by Video.js.
-      //       this.play();
-
-      //       // volume scale 0 - 1
-      //       const defaultVolume = 0.4;
-      //       this.volume(defaultVolume);
-
-      //       // How about an event listener?
-      //       this.on('ended', function () {
-      //         videojs.log('Awww...over so soon?!');
-      //       });
-      //     },
-      //   );
-      //   console.log(_player);
-
-      //   // _player.on('xhr-hooks-ready', () => {
-      //   //   const playerRequestHook = (options) => {
-      //   //     options.beforeSend = (xhr) => {
-      //   //       xhr.setRequestHeader('foo', 'bar');
-      //   //     };
-      //   //     console.log(options)
-      //   //     return options;
-      //   //   };
-      //   //   _player.tech().vhs.xhr.onResponse(playerRequestHook);
-      //   // });
-      // } catch (error) {
-      //   console.log(error);
-      // }
-      let url = '';
-      if (
-        movie.videos.length !== 0 &&
-        movie.videos !== null &&
-        movie !== undefined &&
-        movie !== null
-      ) {
-        url = await movieAPIs.getDashUrl(movie.videos[0].videoname);
-        setVideoUri(prevState => {
-          return {uri: url};
-        });
-      }
-    };
-
-    const LoadComment = async () => {};
-    //CheckVideoAndEncode();
     LoadVideo();
-    LoadComment();
   }, []);
   const handleGoBack = () => {
     navigation.goBack();
@@ -137,6 +91,16 @@ const MovieDetailScreen = ({route, navigation}) => {
   const onFullscreenPlayerWillDismiss = () => {
     Orientation.lockToPortrait();
   };
+
+  // callbacks
+
+  const handleSheetChanges = useCallback(index => {
+    console.log('handleSheetChanges', index);
+  }, []);
+
+  const addToPlaylistHandler = async () => {
+    bottomSheetModalRef.current.present();
+  };
   return (
     <ScrollView style={styles.container}>
       <TouchableOpacity style={{width: '20%'}} onPress={handleGoBack}>
@@ -149,8 +113,8 @@ const MovieDetailScreen = ({route, navigation}) => {
           resizeMode="cover"
           source={videoUri} // the video file
           // source={{uri: "https://tzvodacomcontent.s3.amazonaws.com/video-1654952965085/video-1654952965085.m3u8"}}
-          // source={{uri: "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8"}}
-
+          // source={{uri: 'http://34.87.76.48/videos/N0PIosNDash/init.mpd'}}
+          // source={{uri: 'http://34.87.76.48/videos/TQrz49o/init.mpd'}}
           onFullscreenPlayerWillPresent={onFullscreenPlayerWillPresent}
           onFullscreenPlayerWillDismiss={onFullscreenPlayerWillDismiss}
           paused={false} // make it start    r
@@ -174,9 +138,7 @@ const MovieDetailScreen = ({route, navigation}) => {
       </TouchableOpacity>
       <Text style={styles.description}>{movie.filmInfo.overview}</Text>
       <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => console.log('Add to Playlist')}>
+        <TouchableOpacity style={styles.button} onPress={addToPlaylistHandler}>
           <Text style={styles.buttonText}>Add to Playlist</Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -200,43 +162,15 @@ const MovieDetailScreen = ({route, navigation}) => {
       </View>
 
       <View>
+        <BottomSheetModal
+          ref={bottomSheetModalRef}
+          index={1}
+          snapPoints={snapPoints}
+          onChange={handleSheetChanges}>
+          <NewPlaylistBottomSheet video={movie.videos[0]} info={movie} />
+        </BottomSheetModal>
         <Text style={styles.commentsTitle}>Comments</Text>
-        {/* <View style={styles.commentContainer}>
-            <Avatar
-              rounded
-              source={require('../imagePoster/user/man.png')}
-              size="small"
-              containerStyle={styles.avatar}
-            />
-            <View style={styles.commentContent}>
-              <Text style={styles.commentUser}>User 1</Text>
-              <Text style={styles.commentText}>Comment 1</Text>
-            </View>
-          </View>
-          <View style={styles.commentContainer}>
-            <Avatar
-              rounded
-              source={require('../imagePoster/user/man1.png')}
-              size="small"
-              containerStyle={styles.avatar}
-            />
-            <View style={styles.commentContent}>
-              <Text style={styles.commentUser}>User 2</Text>
-              <Text style={styles.commentText}>Comment 2</Text>
-            </View>
-          </View>
-          <View style={styles.commentContainer}>
-            <Avatar
-              rounded
-              source={require('../imagePoster/user/userAvatar.jpg')}
-              size="small"
-              containerStyle={styles.avatar}
-            />
-            <View style={styles.commentContent}>
-              <Text style={styles.commentUser}>User 3</Text>
-              <Text style={styles.commentText}>Comment 3</Text>
-            </View>
-          </View> */}
+
         {/* Add more comments here */}
         {movie !== undefined && movie !== null ? (
           <CommentList video={movie.videos[0]} />
