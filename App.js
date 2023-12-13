@@ -1,5 +1,4 @@
 /* eslint-disable*/
-import React, {useContext, useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -12,7 +11,6 @@ import {
   Dimensions,
 } from 'react-native';
 import AppContext, {AppContextProvider} from './src/utils/AppContext';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 
 import HomeScreen from './src/screen/HomeScreen';
 import HotFilm from './src/screen/HotFilm';
@@ -21,41 +19,22 @@ import MovieDetailScreen from './src/screen/SingleFilm';
 import Profile from './src/screen/Account';
 import PaymentSceen from './src/screen/Payment';
 import LoginScreen from './src/screen/Loggin';
-import CustomSnackBar from './src/components/tools/CustomSnackBar';
 import RegisterScreen from './src/screen/Register';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {MenuProvider} from 'react-native-popup-menu';
-import {Button, Snackbar} from '@react-native-material/core';
+
 import {faHomeUser} from '@fortawesome/free-solid-svg-icons/faHomeUser';
 import {faHotTub} from '@fortawesome/free-solid-svg-icons/faHotTub';
 import {faSearch} from '@fortawesome/free-solid-svg-icons/faSearch';
 import {faUserCircle} from '@fortawesome/free-solid-svg-icons/faUserCircle';
 import i18n from './src/utils/i18n';
 import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
-import {setAttributes} from 'video.js/dist/types/utils/dom';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {I18nextProvider, useTranslation} from 'react-i18next';
 import React, {useContext, useEffect, useState, useCallback} from 'react';
-import AppContext, {AppContextProvider} from './src/utils/AppContext';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import MainScreen from './src/screen/MainScreen';
-import HomeScreen from './src/screen/HomeScreen';
-import HotFilm from './src/screen/HotFilm';
-import SearchScreen from './src/screen/Search';
-import MovieDetailScreen from './src/screen/SingleFilm';
-import Profile from './src/screen/Account';
-import LoginScreen from './src/screen/Loggin';
-import CustomSnackBar from './src/components/tools/CustomSnackBar';
-import RegisterScreen from './src/screen/Register';
-import {NavigationContainer} from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {MenuProvider} from 'react-native-popup-menu';
-import {Button, Snackbar} from '@react-native-material/core';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 
-import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
 import {setAttributes} from 'video.js/dist/types/utils/dom';
 import AuthContext, {AuthContextProvider} from './src/store/auth-context';
 import PlaylistScreen from './src/screen/PlaylistScreen';

@@ -26,7 +26,9 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {height} from '@fortawesome/free-solid-svg-icons/faMugSaucer';
 import {I18nextProvider, useTranslation} from 'react-i18next';
+import {PROXY_CLOUD, PROXY_TUE_LOCAL} from '@env';
 import {ip} from '@env';
+
 import Star from './Star';
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -36,7 +38,7 @@ const HomeScreen = () => {
   const {t, i18n} = useTranslation();
   useEffect(() => {
     axios
-      .get(`http://${ip}:9000/api/v1/info`)
+      .get(PROXY_CLOUD + `/api/v1/info`)
       .then(function (response) {
         setData(response.data.data);
 

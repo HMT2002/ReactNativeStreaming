@@ -12,8 +12,6 @@ import {
 import {Avatar} from 'react-native-elements';
 import {GetNoteAction} from '../actions/GetNote';
 import Video from 'react-native-video';
-import WDHT from './test.mp4';
-// import WDHT from './World Domination How-To.m3u8'
 import AppController from '../controllers/AppController';
 import AppContext from '../utils/AppContext';
 import AuthContext from '../store/auth-context';
