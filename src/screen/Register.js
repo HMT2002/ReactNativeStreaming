@@ -41,7 +41,7 @@ const RegisterScreen = () => {
       passwordConfirm: getPassword.trim(),
       role: 'user',
     };
-    const response = await fetch(`http://${ip}:7000/api/v1/users/signup`, {
+    const response = await fetch(`http://10.135.51.159:9000/api/v1/users/signup`, {
       method: 'POST',
       body: JSON.stringify(registedData),
       headers: {

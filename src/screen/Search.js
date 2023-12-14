@@ -1,11 +1,12 @@
 import { React, useRef, useEffect, useState, useCallback } from 'react';
-import { View, Text, TextInput, StyleSheet, Image, ScrollView, TouchableOpacity, FlatList } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Image, ScrollView, TouchableOpacity, FlatList, ImageBackground } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle'
 import { faHeartCircleBolt } from '@fortawesome/free-solid-svg-icons/faHeartCircleBolt'
 import { faMusic } from '@fortawesome/free-solid-svg-icons/faMusic'
 import { faDrumSteelpan } from '@fortawesome/free-solid-svg-icons/faDrumSteelpan'
 import { faSmile } from '@fortawesome/free-solid-svg-icons/faSmile'
+import { faSearchPlus } from '@fortawesome/free-solid-svg-icons/faSearchPlus'
 import { faGun } from '@fortawesome/free-solid-svg-icons/faGun'
 import { faPersonCircleQuestion } from '@fortawesome/free-solid-svg-icons/faPersonCircleQuestion'
 import { faCalendarAlt } from '@fortawesome/free-solid-svg-icons/faCalendarAlt'
@@ -29,7 +30,7 @@ function SearchScreen() {
   const [inputValue, setInputValue] = useState('');
   useEffect(() => {
     axios
-      .get(`http://192.168.1.8:9000/api/v1/info`)
+      .get(`http://10.135.51.159:9000/api/v1/info`)
       .then(function (response) {
         console.log("cc")
         setData(response.data.data);
@@ -86,7 +87,7 @@ function SearchScreen() {
     console.log("after filtering : " + filmFilterData.length);
   };
   const handleSearchByCategory = (category) => {
-    console.log("handleSearchByCategory");  
+    console.log("handleSearchByCategory");
     setfilmFilterData(datas.filter(movie => movie.filmInfo.genres.some(g => g.name === category)));
     setSearchStatus(false);
   }
@@ -139,11 +140,11 @@ function SearchScreen() {
     );
   };
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <View style={{ height: 150, width: '100%', padding: 10, flexDirection: "row" }}>
         <View style={{ width: '50%', flexDirection: 'column', justifyContent: 'space-evenly' }}>
-          <Text style={{ color: 'white' }}>Hi,User</Text>
-          <Text style={{ color: 'white' }}>{filmFilterData.length}</Text>
+          <Text style={{ color: 'white',fontSize:24,fontWeight:'600' }}>Hi , {userData.username}</Text>
+          {/* <Text style={{ color: 'white' }}>{filmFilterData.length}</Text> */}
           <Text style={{ color: 'white' }}> See What's next</Text>
         </View>
         <View style={{ width: '50%', flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-end' }}>
@@ -160,9 +161,9 @@ function SearchScreen() {
           placeholderTextColor="gray"
           onChangeText={handleType}
         />
-        <Text>{movieTitles.length}</Text>
-        <TouchableOpacity style={{backgroundColor:'red',width:60,height:60}} onPress={()=>handleSearch(inputValue)}> 
-        <FontAwesomeIcon style={{ color: "black", fontSize: 20, margin: 10 }} icon={faSearch} />
+        {/* <Text>{movieTitles.length}</Text> */}
+        <TouchableOpacity style={{ backgroundColor: '#423D3D', width: 60, height: 60, borderRadius: 8, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }} onPress={() => handleSearch(inputValue)}>
+          <FontAwesomeIcon style={{ color: "white", fontSize: 20, margin: 10 }} icon={faSearchPlus} />
         </TouchableOpacity>
       </View>
       <View>
@@ -256,29 +257,31 @@ function SearchScreen() {
 
         </ScrollView>
 
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} >
+        <ScrollView  showsVerticalScrollIndicator={false} style={{marginTop:20,width:400}}>
 
           {filmFilterData.length > 0 ? (filmFilterData.map((movie) => (
+          <ImageBackground source={{ uri: 'https://image.tmdb.org/t/p/w600_and_h900_bestv2/' + movie.filmInfo.backdrop_path }} style={{width:400,height:200,marginBottom:20}} >
             <TouchableOpacity
               key={movie.id}
               style={styles.movieContainer}
               onPress={() => handleMoviePress(movie)}
             >
-              <Image source={{ uri: 'https://image.tmdb.org/t/p/w600_and_h900_bestv2/' + movie.filmInfo.backdrop_path }} style={styles.poster} />
+
               <View key={movie.id} style={styles.movieDetails}>
-                <Text style={styles.title}>{movie.filmInfo.title}</Text>
+                <Text style={{textTransform:'uppercase',fontSize:30,color:'black',width:'100%',fontWeight:'900'}}>{(movie.filmInfo.title)?movie.filmInfo.title:movie.filmInfo.name}</Text>
                 <View style={{ flexDirection: 'row', justifyContent: "space-between" }}>
-                  <Star rating={movie.filmInfo.vote_average / 2} />
-                  <Text style={styles.genre}>{movie.filmInfo.vote_count} +</Text>
+
                 </View>
 
               </View>
             </TouchableOpacity>
+          </ImageBackground>
+
           ))) : (<Text>loadding</Text>)}
         </ScrollView>
 
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -293,7 +296,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'white',
     borderRadius: 8,
-    padding: 8,
+
     marginBottom: 16,
   },
   searchIcon: {

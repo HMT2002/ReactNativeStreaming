@@ -1,17 +1,8 @@
 import { React, useContext, useRef, useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView, Button, FlatList } from 'react-native';
 import { Avatar } from 'react-native-elements';
-import { GetNoteAction } from '../actions/GetNote';
 import Video from 'react-native-video';
-
-import Icon from 'react-native-vector-icons/FontAwesome';
-// import WDHT from './World Domination How-To.m3u8'
-import AppController from '../controllers/AppController';
-import AppContext from '../utils/AppContext';
-import Clipboard from '@react-native-clipboard/clipboard';
-import { useIsFocused } from '@react-navigation/native';
-import videojs from 'video.js';
-import Hls from 'hls.js';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { I18nextProvider, useTranslation } from 'react-i18next';
 import axios from 'axios';
 import { faMugSaucer } from '@fortawesome/free-solid-svg-icons/faMugSaucer'
@@ -33,11 +24,15 @@ const MovieDetailScreen = ({ route, navigation }) => {
   const [quality, setQuality] = useState('auto');
   const [clickedButton, setClickedButton] = useState(null);
   const [showVideo, setShowVideo] = useState(false);
+  const [userData, setUser] = useState({});
   const [datas, setData] = useState([]);
   const [src, setSrc] = useState();
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
-
+  const handleMPaymentPress = (movie) => {
+    setModalVisible(!modalVisible)
+    navigation.navigate('Payment');
+  };
   const handleSpeedChange = (value) => {
     setSpeed(value); // Set the playback speed based on the slider value
   };
@@ -47,13 +42,13 @@ const MovieDetailScreen = ({ route, navigation }) => {
 
 
   useEffect(() => {
-    
+
     const fetchData = async () => {
       try {
         const responses = await Promise.all(
           movie.videos.map((video) =>
 
-            axios.get(`http://192.168.1.8:9000/redirect/hls/` + video.videoname, {
+            axios.get(`http://10.135.51.159:9000/redirect/hls/` + video.videoname, {
               headers: { myaxiosfetch: "123" },
             })
           )
@@ -69,6 +64,23 @@ const MovieDetailScreen = ({ route, navigation }) => {
     };
 
     fetchData();
+    const retrieveUserData = async () => {
+      try {
+        const Data = await AsyncStorage.getItem('userData');
+        if (Data !== null) {
+          const parsedUserData = JSON.parse(Data);
+          setUser(parsedUserData);
+          console.log('Retrieved user data: '+userData);
+          // You can use the user data as needed
+        } else {
+          console.log('No user data found');
+        }
+      } catch (error) {
+        console.error('Error retrieving user data: ', error);
+      }
+    };
+
+    retrieveUserData();
 
   }, []);
   const toggleCollapse = () => {
@@ -153,9 +165,18 @@ const MovieDetailScreen = ({ route, navigation }) => {
         ))}
       </View>
 
-      {!showVideo && <TouchableOpacity style={{ backgroundColor: 'orange', width: 160, padding: 10, margin: 10, borderRadius: 6, alignSelf: 'center' }} onPress={handlePlay}>
+
+      {(!showVideo) && ((!movie.primaryTag) ? ( <TouchableOpacity style={{ backgroundColor: 'orange', width: 160, padding: 10, margin: 10, borderRadius: 6, alignSelf: 'center' }} onPress={handlePlay}>
         <Text style={styles.buttonText}>{t("play video")}</Text>
-      </TouchableOpacity>}
+      </TouchableOpacity>) :
+        (userData.isVip ? ( <TouchableOpacity style={{ backgroundColor: 'orange', width: 160, padding: 10, margin: 10, borderRadius: 6, alignSelf: 'center' }} onPress={handlePlay}>
+        <Text style={styles.buttonText}>{t("play video")}</Text>
+      </TouchableOpacity>) : (<TouchableOpacity style={{ backgroundColor: 'orange', width: 160, padding: 10, margin: 10, borderRadius: 6, alignSelf: 'center' }} key={3} onPress={() => handleMPaymentPress()}>
+          <Text style={styles.handleMPaymentPress}>Buy Primium Package</Text>
+        </TouchableOpacity>))
+      )
+      }
+
       <View style={styles.buttonContainer}>
         <Text style={styles.buttonText}>{movie.filmInfo.original_title}</Text>
         <Star rating={movie.filmInfo.vote_average / 2} />
@@ -170,13 +191,13 @@ const MovieDetailScreen = ({ route, navigation }) => {
       <View style={{ alignItems: 'start', flexDirection: 'column' }}>
         <Text style={styles.description} numberOfLines={isCollapsed ? 1 : undefined}>{movie.filmInfo.overview}</Text>
 
-       
 
-      </View> 
-        <TouchableOpacity style={{}} onPress={toggleCollapse}>
-            <Text style={{color:'white'}}>{isCollapsed ? t("read more") : t("read less")} ...</Text>
 
-        </TouchableOpacity>
+      </View>
+      <TouchableOpacity style={{}} onPress={toggleCollapse}>
+        <Text style={{ color: 'white' }}>{isCollapsed ? t("read more") : t("read less")} ...</Text>
+
+      </TouchableOpacity>
       <View style={styles.buttonContainer}>
 
         <TouchableOpacity style={styles.button} onPress={() => console.log('Add to Playlist')}>
@@ -191,7 +212,7 @@ const MovieDetailScreen = ({ route, navigation }) => {
           <Text style={styles.buttonText}>{t("share")}  <FontAwesomeIcon style={{ color: "white" }} icon={faShare} /></Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={() => console.log('Download')}>
-          <Text style={styles.buttonText}>{t("download")}  <FontAwesomeIcon style={{ color: "white" }} icon={faArrowDown} /></Text>
+          <Text style={styles.buttonText}>{t("download")}{userData.isVip?"yes":"no"}  <FontAwesomeIcon style={{ color: "white" }} icon={faArrowDown} /></Text>
         </TouchableOpacity>
       </View>
 

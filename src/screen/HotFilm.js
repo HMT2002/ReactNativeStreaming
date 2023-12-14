@@ -64,7 +64,7 @@ function MovieScreen() {
   };
   useEffect(() => {     
     axios
-    .get(`http://192.168.1.8:9000/api/v1/info`)
+    .get(`http://10.135.51.159:9000/api/v1/info`)
     .then(function (response) {
       setData(response.data.data);
 

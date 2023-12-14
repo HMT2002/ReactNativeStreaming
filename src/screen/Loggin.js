@@ -32,7 +32,7 @@ const LoginScreen = () => {
     const handleLogin = async () => {
 
       try {
-        const response = await axios.post(`http://192.168.1.8:9000/api/v1/users/signin`, {
+        const response = await axios.post(`http://10.135.51.159:9000/api/v1/users/signin`, {
             account: getEmailId,
             password: getPassword
         }, {
@@ -274,6 +274,7 @@ const styles = StyleSheet.create({
    backgroundColor:'white',
     alignItems: "center",
     justifyContent: "center",
+    width:'94%',
   },
   errorCard: {
     width: 300,
