@@ -16,13 +16,13 @@ import {TextInput} from '@react-native-material/core';
 import playlistAPIs, {
   POSTAddVideoToPlaylistAction,
 } from '../../apis/playlist-apis';
+import {Button} from 'react-native-elements';
 // import BottomSheet from '@gorhom/bottom-sheet';
 const NewPlaylistBottomSheet = props => {
   const authCtx = useContext(AuthContext);
   const [video, setVideo] = useState({});
   const [playlists, setPlaylists] = useState([]);
-
-  const [playlistname, setPlaylistname] = useState('');
+  const [inputPlaylistname, setInputPlaylistname] = useState('');
 
   const addToPlaylist = async playlist => {
     if (!props.video || !authCtx.token || !playlist._id) {
@@ -37,27 +37,48 @@ const NewPlaylistBottomSheet = props => {
     );
     console.log(response);
   };
-  const LoadPlaylists = async () => {
-    if (authCtx.isStayLoggedIn === false) {
-      console.log('User is not signed in yet, cant find playlists');
-    }
 
-    const user_playlists = await playlistAPIs.GETAllPlaylistByUser(
+  const onNewPlaylistPress = useCallback(async () => {
+    console.log('Create new playlist ' + inputPlaylistname);
+
+    const response = await playlistAPIs.POSTCreatePlaylist(
+      inputPlaylistname,
       authCtx.token,
     );
-    console.log(user_playlists);
+    console.log('%#$%^#$%$%#$%#$%#$%#$%#%%%^%$^%$$%#$%#$%$%^#$%#$%');
+    console.log(response);
     setPlaylists(prevState => {
-      return user_playlists;
+      return [
+        ...prevState,
+        {playlistname: inputPlaylistname, _id: response.playlist._id},
+      ];
     });
-  };
+
+    setInputPlaylistname(prevState => {
+      return '';
+    });
+  });
   useEffect(() => {
     console.log('########################NewPlaylistBottomSheet props');
-    console.log(props);
+    const LoadPlaylists = async () => {
+      if (authCtx.isStayLoggedIn === false) {
+        console.log('User is not signed in yet, cant find playlists');
+      }
+
+      const user_playlists = await playlistAPIs.GETAllPlaylistByUser(
+        authCtx.token,
+      );
+      console.log(user_playlists);
+      setPlaylists(prevState => {
+        return user_playlists;
+      });
+    };
+
     setVideo(prevState => {
       return props.video;
     });
     LoadPlaylists();
-  }, []);
+  }, [props.video]);
 
   return (
     <View>
@@ -71,6 +92,16 @@ const NewPlaylistBottomSheet = props => {
           </TouchableOpacity>
         );
       })}
+      <Text>New Platlist: </Text>
+      <View style={styles.newPlaylistContainer}>
+        <TextInput
+          style={styles.newPlaylist}
+          value={inputPlaylistname}
+          onChangeText={text => setInputPlaylistname(text)}
+          placeholder="Create new Playlist"
+        />
+        <Button onPress={onNewPlaylistPress} />
+      </View>
     </View>
   );
 };
@@ -83,6 +114,11 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     alignItems: 'center',
+  },
+  newPlaylistContainer: {},
+  newPlaylist: {
+    flex: 1,
+    alignContent: 'center',
   },
   playlistCard: {
     flexDirection: 'column',

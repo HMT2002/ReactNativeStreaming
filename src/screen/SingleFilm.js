@@ -281,7 +281,15 @@
 
 // export default MovieDetailScreen;
 
-import {React, useContext, useRef, useEffect, useState} from 'react';
+import {
+  React,
+  useContext,
+  useRef,
+  useEffect,
+  useState,
+  useMemo,
+  useCallback,
+} from 'react';
 import {
   View,
   Text,
@@ -305,6 +313,8 @@ import {useIsFocused} from '@react-navigation/native';
 import videojs from 'video.js';
 import Hls from 'hls.js';
 import {I18nextProvider, useTranslation} from 'react-i18next';
+import {BottomSheetModal, BottomSheetModalProvider} from '@gorhom/bottom-sheet';
+
 import axios from 'axios';
 import {faMugSaucer} from '@fortawesome/free-solid-svg-icons/faMugSaucer';
 import {faAdd} from '@fortawesome/free-solid-svg-icons/faAdd';
@@ -317,9 +327,11 @@ import StarRating from './StarRating';
 import Star from './Star';
 import Slider from '@react-native-community/slider';
 import {PROXY_CLOUD, PROXY_TUE_LOCAL} from '@env';
-import {ip} from '@env';
 
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
+import NewPlaylistBottomSheet from '../components/newPlaylistBottomSheet/NewPlaylistBottomSheet';
+import CommentList from '../components/commentList/commentList';
+import movieAPIs from '../apis/movie-apis';
 const MovieDetailScreen = ({route, navigation}) => {
   const {t} = useTranslation();
   const {movie} = route.params;
@@ -331,7 +343,9 @@ const MovieDetailScreen = ({route, navigation}) => {
   const [src, setSrc] = useState();
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
-
+  const bottomSheetModalRef = useRef(BottomSheetModal);
+  const snapPoints = useMemo(() => ['25%', '50%'], []);
+  const [video, setVideo] = useState(null);
   const handleSpeedChange = value => {
     setSpeed(value); // Set the playback speed based on the slider value
   };
@@ -345,7 +359,7 @@ const MovieDetailScreen = ({route, navigation}) => {
         const responses = await Promise.all(
           movie.videos.map(video =>
             axios.get(
-              `${PROXY_CLOUD}/redirect/dash/` +
+              `${PROXY_TUE_LOCAL}/redirect/dash/` +
                 video.videoname +
                 `/` +
                 video.videoname,
@@ -359,13 +373,15 @@ const MovieDetailScreen = ({route, navigation}) => {
         );
         setData(videoDataArray);
         setSrc(videoDataArray[0]);
-        console.log(src);
       } catch (error) {
         console.error('Error fetching video data:', error);
       }
     };
 
     fetchData();
+    console.log('MOVIE!!!!!!!!!!!!!!!!!!!!!');
+    console.log(movie);
+    setVideo(movie.videos[0]);
   }, []);
   const toggleCollapse = () => {
     setIsCollapsed(!isCollapsed);
@@ -377,6 +393,10 @@ const MovieDetailScreen = ({route, navigation}) => {
     console.log('Playing video:', videoUrl);
     setClickedButton(index);
     setSrc(videoUrl);
+    console.log(index);
+    setVideo(prevState => {
+      return movie.videos[index];
+    });
   };
   const handleCloseModal = () => {
     setModalVisible(false);
@@ -386,6 +406,12 @@ const MovieDetailScreen = ({route, navigation}) => {
   };
   const handlePlay = () => {
     setShowVideo(true);
+  };
+  const handleSheetChanges = useCallback(index => {
+    console.log('handleSheetChanges', index);
+  }, []);
+  const addToPlaylistHandler = async () => {
+    bottomSheetModalRef.current.present();
   };
   const renderItem = ({item}) => {
     return (
@@ -461,7 +487,7 @@ const MovieDetailScreen = ({route, navigation}) => {
           <TouchableOpacity
             key={index}
             style={styles.spsButton}
-            onPress={() => handleVideoClick(item)}>
+            onPress={() => handleVideoClick(item, index)}>
             <Text style={styles.spsTitle}>
               {t('espisode')} {index + 1}
             </Text>
@@ -512,9 +538,7 @@ const MovieDetailScreen = ({route, navigation}) => {
         </Text>
       </TouchableOpacity>
       <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => console.log('Add to Playlist')}>
+        <TouchableOpacity style={styles.button} onPress={addToPlaylistHandler}>
           <Text style={styles.buttonText}>
             {t('add to playlist')}{' '}
             <FontAwesomeIcon style={{color: 'white'}} icon={faAdd} />
@@ -546,48 +570,18 @@ const MovieDetailScreen = ({route, navigation}) => {
           </Text>
         </TouchableOpacity>
       </View>
+      <View>
+        <BottomSheetModal
+          ref={bottomSheetModalRef}
+          index={1}
+          snapPoints={snapPoints}
+          onChange={handleSheetChanges}>
+          <NewPlaylistBottomSheet video={video} info={movie} />
+        </BottomSheetModal>
+        <Text style={styles.commentsTitle}>Comments</Text>
 
-      <View style={styles.commentsContainer}>
-        <Text style={styles.commentsTitle}>{t('comment')}</Text>
-        <ScrollView style={styles.commentsScrollView}>
-          <View style={styles.commentContainer}>
-            <Avatar
-              rounded
-              source={require('../imagePoster/user/man.png')}
-              size="small"
-              containerStyle={styles.avatar}
-            />
-            <View style={styles.commentContent}>
-              <Text style={styles.commentUser}>User 1</Text>
-              <Text style={styles.commentText}>Comment 1</Text>
-            </View>
-          </View>
-          <View style={styles.commentContainer}>
-            <Avatar
-              rounded
-              source={require('../imagePoster/user/man1.png')}
-              size="small"
-              containerStyle={styles.avatar}
-            />
-            <View style={styles.commentContent}>
-              <Text style={styles.commentUser}>User 2</Text>
-              <Text style={styles.commentText}>Comment 2</Text>
-            </View>
-          </View>
-          <View style={styles.commentContainer}>
-            <Avatar
-              rounded
-              source={require('../imagePoster/user/userAvatar.jpg')}
-              size="small"
-              containerStyle={styles.avatar}
-            />
-            <View style={styles.commentContent}>
-              <Text style={styles.commentUser}>User 3</Text>
-              <Text style={styles.commentText}>Comment 3</Text>
-            </View>
-          </View>
-          {/* Add more comments here */}
-        </ScrollView>
+        {/* Add more comments here */}
+        <CommentList video={video} />
       </View>
     </ScrollView>
   );

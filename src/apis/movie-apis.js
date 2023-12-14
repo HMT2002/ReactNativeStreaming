@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {PROXY_CLOUD, PROXY_TUE_LOCAL} from '@env';
+import {PROXY_TUE_LOCAL, PROXY_CLOUD} from '@env';
 
 export const GETThreadAction = async slug => {
   if (!slug) {
@@ -356,7 +356,7 @@ export const getDashUrl = async filename => {
     validateStatus: () => true,
     headers: {myaxiosfetch: '123'},
   });
-  console.log(data);
+  // console.log(data);
   var subserverurl = data.subserverurl;
   return subserverurl;
 };

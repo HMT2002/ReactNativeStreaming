@@ -5,7 +5,7 @@ export const GETUserInfoAction = async (account, token) => {
   if (account == null || token == null) return null;
 
   try {
-    console.log(PROXY_TUE_LOCAL);
+    console.log(PROXY_CLOUD);
     var url = PROXY_TUE_LOCAL + '/api/v1/users/' + account;
     const {data} = await axios({
       method: 'get',

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {PROXY_CLOUD, PROXY_TUE_LOCAL} from '@env';
+import {PROXY_TUE_LOCAL, PROXY_CLOUD} from '@env';
 // POST
 export const LoginAction = async userData => {
   if (!userData) {

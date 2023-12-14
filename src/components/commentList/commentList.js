@@ -13,11 +13,9 @@ import {Avatar} from 'react-native-elements';
 import commentAPIs from '../../apis/comment-apis';
 import AuthContext from '../../store/auth-context';
 const CommentList = props => {
-  const [video, setVideo] = useState(props.video);
+  const [video, setVideo] = useState(null);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
-
-  console.log('CommentList');
 
   const authCtx = useContext(AuthContext);
   const handleAddComment = async () => {
@@ -30,9 +28,6 @@ const CommentList = props => {
         authCtx.token,
         newComment,
       );
-      console.log('$$$$$$$$$$$$$$$$');
-      console.log(result);
-      console.log(authCtx);
       setComments([
         ...comments,
         {
@@ -52,18 +47,24 @@ const CommentList = props => {
   };
   useEffect(() => {
     const loadComment = async () => {
-      let comments = await commentAPIs.GETAllCommentByVideoAction(video._id);
-      console.log(comments);
+      console.log('!!!!!!!!@@@@@@@@@@!!!!!!!!' + props.video._id);
+      let comments = await commentAPIs.GETAllCommentByVideoAction(
+        props.video._id,
+      );
+      console.log('############@@@@@@@@@@@@@@@');
       setComments(prevState => {
         return comments;
       });
     };
+    console.log('CommentList');
+
+    console.log(props);
+    setVideo(props.video);
     loadComment();
-  }, []);
+  }, [props.video]);
   return (
     <ScrollView>
       {comments.map(comment => {
-        console.log('Here is 1 comment');
         let commentModel = new commentItem(
           comment.user,
           comment.content,

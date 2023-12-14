@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {GETUserInfoAction, GETSelfUserInfoAction} from '../apis/user-apis';
 import {LoginAction} from '../apis/auth-apis';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {PROXY_CLOUD, PROXY_TUE_LOCAL} from '@env';
 
 const AuthContext = React.createContext({
   isAuthorized: false,
@@ -113,9 +114,9 @@ export const AuthContextProvider = props => {
   const setAsyncStorageData = async () => {
     console.log('^^^^^^^^^^^');
     console.log('State changed!');
-    localStorage.setItem('username', username);
-    localStorage.setItem('token', token);
-    localStorage.setItem('avatar', avatar);
+    // await AsyncStorage.setItem('username', username);
+    // await AsyncStorage.setItem('token', token);
+    // await AsyncStorage.setItem('avatar', avatar);
   };
   useEffect(() => {
     console.log(isStayLoggedIn);

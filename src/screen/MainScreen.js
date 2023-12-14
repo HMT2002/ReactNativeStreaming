@@ -33,7 +33,7 @@ const MainScreen = props => {
     const LoadVideo = async () => {
       try {
         var obj_play;
-        let url = PROXY_CLOUD + '/redirect/hls/World Domination How-To';
+        let url = PROXY_TUE_LOCAL + '/redirect/hls/World Domination How-To';
 
         console.log(videoRef);
         const config = {

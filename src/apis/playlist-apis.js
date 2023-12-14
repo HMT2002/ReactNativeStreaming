@@ -14,17 +14,18 @@ export const GETAllPlaylistByUser = async token => {
   return data.data;
 };
 
-export const POSTCreatePlaylist = async playlistname => {
+export const POSTCreatePlaylist = async (playlistname, token) => {
   var url = PROXY_TUE_LOCAL + '/api/v1/playlist/create-playlist';
-  const {data} = await axios({
-    method: 'post',
-    url: url,
-    validateStatus: () => true,
-    headers: {
-      authorization: 'Bearer ' + token,
+  const {data} = await axios.post(
+    url,
+    {playlistname: playlistname},
+    {
+      validateStatus: () => true,
+      headers: {
+        authorization: 'Bearer ' + token,
+      },
     },
-    body: {playlistname},
-  });
+  );
   return data;
 };
 

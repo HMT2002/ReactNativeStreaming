@@ -2,7 +2,7 @@ import React, {useState, useContext} from 'react';
 import Modal from 'react-native-modal';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {I18nextProvider, useTranslation} from 'react-i18next';
-import {ip, met} from '@env';
+import {ip, met, PROXY_CLOUD, PROXY_TUE_LOCAL} from '@env';
 import {
   ActivityIndicator,
   Image,
@@ -20,7 +20,6 @@ import {useNavigation} from '@react-navigation/native';
 import axios from 'axios';
 import {faCheckCircle} from '@fortawesome/free-solid-svg-icons/faCheckCircle';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {PROXY_CLOUD, PROXY_TUE_LOCAL} from '@env';
 import AuthContext from '../store/auth-context';
 const LoginScreen = () => {
   const [getEmailId, setEmailId] = useState('');
@@ -38,7 +37,7 @@ const LoginScreen = () => {
   const handleLogin = async () => {
     try {
       const response = await axios.post(
-        PROXY_CLOUD + `/api/v1/users/signin`,
+        PROXY_TUE_LOCAL + `/api/v1/users/signin`,
         {
           account: getEmailId,
           password: getPassword,
