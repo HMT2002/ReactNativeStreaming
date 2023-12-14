@@ -427,163 +427,174 @@ const MovieDetailScreen = ({route, navigation}) => {
     );
   };
   return (
-    <ScrollView style={styles.container}>
-      <TouchableOpacity
-        style={{
-          width: '20%',
-          height: 50,
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: 'white',
-          margin: 6,
-        }}
-        onPress={handleGoBack}>
-        <FontAwesomeIcon
+    <View>
+      <ScrollView style={styles.container}>
+        <TouchableOpacity
           style={{
-            color: 'red',
-            fontSize: '39em',
-            width: '200px',
-            height: '50px',
+            width: '20%',
+            height: 50,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'white',
+            margin: 6,
           }}
-          icon={faHomeUser}
-        />
-      </TouchableOpacity>
-      {showVideo ? (
-        <View style={styles.containerr}>
-          <Video
-            source={{uri: src}}
-            style={styles.video}
-            controls={true}
-            rate={speed}
-            resizeMode={quality}
+          onPress={handleGoBack}>
+          <FontAwesomeIcon
+            style={{
+              color: 'red',
+              fontSize: '39em',
+              width: '200px',
+              height: '50px',
+            }}
+            icon={faHomeUser}
           />
-          <View style={styles.sliderContainer}>
-            <Text style={styles.label}>{t('play speed')}</Text>
-            <Slider
-              style={styles.slider}
-              minimumValue={0.5}
-              maximumValue={2.0}
-              step={0.1}
-              value={speed}
-              onValueChange={handleSpeedChange}
+        </TouchableOpacity>
+        {showVideo ? (
+          <View style={styles.containerr}>
+            <Video
+              source={{uri: src}}
+              style={styles.video}
+              controls={true}
+              rate={speed}
+              resizeMode={quality}
             />
-            <Text style={styles.value}>{speed.toFixed(2)}x</Text>
+            <View style={styles.sliderContainer}>
+              <Text style={styles.label}>{t('play speed')}</Text>
+              <Slider
+                style={styles.slider}
+                minimumValue={0.5}
+                maximumValue={2.0}
+                step={0.1}
+                value={speed}
+                onValueChange={handleSpeedChange}
+              />
+              <Text style={styles.value}>{speed.toFixed(2)}x</Text>
+            </View>
           </View>
-        </View>
-      ) : (
-        <Image
-          source={{
-            uri:
-              'https://image.tmdb.org/t/p/w600_and_h900_bestv2/' +
-              movie.filmInfo.backdrop_path,
-          }}
-          style={styles.image}
-          resizeMode="cover"
-        />
-      )}
+        ) : (
+          <Image
+            source={{
+              uri:
+                'https://image.tmdb.org/t/p/w600_and_h900_bestv2/' +
+                movie.filmInfo.backdrop_path,
+            }}
+            style={styles.image}
+            resizeMode="cover"
+          />
+        )}
 
-      <View style={styles.spsCtainer}>
-        {datas.map((item, index) => (
+        <View style={styles.spsCtainer}>
+          {datas.map((item, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.spsButton}
+              onPress={() => handleVideoClick(item, index)}>
+              <Text style={styles.spsTitle}>
+                {t('espisode')} {index + 1}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {!showVideo && (
           <TouchableOpacity
-            key={index}
-            style={styles.spsButton}
-            onPress={() => handleVideoClick(item, index)}>
-            <Text style={styles.spsTitle}>
-              {t('espisode')} {index + 1}
+            style={{
+              backgroundColor: 'orange',
+              width: 160,
+              padding: 10,
+              margin: 10,
+              borderRadius: 6,
+              alignSelf: 'center',
+            }}
+            onPress={handlePlay}>
+            <Text style={styles.buttonText}>{t('play video')}</Text>
+          </TouchableOpacity>
+        )}
+        <View style={styles.buttonContainer}>
+          <Text style={styles.buttonText}>{movie.filmInfo.original_title}</Text>
+          <Star rating={movie.filmInfo.vote_average / 2} />
+        </View>
+        <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
+          {movie.filmInfo.adult ? (
+            <Text style={styles.ageRestriction}>
+              {t('age restriction')} :18+
+            </Text>
+          ) : (
+            <Text style={styles.ageRestriction}>
+              {t('age restriction')} :6+
+            </Text>
+          )}
+          <Text style={styles.ageRestriction}>
+            {t('number of movies')}: {Object.keys(movie.videos).length}
+          </Text>
+          <Text style={styles.ageRestriction}>
+            {movie.filmInfo.release_date}
+          </Text>
+        </View>
+
+        <View style={{alignItems: 'start', flexDirection: 'column'}}>
+          <Text
+            style={styles.description}
+            numberOfLines={isCollapsed ? 1 : undefined}>
+            {movie.filmInfo.overview}
+          </Text>
+        </View>
+        <TouchableOpacity style={{}} onPress={toggleCollapse}>
+          <Text style={{color: 'white'}}>
+            {isCollapsed ? t('read more') : t('read less')} ...
+          </Text>
+        </TouchableOpacity>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={addToPlaylistHandler}>
+            <Text style={styles.buttonText}>
+              {t('add to playlist')}{' '}
+              <FontAwesomeIcon style={{color: 'white'}} icon={faAdd} />
             </Text>
           </TouchableOpacity>
-        ))}
-      </View>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={handleRatingButtonPress}>
+            <Text style={styles.buttonText}>
+              {t('rate movie')}{' '}
+              <FontAwesomeIcon style={{color: 'white'}} icon={faRankingStar} />
+            </Text>
+          </TouchableOpacity>
+          <RatingModal visible={modalVisible} onClose={handleCloseModal} />
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => console.log('Share')}>
+            <Text style={styles.buttonText}>
+              {t('share')}{' '}
+              <FontAwesomeIcon style={{color: 'white'}} icon={faShare} />
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => console.log('Download')}>
+            <Text style={styles.buttonText}>
+              {t('download')}{' '}
+              <FontAwesomeIcon style={{color: 'white'}} icon={faArrowDown} />
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <View>
+          <Text style={styles.commentsTitle}>Comments</Text>
 
-      {!showVideo && (
-        <TouchableOpacity
-          style={{
-            backgroundColor: 'orange',
-            width: 160,
-            padding: 10,
-            margin: 10,
-            borderRadius: 6,
-            alignSelf: 'center',
-          }}
-          onPress={handlePlay}>
-          <Text style={styles.buttonText}>{t('play video')}</Text>
-        </TouchableOpacity>
-      )}
-      <View style={styles.buttonContainer}>
-        <Text style={styles.buttonText}>{movie.filmInfo.original_title}</Text>
-        <Star rating={movie.filmInfo.vote_average / 2} />
-      </View>
-      <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-        {movie.filmInfo.adult ? (
-          <Text style={styles.ageRestriction}>{t('age restriction')} :18+</Text>
-        ) : (
-          <Text style={styles.ageRestriction}>{t('age restriction')} :6+</Text>
-        )}
-        <Text style={styles.ageRestriction}>
-          {t('number of movies')}: {Object.keys(movie.videos).length}
-        </Text>
-        <Text style={styles.ageRestriction}>{movie.filmInfo.release_date}</Text>
-      </View>
+          {/* Add more comments here */}
+          <CommentList video={video} />
+        </View>
+      </ScrollView>
 
-      <View style={{alignItems: 'start', flexDirection: 'column'}}>
-        <Text
-          style={styles.description}
-          numberOfLines={isCollapsed ? 1 : undefined}>
-          {movie.filmInfo.overview}
-        </Text>
-      </View>
-      <TouchableOpacity style={{}} onPress={toggleCollapse}>
-        <Text style={{color: 'white'}}>
-          {isCollapsed ? t('read more') : t('read less')} ...
-        </Text>
-      </TouchableOpacity>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={addToPlaylistHandler}>
-          <Text style={styles.buttonText}>
-            {t('add to playlist')}{' '}
-            <FontAwesomeIcon style={{color: 'white'}} icon={faAdd} />
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={handleRatingButtonPress}>
-          <Text style={styles.buttonText}>
-            {t('rate movie')}{' '}
-            <FontAwesomeIcon style={{color: 'white'}} icon={faRankingStar} />
-          </Text>
-        </TouchableOpacity>
-        <RatingModal visible={modalVisible} onClose={handleCloseModal} />
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => console.log('Share')}>
-          <Text style={styles.buttonText}>
-            {t('share')}{' '}
-            <FontAwesomeIcon style={{color: 'white'}} icon={faShare} />
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => console.log('Download')}>
-          <Text style={styles.buttonText}>
-            {t('download')}{' '}
-            <FontAwesomeIcon style={{color: 'white'}} icon={faArrowDown} />
-          </Text>
-        </TouchableOpacity>
-      </View>
-      <View>
-        <BottomSheetModal
-          ref={bottomSheetModalRef}
-          index={1}
-          snapPoints={snapPoints}
-          onChange={handleSheetChanges}>
-          <NewPlaylistBottomSheet video={video} info={movie} />
-        </BottomSheetModal>
-        <Text style={styles.commentsTitle}>Comments</Text>
-
-        {/* Add more comments here */}
-        <CommentList video={video} />
-      </View>
-    </ScrollView>
+      <BottomSheetModal
+        ref={bottomSheetModalRef}
+        index={1}
+        snapPoints={snapPoints}
+        onChange={handleSheetChanges}>
+        <NewPlaylistBottomSheet video={video} info={movie} />
+      </BottomSheetModal>
+    </View>
   );
 };
 
@@ -607,7 +618,6 @@ const styles = StyleSheet.create({
   },
 
   container: {
-    flex: 1,
     backgroundColor: '#000',
   },
   button: {
