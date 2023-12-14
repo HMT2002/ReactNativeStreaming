@@ -6,7 +6,7 @@ import {useIsFocused} from '@react-navigation/native';
 import {StyleSheet, Switch, Text, View, Share} from 'react-native';
 import {GetNoteAction} from '../actions/GetNote';
 import Video from 'react-native-video';
-import WDHT from './test.mp4'
+import WDHT from './test.mp4';
 // import WDHT from './World Domination How-To.m3u8'
 
 import videojs from 'video.js';
@@ -29,14 +29,13 @@ const MainScreen = props => {
     },
   });
   useEffect(() => {
-    const CheckVideoAndEncode = async () => {
-    };
+    const CheckVideoAndEncode = async () => {};
     const LoadVideo = async () => {
       try {
         var obj_play;
-        let url = 'http://192.168.1.99:9000/redirect/hls/World Domination How-To';
+        let url = PROXY_CLOUD + '/redirect/hls/World Domination How-To';
 
-        console.log(videoRef)
+        console.log(videoRef);
         const config = {
           startPosition: 0, // can be any number you want
         };
@@ -102,7 +101,6 @@ const MainScreen = props => {
     <View style={styles.mainScreen}>
       <Text>12221</Text>
       <Video
-        //HOW THE FUCK???? TẠI SAO HLS NGƯỜI KHÁC COI ĐC CÒN CỦA T THÌ ÉO?????
         source={WDHT} // the video file
         // source={{uri: "https://tzvodacomcontent.s3.amazonaws.com/video-1654952965085/video-1654952965085.m3u8"}}
         // source={{uri: "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8"}}

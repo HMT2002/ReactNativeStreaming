@@ -1,14 +1,15 @@
 import { React, useContext, useRef, useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView, Button, FlatList, ActivityIndicator } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { Avatar } from 'react-native-elements';
 import { GetNoteAction } from '../actions/GetNote';
 import Video from 'react-native-video';
-import WDHT from './test.mp4'
+
+import Icon from 'react-native-vector-icons/FontAwesome';
 // import WDHT from './World Domination How-To.m3u8'
 import AppController from '../controllers/AppController';
 import AppContext from '../utils/AppContext';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { useIsFocused } from '@react-navigation/native';
+import {useIsFocused} from '@react-navigation/native';
 import videojs from 'video.js';
 import Hls from 'hls.js';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
@@ -21,8 +22,6 @@ const MovieDetailScreen = ({ route, navigation }) => {
   const appContext = useContext(AppContext);
   const videoRef = useRef();
   const { watchList, setWatchList } = useContext(AppContext);
-  const [episodes, setEpisodes] = useState([]);
-  const [loading, setLoading] = useState(false);
 
   const handleAddToWatchList = () => {
     // Check if the movie is not already in the watch list
@@ -32,110 +31,65 @@ const MovieDetailScreen = ({ route, navigation }) => {
   };
 
   const [showVideo, setShowVideo] = useState(false);
+  const [datas, setData] = useState([]);
+  const [src, setSrc] = useState();
+  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const handleSpeedChange = value => {
+    setSpeed(value); // Set the playback speed based on the slider value
+  };
+  const handleQualityChange = value => {
+    setQuality(value === 0 ? 'auto' : '720'); // Set the video quality based on the slider value
+  };
+
   useEffect(() => {
-    const CheckVideoAndEncode = async () => {
-    };
-    const LoadVideo = async () => {
+    const fetchData = async () => {
       try {
-        var obj_play;
-        let url = 'http://192.168.1.99:9000/redirect/hls/World Domination How-To';
-
-        console.log(videoRef)
-        const config = {
-          startPosition: 0, // can be any number you want
-        };
-        obj_play = {
-          fill: true,
-          fluid: true,
-          autoplay: true,
-          controls: true,
-          preload: 'auto',
-          loop: true,
-          sources: [
-            // {
-            //   src: data.path,
-            //   type: 'application/x-mpegURL',
-            //   withCredentials: true,
-            // },
-          ],
-        };
-        const hls = new Hls(config);
-        hls.loadSource(url);
-        hls.attachMedia(videoRef.current);
-        hls.subtitleDisplay = true;
-
-        const _player = videojs(
-          videoRef.current,
-          obj_play,
-          function onPlayerReady() {
-            videojs.log('Your player is ready!');
-
-            // In this context, `this` is the player that was created by Video.js.
-            this.play();
-
-            // volume scale 0 - 1
-            const defaultVolume = 0.4;
-            this.volume(defaultVolume);
-
-            // How about an event listener?
-            this.on('ended', function () {
-              videojs.log('Awww...over so soon?!');
-            });
-          },
+        const responses = await Promise.all(
+          movie.videos.map(video =>
+            axios.get(
+              `${PROXY_CLOUD}/redirect/dash/` +
+                video.videoname +
+                `/` +
+                video.videoname,
+              {headers: {myaxiosfetch: '123'}},
+            ),
+          ),
         );
-        console.log(_player);
-
-        // _player.on('xhr-hooks-ready', () => {
-        //   const playerRequestHook = (options) => {
-        //     options.beforeSend = (xhr) => {
-        //       xhr.setRequestHeader('foo', 'bar');
-        //     };
-        //     console.log(options)
-        //     return options;
-        //   };
-        //   _player.tech().vhs.xhr.onResponse(playerRequestHook);
-        // });
+        console.log(responses);
+        const videoDataArray = responses.map(
+          response => response.data.subserverurl,
+        );
+        setData(videoDataArray);
+        setSrc(videoDataArray[0]);
+        console.log(src);
       } catch (error) {
-        console.log(error);
+        console.error('Error fetching video data:', error);
       }
     };
-    //CheckVideoAndEncode();
-    LoadVideo();
+
+    fetchData();
   }, []);
+  const toggleCollapse = () => {
+    setIsCollapsed(!isCollapsed);
+  };
+  const handleRatingButtonPress = () => {
+    setModalVisible(true);
+  };
+  const handleVideoClick = (videoUrl, index) => {
+    console.log('Playing video:', videoUrl);
+    setClickedButton(index);
+    setSrc(videoUrl);
+  };
+  const handleCloseModal = () => {
+    setModalVisible(false);
+  };
   const handleGoBack = () => {
     navigation.goBack();
   };
   const handlePlay = () => {
     setShowVideo(true);
-  };
-
-  useEffect(() => {
-    // Gọi API để lấy danh sách tập phim khi component được mở
-    setLoading(true);
-
-    fetch(`https://example.com/api/movies/${movie.id}/episodes`)
-      .then((response) => response.json())
-      .then((data) => {
-        setEpisodes(data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error('Error fetching episodes:', error);
-        setLoading(false);
-      });
-  }, []);
-
-  const renderEpisodeItem = ({ item }) => (
-    <TouchableOpacity onPress={() => handleEpisodePress(item)}>
-      <View style={styles.episodeItem}>
-        <Text style={styles.episodeNumber}>{item.episodeNumber}</Text>
-      </View>
-    </TouchableOpacity>
-  );
-
-  const handleEpisodePress = (episode) => {
-    // Xử lý khi người dùng chọn một tập phim
-    navigation.navigate('/SingleFilm', { episode });
   };
 
   // const onFullscreenPlayerWillPresent = () => {
@@ -147,52 +101,60 @@ const MovieDetailScreen = ({ route, navigation }) => {
   // };
   return (
     <ScrollView style={styles.container}>
-      <TouchableOpacity style={{ width: "20%" }} onPress={handleGoBack}>
-        <Text style={styles.buttonText}> Back</Text>
+      <TouchableOpacity
+        style={{
+          width: '20%',
+          height: 50,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: 'white',
+          margin: 6,
+        }}
+        onPress={handleGoBack}>
+        <FontAwesomeIcon
+          style={{
+            color: 'red',
+            fontSize: '39em',
+            width: '200px',
+            height: '50px',
+          }}
+          icon={faHomeUser}
+        />
       </TouchableOpacity>
       {showVideo ? (
-        <Video
-          setControls
-          controls
-          resizeMode="cover"
-          //HOW THE FUCK???? TẠI SAO HLS NGƯỜI KHÁC COI ĐC CÒN CỦA T THÌ ÉO?????
-          source={WDHT} // the video file
-          // source={{uri: "https://tzvodacomcontent.s3.amazonaws.com/video-1654952965085/video-1654952965085.m3u8"}}
-          // source={{uri: "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8"}}
-
-          // onFullscreenPlayerWillPresent={onFullscreenPlayerWillPresent}
-          // onFullscreenPlayerWillDismiss={onFullscreenPlayerWillDismiss}
-          paused={false} // make it start    r
-          style={styles.image} // any style you want
-          repeat={false} // make it a loop
-          ref={videoRef} // Store reference
-          onBuffer={this.onBuffer} // Callback when remote video is buffering
-          onError={error => {
-            console.log(error);
-          }}
-        />
+        <View style={styles.containerr}>
+          <Video
+            source={{uri: src}}
+            style={styles.video}
+            controls={true}
+            rate={speed}
+            resizeMode={quality}
+          />
+          <View style={styles.sliderContainer}>
+            <Text style={styles.label}>{t('play speed')}</Text>
+            <Slider
+              style={styles.slider}
+              minimumValue={0.5}
+              maximumValue={2.0}
+              step={0.1}
+              value={speed}
+              onValueChange={handleSpeedChange}
+            />
+            <Text style={styles.value}>{speed.toFixed(2)}x</Text>
+          </View>
+        </View>
       ) : (
-
         <Image
-          source={movie.poster}
+          source={{
+            uri:
+              'https://image.tmdb.org/t/p/w600_and_h900_bestv2/' +
+              movie.filmInfo.backdrop_path,
+          }}
           style={styles.image}
           resizeMode="cover"
         />
 
 
-      )}
-      <Text style={styles.description}> Playlist </Text>
-      {/* Hiển thị danh sách tập phim ngang */}
-      {loading ? (
-        <ActivityIndicator size="large" color="#0000ff" />
-      ) : (
-        <FlatList
-          data={episodes}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={renderEpisodeItem}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-        />
       )}
       <Text style={styles.episodes}>Episodes: 10</Text>
       <Text style={styles.ageRestriction}>Age Restriction: 18+</Text>
@@ -201,29 +163,44 @@ const MovieDetailScreen = ({ route, navigation }) => {
       <TouchableOpacity style={styles.button} onPress={handlePlay}>
         <Text style={styles.buttonText}>Play Video</Text>
       </TouchableOpacity>
-      <Text style={styles.description}>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae nunc eget nunc consectetur tincidunt. Nulla facilisi. Sed euismod, nisl ac tincidunt tincidunt, mi mauris aliquet odio, vitae aliquam nunc nunc id nunc. Sed vitae nunc eget nunc consectetur tincidunt. Nulla facilisi. Sed euismod, nisl ac tincidunt tincidunt, mi mauris aliquet odio, vitae aliquam nunc nunc id nunc.
-      </Text>
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={() => console.log('Add to Playlist')}>
-          <Text style={styles.buttonText}>Add to Playlist</Text>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => console.log('Add to Playlist')}>
+          <Text style={styles.buttonText}>
+            {t('add to playlist')}{' '}
+            <FontAwesomeIcon style={{color: 'white'}} icon={faAdd} />
+          </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => console.log('Rate Movie')}>
-          <Text style={styles.buttonText}>Rate Movie</Text>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={handleRatingButtonPress}>
+          <Text style={styles.buttonText}>
+            {t('rate movie')}{' '}
+            <FontAwesomeIcon style={{color: 'white'}} icon={faRankingStar} />
+          </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => console.log('Share')}>
-          <Text style={styles.buttonText}>Share</Text>
+        <RatingModal visible={modalVisible} onClose={handleCloseModal} />
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => console.log('Share')}>
+          <Text style={styles.buttonText}>
+            {t('share')}{' '}
+            <FontAwesomeIcon style={{color: 'white'}} icon={faShare} />
+          </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={handleAddToWatchList}>
-          <Text style={styles.buttonText}>Add to Watch List</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => console.log('Download')}>
-          <Text style={styles.buttonText}>Download</Text>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => console.log('Download')}>
+          <Text style={styles.buttonText}>
+            {t('download')}{' '}
+            <FontAwesomeIcon style={{color: 'white'}} icon={faArrowDown} />
+          </Text>
         </TouchableOpacity>
       </View>
 
       <View style={styles.commentsContainer}>
-        <Text style={styles.commentsTitle}>Comments</Text>
+        <Text style={styles.commentsTitle}>{t('comment')}</Text>
         <ScrollView style={styles.commentsScrollView}>
           <View style={styles.commentContainer}>
             <Avatar
@@ -262,7 +239,6 @@ const MovieDetailScreen = ({ route, navigation }) => {
             </View>
           </View>
           {/* Add more comments here */}
-          <CommentList/>
         </ScrollView>
       </View>
     </ScrollView>
@@ -270,6 +246,24 @@ const MovieDetailScreen = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
+  spsCtainer: {
+    flex: 1,
+    justifyContent: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 4,
+  },
+  spsButton: {
+    margin: 6,
+    padding: 6,
+    backgroundColor: '#f2f2f2',
+    borderRadius: 1,
+  },
+  spsTittle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+
   container: {
     flex: 1,
     backgroundColor: '#000',
@@ -279,8 +273,9 @@ const styles = StyleSheet.create({
     top: 16,
     left: 16,
     padding: 8,
-    backgroundColor: '#fff',
+    backgroundColor: 'orange',
     borderRadius: 8,
+    width: 'auto',
   },
   image: {
     width: '100%',
@@ -311,6 +306,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   numMovies: {
+    margin: 5,
     fontSize: 16,
     color: '#fff',
     marginBottom: 16,
@@ -343,6 +339,12 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     padding: 8,
   },
+  readmore: {
+    alignSelf: 'star',
+    width: '20%',
+    justifyContent: 'start',
+    alignItems: 'center',
+  },
   commentContainer: {
     flexDirection: 'row',
     marginBottom: 8,
@@ -361,14 +363,17 @@ const styles = StyleSheet.create({
   commentText: {
     fontSize: 16,
     color: '#fff',
-  }, description: {
+  },
+  description: {
     fontSize: 16,
     color: '#fff',
   },
   buttonContainer: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     marginBottom: 8,
-  }, backgroundVideo: {
+  },
+  backgroundVideo: {
     position: 'absolute',
     top: 50,
     left: 0,
@@ -376,6 +381,32 @@ const styles = StyleSheet.create({
     right: 0,
     width: 300,
     height: 500,
+  },
+  containerr: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  video: {
+    width: '100%',
+    height: 300,
+    marginBottom: 6,
+  },
+  sliderContainer: {
+    width: '100%',
+    marginBottom: -10,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    color: 'white',
+  },
+  slider: {
+    width: '100%',
+  },
+  value: {
+    textAlign: 'center',
   },
 });
 
