@@ -47,7 +47,26 @@ export const GETSelfUserInfoAction = async token => {
 export const POSTUploadAvatarAction = async formData => {};
 
 const POSTUpdateUserInfo = async (account, token, payload) => {
-  if (account == null || token == null) return {status: 'fail'};
+  // if (account == null || token == null) return {status: 'fail'};
+  try {
+    const response = await axios({
+      method: 'patch', // Phương thức PATCH thích hợp cho việc cập nhật thông tin người dùng
+      url: `${PROXY_TUE_LOCAL}/api/v1/users/${account}`, // Sử dụng đúng đường dẫn API cập nhật thông tin
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token,
+      },
+      data: payload, // Truyền dữ liệu cập nhật từ payload
+    });
+
+    if (response.status === 200) {
+      console.log('Profile updated successfully');
+    } else {
+      console.error('Failed to update profile');
+    }
+  } catch (error) {
+    console.error('Error updating profile:', error);
+  }
 };
 
 const POSTRequestUpgradeAccount = async (account, token, payload) => {};
