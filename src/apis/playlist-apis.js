@@ -52,7 +52,7 @@ export const POSTAddVideoToPlaylistAction = async (
 
 export const DELETEPlaylistAction = async playlistID => {
   console.log({playlistID});
-  var url = PROXY_TUE_LOCAL + '/api/v1/playlist/delete-playlist';
+  var url = PROXY_CLOUD + '/api/v1/playlist/delete-playlist';
   const {data} = await axios.post(
     url,
     {playlistID: playlistID},
