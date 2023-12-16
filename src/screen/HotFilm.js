@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import axios from 'axios';
+import Star from './Star';
 import { useNavigation } from '@react-navigation/native';
 import { PROXY_CLOUD, PROXY_TUE_LOCAL } from '@env';
 import { ip } from '@env';
@@ -82,30 +83,58 @@ const MovieScreen = () => {
   const renderArray = () => {
     if (selectedTag === 'rated') {
       return (
-        <View>
+        <ScrollView>
           {ratedList && ratedList.map((item, index) => (
-            <Text key={index}>{item.movie.filmInfo.title ? item.movie.filmInfo.title : item.movie.filmInfo.name}</Text>
+            <TouchableOpacity
+              key={item.movie._id}
+              style={styles.movieContainer}
+              onPress={() => handleMoviePress(item.movie)}
+            >
+              <Image source={{ uri: 'https://image.tmdb.org/t/p/w600_and_h900_bestv2/' + item.movie.filmInfo.backdrop_path }} style={styles.poster} />
+              <View key={item.movie.id} style={styles.movieDetails}>
+                <Text style={styles.title}>{item.movie.filmInfo.name}</Text>
+                <View style={{ flexDirection: 'row', justifyContent: "space-between" }}>
+                  <Star rating={item.movie.filmInfo.vote_average / 2} />
+                  <Text style={styles.genre}>{item.movie.filmInfo.vote_count}</Text>
+                </View>
+
+              </View>
+            </TouchableOpacity>
           ))}
-        </View>
+        </ScrollView>
       );
     } else {
       return (
-        <View>
+        <ScrollView>
           {playlist && playlist.map((item, index) => (
-            <Text key={index}>{item.filmInfo.title ? item.filmInfo.title : item.filmInfo.name}</Text>
+            <TouchableOpacity
+              key={item._id}
+              style={styles.movieContainer}
+              onPress={() => handleMoviePress(item.movie)}
+            >
+              <Image source={{ uri: 'https://image.tmdb.org/t/p/w600_and_h900_bestv2/' + item.filmInfo.backdrop_path }} style={styles.poster} />
+              <View key={item.id} style={styles.movieDetails}>
+                <Text style={styles.title}>{item.filmInfo.name}</Text>
+                <View style={{ flexDirection: 'row', justifyContent: "space-between" }}>
+                  <Star rating={item.filmInfo.vote_average / 2} />
+                  <Text style={styles.genre}>{item.filmInfo.vote_count}</Text>
+                </View>
+
+              </View>
+            </TouchableOpacity>
           ))}
-        </View>
+        </ScrollView>
       );
     }
   };
   return (
     <View>
       <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
-        <TouchableOpacity onPress={() => setSelectedTag('rated')}>
-          <Text style={{ fontWeight: selectedTag === 'rated' ? 'bold' : 'normal' }}>rated{ratedList.length}</Text>
+        <TouchableOpacity style={{ flex: 1, borderColor: 'white', padding: 5, backgroundColor: selectedTag === 'rated' ? 'orange' : 'white', margin: 10 }} onPress={() => setSelectedTag('rated')}>
+          <Text style={{ fontWeight: selectedTag === 'rated' ? 'bold' : 'normal' }}>Rated Film</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => setSelectedTag('playlist')}>
-          <Text style={{ fontWeight: selectedTag === 'playlist' ? 'bold' : 'normal' }}>dsad{playlist.length}</Text>
+        <TouchableOpacity style={{ flex: 1, borderColor: 'white', padding: 5, backgroundColor: selectedTag === 'playlist' ? 'orange' : 'white', margin: 10 }} onPress={() => setSelectedTag('playlist')}>
+          <Text style={{ fontWeight: selectedTag === 'playlist' ? 'bold' : 'normal' }}>Your Playlist</Text>
         </TouchableOpacity>
       </View>
       {renderArray()}

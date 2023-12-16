@@ -8,8 +8,11 @@ import axios from 'axios';
 import { faAdd } from '@fortawesome/free-solid-svg-icons/faAdd';
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons/faArrowDown';
 import { faShare } from '@fortawesome/free-solid-svg-icons/faShare';
+import { faCalendarDays } from '@fortawesome/free-solid-svg-icons/faCalendarDays';
 import { faRankingStar } from '@fortawesome/free-solid-svg-icons/faRankingStar';
 import { faHomeUser } from '@fortawesome/free-solid-svg-icons/faHomeUser';
+import { faTimeline } from '@fortawesome/free-solid-svg-icons/faTimeline';
+import { faFileMedicalAlt } from '@fortawesome/free-solid-svg-icons/faFileMedicalAlt';
 import Star from './Star';
 import Slider from '@react-native-community/slider';
 import { PROXY_CLOUD, PROXY_TUE_LOCAL } from '@env';
@@ -38,6 +41,7 @@ const MovieDetailScreen = ({ route, navigation }) => {
   const [playlistId, setPlaylistId] = useState("");
   const stars = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
+  const [esIndex, setEsIndex] = useState(0);
   const handleMPaymentPress = (movie) => {
 
     setModalVisible(!modalVisible)
@@ -221,6 +225,7 @@ const MovieDetailScreen = ({ route, navigation }) => {
     console.log('Playing video:', videoUrl);
     setClickedButton(index);
     setSrc(videoUrl);
+    setEsIndex(index);
   };
   const handleCloseModal = () => {
     setModalVisible(false);
@@ -261,23 +266,26 @@ const MovieDetailScreen = ({ route, navigation }) => {
     <ScrollView style={styles.container}>
       <TouchableOpacity
         style={{
-          width: '20%',
-          height: 50,
+          width: 40,
+          height: 40,
           justifyContent: 'center',
           alignItems: 'center',
-          backgroundColor: 'white',
+          backgroundColor: '#2f94aa',
           margin: 6,
+          borderRadius: 10
         }}
         onPress={handleGoBack}>
         <FontAwesomeIcon
           style={{
-            color: 'red',
+            color: 'white',
             fontSize: '39em',
-            width: '200px',
-            height: '50px',
+
+            padding: 16,
+
           }}
           icon={faHomeUser}
         />
+
       </TouchableOpacity>
       {showVideo ? (
         <View style={styles.containerr}>
@@ -317,9 +325,9 @@ const MovieDetailScreen = ({ route, navigation }) => {
         {datas.map((item, index) => (
           <TouchableOpacity
             key={index}
-            style={styles.spsButton}
-            onPress={() => handleVideoClick(item)}>
-            <Text style={styles.spsTitle}>
+            style={[styles.spsButton, (index === esIndex) ? { backgroundColor: '#a3cfd9' } : {}]}
+            onPress={() => handleVideoClick(item, index)}>
+            <Text style={{ color: 'white' }}>
               {t('espisode')} {index + 1}
             </Text>
           </TouchableOpacity>
@@ -327,13 +335,13 @@ const MovieDetailScreen = ({ route, navigation }) => {
       </View>
 
 
-      {(!showVideo) && ((!movie.primaryTag) ? (<TouchableOpacity style={{ backgroundColor: 'orange', width: 160, padding: 10, margin: 10, borderRadius: 6, alignSelf: 'center' }} onPress={handlePlay}>
+      {(!showVideo) && ((!movie.primaryTag) ? (<TouchableOpacity style={{ backgroundColor: '#2f94aa', width: 160, padding: 10, margin: 10, borderRadius: 6, alignSelf: 'center' }} onPress={handlePlay}>
         <Text style={styles.buttonText}>{t("play video")}</Text>
       </TouchableOpacity>) :
-        (userData.isVip ? (<TouchableOpacity style={{ backgroundColor: 'orange', width: 160, padding: 10, margin: 10, borderRadius: 6, alignSelf: 'center' }} onPress={handlePlay}>
+        (userData.isVip ? (<TouchableOpacity style={{ backgroundColor: '#2f94aa', width: 160, padding: 10, margin: 10, borderRadius: 6, alignSelf: 'center' }} onPress={handlePlay}>
           <Text style={styles.buttonText}>{t("play video")}</Text>
-        </TouchableOpacity>) : (<TouchableOpacity style={{ backgroundColor: 'orange', width: 160, padding: 10, margin: 10, borderRadius: 6, alignSelf: 'center' }} key={3} onPress={() => handleMPaymentPress()}>
-          <Text style={styles.handleMPaymentPress}>Buy Primium Package</Text>
+        </TouchableOpacity>) : (<TouchableOpacity style={{ backgroundColor: '#2f94aa', width: 160, padding: 10, margin: 10, borderRadius: 6, alignSelf: 'center' }} key={3} onPress={() => handleMPaymentPress()}>
+          <Text style={{ fontWeight: 'bold', color: 'white' }}>Buy Primium Package</Text>
         </TouchableOpacity>))
       )
       }
@@ -344,14 +352,74 @@ const MovieDetailScreen = ({ route, navigation }) => {
       </View>
       <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
         {movie.filmInfo.adult ? (
-          <Text style={styles.ageRestriction}>{t('age restriction')} :18+</Text>
+          <View style={{ flexDirection: 'column', backgroundColor: '#3f4445', borderRadius: 3, padding: 10, alignItems: 'center', margin: 5 }}>
+            <Text style={styles.ageRestriction}>{t('age restriction')}</Text>
+            <View style={{ flexDirection: 'row' }}>
+              <Text style={styles.ageRestriction}>18+</Text>
+              <FontAwesomeIcon
+                style={{
+                  color: '#a3cfd9',
+                  fontSize: '39em',
+
+                  padding: 26,
+
+                }}
+                icon={faTimeline}
+              />
+            </View>
+          </View>
         ) : (
-          <Text style={styles.ageRestriction}>{t('age restriction')} :6+</Text>
+          <View style={{ flexDirection: 'column', flex: 1, backgroundColor: '#3f4445', borderRadius: 3, padding: 10, alignItems: 'center', margin: 5 }}>
+            <Text style={{ fontWeight: 'bold', margin: 2, fontSize: 19, color: 'white' }}>6+</Text>
+            <Text style={{ fontWeight: '200', margin: 2, color: 'white' }}>{t('age restriction')}</Text>
+
+            <FontAwesomeIcon
+              style={{
+                color: '#a3cfd9',
+
+                padding: 10,
+
+              }}
+              icon={faTimeline}
+            />
+
+          </View>
+
         )}
-        <Text style={styles.ageRestriction}>
-          {t('number of movies')}: {Object.keys(movie.videos).length}
-        </Text>
-        <Text style={styles.ageRestriction}>{movie.filmInfo.release_date}</Text>
+        <View style={{ flexDirection: 'column', flex: 1, backgroundColor: '#3f4445', borderRadius: 3, padding: 10, alignItems: 'center', margin: 5 }}>
+          <Text style={styles.ageRestriction}> {Object.keys(movie.videos).length}</Text>
+          <Text style={styles.ageRestriction}>{t('number of movies')}</Text>
+          <View style={{ flexDirection: 'row' }}>
+
+            <FontAwesomeIcon
+              style={{
+                color: '#a3cfd9',
+                fontSize: '39em',
+
+                padding: 16,
+
+              }}
+              icon={faFileMedicalAlt}
+            />
+          </View>
+        </View>
+
+        <View style={{ flexDirection: 'column', alignItems: 'stretch', flex: 1, backgroundColor: '#3f4445', borderRadius: 3, padding: 10, alignItems: 'center', margin: 5 }}>
+          <Text style={styles.ageRestriction}>{movie.filmInfo.release_date}</Text>
+          <View style={{ flexDirection: 'row' }}>
+
+            <FontAwesomeIcon
+              style={{
+                color: '#a3cfd9',
+                fontSize: '39em',
+
+                padding: 16,
+
+              }}
+              icon={faCalendarDays}
+            />
+          </View>
+        </View>
       </View>
 
       <View style={{ alignItems: 'start', flexDirection: 'column' }}>
@@ -366,16 +434,16 @@ const MovieDetailScreen = ({ route, navigation }) => {
       </TouchableOpacity>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
-          style={styles.button}
+          style={{ flex: 1, backgroundColor: '#2f94aa', margin: 10, padding: 5 }}
           onPress={handleAddtoPlaylist}>
           <Text style={styles.buttonText}>
             {t('add to playlist')}{' '}
-            <FontAwesomeIcon style={{ color: 'white' }} icon={faAdd} />
+            <FontAwesomeIcon style={{ color: '#a3cfd9' }} icon={faAdd} />
           </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.button}
+          style={{ flex: 1, backgroundColor: '#2f94aa', margin: 10, padding: 5 }}
           onPress={handleRatingButtonPress}>
           <Text style={styles.buttonText}>
             {t('rate movie')}{' '}
@@ -402,17 +470,7 @@ const MovieDetailScreen = ({ route, navigation }) => {
             </View>
           </View>
         </Modal>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => console.log('Share')}>
-          <Text style={styles.buttonText}>
-            {t('share')}{' '}
-            <FontAwesomeIcon style={{ color: 'white' }} icon={faShare} />
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => console.log('Download')}>
-          <Text style={styles.buttonText}>{t("download")}{userData.isVip ? "yes" : "no"}  <FontAwesomeIcon style={{ color: "white" }} icon={faArrowDown} /></Text>
-        </TouchableOpacity>
+
       </View>
 
       <View style={styles.commentsContainer}>
@@ -437,24 +495,26 @@ const MovieDetailScreen = ({ route, navigation }) => {
                 </View>)))
             );
           }))}
-          <TextInput
-            placeholder="Write down something..."
-            style={{ color: 'white' }}
-            value={comment}
-            placeholderTextColor="gray"
-            onChangeText={handleType}
-          />
+          <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', alignItems: 'center' }}>
+            <TextInput
+              placeholder="Write down something..."
+              style={{ color: 'white' }}
+              value={comment}
+              placeholderTextColor="gray"
+              onChangeText={handleType}
+            />
 
+            <TouchableOpacity style={{ width: 60, height: 30, backgroundColor: '#2f94aa', flexDirection: 'row', justifyContent: 'center' }} onPress={AddComment}><Text style={{ color: 'white' }}>send</Text></TouchableOpacity>
 
-
+          </View>
 
 
 
           {/* Add more comments here */}
         </ScrollView>
       </View>
-      <TouchableOpacity style={{ width: 100, height: 60, backgroundColor: 'lightblue' }} onPress={AddComment}><Text style={{ color: 'white' }}>send</Text></TouchableOpacity>
-    </ScrollView>
+
+    </ScrollView >
   );
 };
 
@@ -469,7 +529,7 @@ const styles = StyleSheet.create({
   spsButton: {
     margin: 6,
     padding: 6,
-    backgroundColor: '#f2f2f2',
+    backgroundColor: '#555959',
     borderRadius: 1,
   },
   spsTittle: {
@@ -479,14 +539,14 @@ const styles = StyleSheet.create({
 
   container: {
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: '#2a2f30',
   },
   button: {
     position: 'absolute',
     top: 16,
     left: 16,
     padding: 8,
-    backgroundColor: 'orange',
+    backgroundColor: '#2f94aa',
     borderRadius: 8,
     width: 'auto',
   },
@@ -507,7 +567,7 @@ const styles = StyleSheet.create({
   ageRestriction: {
     fontSize: 16,
     color: '#fff',
-    marginBottom: 8,
+    marginBottom: 2,
   },
   numMovies: {
     margin: 5,
@@ -528,6 +588,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   commentsContainer: {
+    margin: 13,
     height: 'auto',
     marginTop: 16,
   },

@@ -91,7 +91,7 @@ const HomeScreen = () => {
       <ImageBackground
         key={item._id}
         source={{ uri: 'https://image.tmdb.org/t/p/w600_and_h900_bestv2/' + item.filmInfo.backdrop_path }}
-        style={{ width: Dimensions.get('window').width, height: 300 }}
+        style={{ width: Dimensions.get('window').width, height: 300, margin: 10 }}
       >
         <View key={item._id} style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'flex-end', width: '100%', height: '100%', padding: 10 }}>
           <TouchableOpacity key={item._id} style={{ backgroundColor: 'orange', width: 200, height: 50, borderRadius: 10, flexDirection: 'row', justifyContent: 'center' }}>
@@ -111,32 +111,23 @@ const HomeScreen = () => {
 
   return (
     <ScrollView style={styles.container}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', width: '100%', height: 150 }}>
-        <View style={{ flexDirection: 'column', alignItems: 'center', padding: 10, margin: 10, width: '33%' }}>
+      <ImageBackground
+        source={require('../assets/title.jpg')}
+
+        style={{ flexDirection: 'row', alignItems: 'center', width: '100%', height: 150, margin: 10 }}>
+        <View style={{ flexDirection: 'column', alignItems: 'center', padding: 10, margin: 10, width: '35%' }}>
           <Text style={{ color: 'white', fontSize: 20 }}>{t('welcome')}</Text>
-          <Text style={{ color: 'red', fontSize: 25 }}>{ip} </Text>
+          <Text style={{ color: 'red', fontSize: 25 }}>CineVerse </Text>
           <Text style={{ color: 'red', fontSize: 25 }}> Cinema</Text>
         </View>
         <Image source={require('../imagePoster/local/logo.png')} style={styles.logo} />
         <TouchableOpacity onPress={changeLanguage} style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginRight: 10, width: '30%' }}>
-          <Image source={i18n.language === 'en' ? require('../assets/engflag.png') : require('../assets/vnflag.png')} style={{ width: 80, height: 80, borderRadius: 5 }} />
+          <Image source={i18n.language === 'en' ? require('../assets/engflag.png') : require('../assets/vnflag.png')} style={{ width: 50, height: 50, borderRadius: 8 }} />
 
-          {/* <Text style={{color:"white"}}>{currentLanguage}</Text> */}
         </TouchableOpacity>
-        {/* <TouchableOpacity style={styles.set} onPress={() => setModalVisible(!modalVisible)}>
 
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Image
-              source={{ uri: userData.avatar }}
-              style={{ width: 50, height: 50, borderRadius: 25 }}
-            />
-
-
-          </View>
-
-        </TouchableOpacity> */}
-      </View>
-
+      </ImageBackground>
+      <View style={{ height: 1, width: "100%", backgroundColor: 'white' }} />
 
       <View style={{
         width: '100%', flex: 1,
@@ -206,8 +197,8 @@ const HomeScreen = () => {
               </ImageBackground>
               <View key={movie._id} style={styles.movieDetails}>
 
-                <View style={{ flexDirection: 'row', justifyContent: "space-between" }}>
-                  <Star key={movie._id} rating={movie.filmInfo.vote_average / 2} />
+                <View style={{ flexDirection: 'row' }}>
+                  <Text style={styles.title}>{movie.filmInfo.title ? movie.filmInfo.title : movie.filmInfo.name} {t("rate")}</Text>
                   <Text style={styles.genre}>{movie.filmInfo.vote_count} {t("rate")}</Text>
                 </View>
 
@@ -347,17 +338,18 @@ const styles = StyleSheet.create({
   movieDetails: {
     width: '100%',
     height: '100%',
+
     marginTop: 8,
     padding: 3
   },
   title: {
-
+    color: 'orange',
     fontSize: 17,
-    width: '100%',
+    width: '70%',
     textTransform: 'uppercase',
     overflow: 'hidden',
     fontWeight: 'bold',
-    color: '#fff',
+
     marginBottom: 4,
   },
   genre: {
