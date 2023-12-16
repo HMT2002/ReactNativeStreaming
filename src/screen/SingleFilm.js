@@ -1,22 +1,22 @@
 import { React, useContext, useRef, useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView, Button, FlatList } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView, Button, FlatList, TextInput, Modal } from 'react-native';
 import { Avatar } from 'react-native-elements';
 import Video from 'react-native-video';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { I18nextProvider, useTranslation } from 'react-i18next';
 import axios from 'axios';
-import { faMugSaucer } from '@fortawesome/free-solid-svg-icons/faMugSaucer'
-import { faAdd } from '@fortawesome/free-solid-svg-icons/faAdd'
-import { faArrowDown } from '@fortawesome/free-solid-svg-icons/faArrowDown'
-import { faShare } from '@fortawesome/free-solid-svg-icons/faShare'
-import { faRankingStar } from '@fortawesome/free-solid-svg-icons/faRankingStar'
-import { faHomeUser } from '@fortawesome/free-solid-svg-icons/faHomeUser'
-import RatingModal from './RatingModal';
-import StarRating from './StarRating';
+import { faAdd } from '@fortawesome/free-solid-svg-icons/faAdd';
+import { faArrowDown } from '@fortawesome/free-solid-svg-icons/faArrowDown';
+import { faShare } from '@fortawesome/free-solid-svg-icons/faShare';
+import { faRankingStar } from '@fortawesome/free-solid-svg-icons/faRankingStar';
+import { faHomeUser } from '@fortawesome/free-solid-svg-icons/faHomeUser';
 import Star from './Star';
 import Slider from '@react-native-community/slider';
-import { ip } from '@env'
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
+import { PROXY_CLOUD, PROXY_TUE_LOCAL } from '@env';
+import { ip, newip } from '@env';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { LogBox } from 'react-native';
+LogBox.ignoreLogs(['Warning: ...']);
 const MovieDetailScreen = ({ route, navigation }) => {
   const { t } = useTranslation();
   const { movie } = route.params;
@@ -29,17 +29,125 @@ const MovieDetailScreen = ({ route, navigation }) => {
   const [src, setSrc] = useState();
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
+  const [commentList, setCommentList] = useState([{}]);
+  const [commentListIndex, setCommentListIndex] = useState('');
+  const [comment, setComment] = useState('');
+  const [rating, setRating] = useState(0);
+  const [ratingId, setRatingId] = useState(0);
+  const [playlistArr, setPlaylistArr] = useState(["cc"]);
+  const [playlistId, setPlaylistId] = useState("");
+  const stars = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+
   const handleMPaymentPress = (movie) => {
+
     setModalVisible(!modalVisible)
     navigation.navigate('Payment');
-  };
+  }
+  // Create a new comment
+  //   {
+
+  //     "movieId":"657b1699158f683d2116299c",
+  //     "conversation":[{"user":"642ea70f73c5bc05cbc5585f","text": "This movie was amazing!"}]
+
+  // }
+  async function createComment(conversation) {
+    try {
+      const response = await axios.post(`http://${ip}:9000/comments`, { movieId: movie._id, conversation: [{ user: userData.id, text: comment }] });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Get comments for a particular movie
+  async function getCommentsForMovie(movieId) {
+    try {
+      console.log(`http://${newip}:9000/comments/${movieId}`);
+      const response = await axios.get(`http://${ip}:9000/comments/${movieId}`);
+      setCommentList(response.data);
+
+      setCommentListIndex(commentList[0]._id | "")
+    } catch (error) {
+      throw error;
+    }
+  }
+  // Get comments for a particular movie
+  async function getRatingsForMovie(movieId) {
+    try {
+      console.log(`http://${newip}:9000/rating/${movieId}`);
+      const response = await axios.get(`http://${ip}:9000/comments/${movieId}`);
+      setCommentList(response.data);
+
+      setCommentListIndex(commentList[0]._id | "")
+    } catch (error) {
+      throw new Error(error.response.data.message);
+    }
+  }
+  async function getRatingForMovie(movieId) {
+    try {
+      console.log(`http://${ip}:9000/rating/${userData.id}/${movieId}`);
+      const response = await axios.get(`http://${ip}:9000/rating/${userData.id}/${movieId}`);
+      setRating(response.data.point);
+      setRatingId(response.data._id);
+    } catch (error) {
+      throw error;
+    }
+  }
+  async function updateRatingForMovie(movieId) {
+    try {
+      console.log(`http://${ip}:9000/rating`);
+      const response = await axios.put(`http://${ip}:9000/rating`, { ratingId: ratingId, point: rating });
+      setRating(response.data.point);
+
+    } catch (error) {
+      throw error;
+    }
+  }
+  async function getPlaylistForMovie(movieId) {
+    try {
+      console.log(`http://${ip}:9000/rating/${userData.id}/${movieId}`);
+      const response = await axios.get(`http://${ip}:9000/playlists/${userData.id}`);
+      setPlaylistArr(response.data.movieArr);
+
+      setPlaylistId(response.data._id);
+    } catch (error) {
+      throw error;
+    }
+  }
+  async function updatePLaylistForMovie(cc) {
+    try {
+      setPlaylistArr(cc)
+      const response = await axios.put(`http://${ip}:9000/playlists`, { playlistId: playlistId, movieArr: cc });
+
+    } catch (error) {
+      throw error;
+    }
+  }
+
+
+  // Delete a comment
+  async function deleteComment(commentId) {
+    try {
+      await axios.delete(`http://${ip}:9000/comments/${commentId}`);
+      return 'Comment deleted';
+    } catch (error) {
+      throw new Error(error.response.data.message);
+    }
+  }
+
+
+
+
+
   const handleSpeedChange = (value) => {
     setSpeed(value); // Set the playback speed based on the slider value
   };
-  const handleQualityChange = (value) => {
+  const handleSetRating = (value) => {
+    setRating(value); // Set the playback speed based on the slider value
+  };
+  const handleQualityChange = value => {
     setQuality(value === 0 ? 'auto' : '720'); // Set the video quality based on the slider value
   };
-
 
   useEffect(() => {
 
@@ -48,41 +156,61 @@ const MovieDetailScreen = ({ route, navigation }) => {
         const responses = await Promise.all(
           movie.videos.map((video) =>
 
-            axios.get(`http://10.135.51.159:9000/redirect/hls/` + video.videoname, {
+            axios.get(`http://${ip}:9000/redirect/hls/` + video.videoname, {
               headers: { myaxiosfetch: "123" },
             })
           )
         );
-
         const videoDataArray = responses.map((response) => response.data.subserverurl);
         setData(videoDataArray);
         setSrc(videoDataArray[0]);
         console.log(src);
       } catch (error) {
-        console.error("Error fetching video data:", error);
+        console.error('Error fetching video data:', error);
       }
     };
 
     fetchData();
     const retrieveUserData = async () => {
       try {
-        const Data = await AsyncStorage.getItem('userData');
-        if (Data !== null) {
-          const parsedUserData = JSON.parse(Data);
+        await AsyncStorage.getItem('userData').then((data) => {
+          const parsedUserData = JSON.parse(data);
           setUser(parsedUserData);
-          console.log('Retrieved user data: '+userData);
-          // You can use the user data as needed
-        } else {
-          console.log('No user data found');
-        }
+          console.log('Retrieved user data: ' + parsedUserData.id);
+
+        });
+
       } catch (error) {
         console.error('Error retrieving user data: ', error);
       }
     };
 
     retrieveUserData();
+    getCommentsForMovie(movie._id);
+
+    console.log(rating);
 
   }, []);
+  useEffect(() => {
+    // Second fetch based on the firstData
+    getRatingForMovie(movie._id);
+    getPlaylistForMovie();
+  }, [userData]);
+
+  const AddComment = () => {
+    createComment(comment);
+    getCommentsForMovie(movie._id)
+    setComment("")
+  }
+  const DeleteComment = (comment) => {
+    deleteComment(comment);
+    getCommentsForMovie(movie._id)
+    setComment("")
+  }
+  const handleType = (textSearch) => {
+    setComment(textSearch);
+
+  };
   const toggleCollapse = () => {
     setIsCollapsed(!isCollapsed);
   };
@@ -90,7 +218,7 @@ const MovieDetailScreen = ({ route, navigation }) => {
     setModalVisible(true);
   };
   const handleVideoClick = (videoUrl, index) => {
-    console.log("Playing video:", videoUrl);
+    console.log('Playing video:', videoUrl);
     setClickedButton(index);
     setSrc(videoUrl);
   };
@@ -100,24 +228,56 @@ const MovieDetailScreen = ({ route, navigation }) => {
   const handleGoBack = () => {
     navigation.goBack();
   };
+  const onUpdateRating = () => {
+    setModalVisible("false");
+    updateRatingForMovie();
+  }
   const handlePlay = () => {
     setShowVideo(true);
   };
+  const handleAddtoPlaylist = () => {
+    if (!playlistArr.includes(movie._id)) {
+      const updatedPlaylistArr = [...playlistArr, movie._id];
+      console.log(updatedPlaylistArr)
+      updatePLaylistForMovie(updatedPlaylistArr);
+
+    }
+  };
+
   const renderItem = ({ item }) => {
     return (
       <TouchableOpacity
         key={item.index}
-        style={[styles.spsButton, { backgroundColor: clickedButton === item.index ? 'red' : 'blue' }]}
-        onPress={() => handleVideoClick(item.videoData, item.index)}
-      >
+        style={[
+          styles.spsButton,
+          { backgroundColor: clickedButton === item.index ? 'red' : 'blue' },
+        ]}
+        onPress={() => handleVideoClick(item.videoData, item.index)}>
         <Text style={styles.spsTittle}>Espisole{item.index}</Text>
       </TouchableOpacity>
     );
   };
   return (
     <ScrollView style={styles.container}>
-      <TouchableOpacity style={{ width: "20%", height: 50, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white', margin: 6 }} onPress={handleGoBack}>
-        <FontAwesomeIcon style={{ color: "red", fontSize: '39em', width: '200px', height: '50px' }} icon={faHomeUser} />
+      <TouchableOpacity
+        style={{
+          width: '20%',
+          height: 50,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: 'white',
+          margin: 6,
+        }}
+        onPress={handleGoBack}>
+        <FontAwesomeIcon
+          style={{
+            color: 'red',
+            fontSize: '39em',
+            width: '200px',
+            height: '50px',
+          }}
+          icon={faHomeUser}
+        />
       </TouchableOpacity>
       {showVideo ? (
         <View style={styles.containerr}>
@@ -129,7 +289,7 @@ const MovieDetailScreen = ({ route, navigation }) => {
             resizeMode={quality}
           />
           <View style={styles.sliderContainer}>
-            <Text style={styles.label}>{t("play speed")}</Text>
+            <Text style={styles.label}>{t('play speed')}</Text>
             <Slider
               style={styles.slider}
               minimumValue={0.5}
@@ -140,17 +300,17 @@ const MovieDetailScreen = ({ route, navigation }) => {
             />
             <Text style={styles.value}>{speed.toFixed(2)}x</Text>
           </View>
-
         </View>
       ) : (
-
         <Image
-          source={{ uri: 'https://image.tmdb.org/t/p/w600_and_h900_bestv2/' + movie.filmInfo.backdrop_path }}
+          source={{
+            uri:
+              'https://image.tmdb.org/t/p/w600_and_h900_bestv2/' +
+              movie.filmInfo.backdrop_path,
+          }}
           style={styles.image}
           resizeMode="cover"
         />
-
-
       )}
 
       <View style={styles.spsCtainer}>
@@ -158,20 +318,21 @@ const MovieDetailScreen = ({ route, navigation }) => {
           <TouchableOpacity
             key={index}
             style={styles.spsButton}
-            onPress={() => handleVideoClick(item)}
-          >
-            <Text style={styles.spsTitle}>{t("espisode")} {index + 1}</Text>
+            onPress={() => handleVideoClick(item)}>
+            <Text style={styles.spsTitle}>
+              {t('espisode')} {index + 1}
+            </Text>
           </TouchableOpacity>
         ))}
       </View>
 
 
-      {(!showVideo) && ((!movie.primaryTag) ? ( <TouchableOpacity style={{ backgroundColor: 'orange', width: 160, padding: 10, margin: 10, borderRadius: 6, alignSelf: 'center' }} onPress={handlePlay}>
+      {(!showVideo) && ((!movie.primaryTag) ? (<TouchableOpacity style={{ backgroundColor: 'orange', width: 160, padding: 10, margin: 10, borderRadius: 6, alignSelf: 'center' }} onPress={handlePlay}>
         <Text style={styles.buttonText}>{t("play video")}</Text>
       </TouchableOpacity>) :
-        (userData.isVip ? ( <TouchableOpacity style={{ backgroundColor: 'orange', width: 160, padding: 10, margin: 10, borderRadius: 6, alignSelf: 'center' }} onPress={handlePlay}>
-        <Text style={styles.buttonText}>{t("play video")}</Text>
-      </TouchableOpacity>) : (<TouchableOpacity style={{ backgroundColor: 'orange', width: 160, padding: 10, margin: 10, borderRadius: 6, alignSelf: 'center' }} key={3} onPress={() => handleMPaymentPress()}>
+        (userData.isVip ? (<TouchableOpacity style={{ backgroundColor: 'orange', width: 160, padding: 10, margin: 10, borderRadius: 6, alignSelf: 'center' }} onPress={handlePlay}>
+          <Text style={styles.buttonText}>{t("play video")}</Text>
+        </TouchableOpacity>) : (<TouchableOpacity style={{ backgroundColor: 'orange', width: 160, padding: 10, margin: 10, borderRadius: 6, alignSelf: 'center' }} key={3} onPress={() => handleMPaymentPress()}>
           <Text style={styles.handleMPaymentPress}>Buy Primium Package</Text>
         </TouchableOpacity>))
       )
@@ -179,13 +340,18 @@ const MovieDetailScreen = ({ route, navigation }) => {
 
       <View style={styles.buttonContainer}>
         <Text style={styles.buttonText}>{movie.filmInfo.original_title}</Text>
-        <Star rating={movie.filmInfo.vote_average / 2} />
+        <Star rating={movie.filmInfo.vote_average} />
       </View>
       <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
-        {movie.filmInfo.adult ? (<Text style={styles.ageRestriction}>{t("age restriction")} :18+</Text>) : (<Text style={styles.ageRestriction}>{t("age restriction")} :6+</Text>)}
-        <Text style={styles.ageRestriction}>{t("number of movies")}: {Object.keys(movie.videos).length}</Text>
-        <Text style={styles.ageRestriction}>{movie.filmInfo.release_date
-        }</Text>
+        {movie.filmInfo.adult ? (
+          <Text style={styles.ageRestriction}>{t('age restriction')} :18+</Text>
+        ) : (
+          <Text style={styles.ageRestriction}>{t('age restriction')} :6+</Text>
+        )}
+        <Text style={styles.ageRestriction}>
+          {t('number of movies')}: {Object.keys(movie.videos).length}
+        </Text>
+        <Text style={styles.ageRestriction}>{movie.filmInfo.release_date}</Text>
       </View>
 
       <View style={{ alignItems: 'start', flexDirection: 'column' }}>
@@ -199,65 +365,95 @@ const MovieDetailScreen = ({ route, navigation }) => {
 
       </TouchableOpacity>
       <View style={styles.buttonContainer}>
-
-        <TouchableOpacity style={styles.button} onPress={() => console.log('Add to Playlist')}>
-          <Text style={styles.buttonText}>{t("add to playlist")}   <FontAwesomeIcon style={{ color: "white" }} icon={faAdd} /></Text>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={handleAddtoPlaylist}>
+          <Text style={styles.buttonText}>
+            {t('add to playlist')}{' '}
+            <FontAwesomeIcon style={{ color: 'white' }} icon={faAdd} />
+          </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={handleRatingButtonPress}>
-          <Text style={styles.buttonText}>{t("rate movie")}  <FontAwesomeIcon style={{ color: "white" }} icon={faRankingStar} /></Text>
 
+        <TouchableOpacity
+          style={styles.button}
+          onPress={handleRatingButtonPress}>
+          <Text style={styles.buttonText}>
+            {t('rate movie')}{' '}
+            <FontAwesomeIcon style={{ color: 'white' }} icon={faRankingStar} />
+          </Text>
         </TouchableOpacity>
-        <RatingModal visible={modalVisible} onClose={handleCloseModal} />
-        <TouchableOpacity style={styles.button} onPress={() => console.log('Share')}>
-          <Text style={styles.buttonText}>{t("share")}  <FontAwesomeIcon style={{ color: "white" }} icon={faShare} /></Text>
+        <Modal
+          visible={modalVisible}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={onUpdateRating}
+        >
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)', padding: 20 }}>
+            <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 10 }}>
+              <Text style={{ fontSize: 20, marginBottom: 10 }}>Rate this movie</Text>
+              <View style={{ flexDirection: 'row', padding: 3, margin: 10 }}>
+                {stars.map((index) => (
+                  <TouchableOpacity key={index} onPress={() => handleSetRating(index)}>
+                    <Text style={{ fontSize: 20 }}>{index <= rating ? '★' : '☆'}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              <Button title="Close" onPress={onUpdateRating} />
+            </View>
+          </View>
+        </Modal>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => console.log('Share')}>
+          <Text style={styles.buttonText}>
+            {t('share')}{' '}
+            <FontAwesomeIcon style={{ color: 'white' }} icon={faShare} />
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={() => console.log('Download')}>
-          <Text style={styles.buttonText}>{t("download")}{userData.isVip?"yes":"no"}  <FontAwesomeIcon style={{ color: "white" }} icon={faArrowDown} /></Text>
+          <Text style={styles.buttonText}>{t("download")}{userData.isVip ? "yes" : "no"}  <FontAwesomeIcon style={{ color: "white" }} icon={faArrowDown} /></Text>
         </TouchableOpacity>
       </View>
 
       <View style={styles.commentsContainer}>
-        <Text style={styles.commentsTitle}>{t("comment")}</Text>
+        <Text style={styles.commentsTitle}>{t('comment')}</Text>
         <ScrollView style={styles.commentsScrollView}>
-          <View style={styles.commentContainer}>
-            <Avatar
-              rounded
-              source={require('../imagePoster/user/man.png')}
-              size="small"
-              containerStyle={styles.avatar}
-            />
-            <View style={styles.commentContent}>
-              <Text style={styles.commentUser}>User 1</Text>
-              <Text style={styles.commentText}>Comment 1</Text>
-            </View>
-          </View>
-          <View style={styles.commentContainer}>
-            <Avatar
-              rounded
-              source={require('../imagePoster/user/man1.png')}
-              size="small"
-              containerStyle={styles.avatar}
-            />
-            <View style={styles.commentContent}>
-              <Text style={styles.commentUser}>User 2</Text>
-              <Text style={styles.commentText}>Comment 2</Text>
-            </View>
-          </View>
-          <View style={styles.commentContainer}>
-            <Avatar
-              rounded
-              source={require('../imagePoster/user/userAvatar.jpg')}
-              size="small"
-              containerStyle={styles.avatar}
-            />
-            <View style={styles.commentContent}>
-              <Text style={styles.commentUser}>User 3</Text>
-              <Text style={styles.commentText}>Comment 3</Text>
-            </View>
-          </View>
+          {commentList.length > 0 && (commentList.map(singleOne => {
+            return (
+              singleOne.conversation && (singleOne.conversation.map((comment) => (
+                <View key={comment._id} style={styles.commentContainer}>
+
+                  <Avatar
+                    rounded
+                    source={{ uri: comment.user.photo.link }}
+                    size="small"
+                    containerStyle={styles.avatar} />
+                  <View style={styles.commentContent}>
+                    <Text style={styles.commentUser}>{comment.user.username}</Text>
+                    <Text style={styles.commentText}>{comment.text}</Text>
+                    {(comment.user._id === userData.id) && (<TouchableOpacity onPress={() => DeleteComment(comment._id)}><Text style={{ color: 'red' }}>Delete</Text></TouchableOpacity>)}
+                  </View>
+
+                </View>)))
+            );
+          }))}
+          <TextInput
+            placeholder="Write down something..."
+            style={{ color: 'white' }}
+            value={comment}
+            placeholderTextColor="gray"
+            onChangeText={handleType}
+          />
+
+
+
+
+
+
           {/* Add more comments here */}
         </ScrollView>
       </View>
+      <TouchableOpacity style={{ width: 100, height: 60, backgroundColor: 'lightblue' }} onPress={AddComment}><Text style={{ color: 'white' }}>send</Text></TouchableOpacity>
     </ScrollView>
   );
 };
@@ -281,7 +477,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
-
   container: {
     flex: 1,
     backgroundColor: '#000',
@@ -299,6 +494,10 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 200,
     marginBottom: 16,
+  }, searchInput: {
+    flex: 1,
+    fontSize: 16,
+    color: 'black',
   },
   episodes: {
     fontSize: 16,
@@ -329,6 +528,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   commentsContainer: {
+    height: 'auto',
     marginTop: 16,
   },
   commentsTitle: {
@@ -338,17 +538,17 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   commentsScrollView: {
-    maxHeight: 200,
+    maxHeight: 1000,
     borderWidth: 1,
     borderColor: '#fff',
     borderRadius: 4,
     padding: 8,
-  }, readmore: {
+  },
+  readmore: {
     alignSelf: 'star',
     width: '20%',
     justifyContent: 'start',
-    alignItems: 'center'
-
+    alignItems: 'center',
   },
   commentContainer: {
     flexDirection: 'row',
@@ -368,7 +568,8 @@ const styles = StyleSheet.create({
   commentText: {
     fontSize: 16,
     color: '#fff',
-  }, description: {
+  },
+  description: {
     fontSize: 16,
     color: '#fff',
   },
@@ -376,7 +577,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     marginBottom: 8,
-  }, backgroundVideo: {
+  },
+  backgroundVideo: {
     position: 'absolute',
     top: 50,
     left: 0,
@@ -384,7 +586,8 @@ const styles = StyleSheet.create({
     right: 0,
     width: 300,
     height: 500,
-  }, containerr: {
+  },
+  containerr: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
@@ -396,14 +599,13 @@ const styles = StyleSheet.create({
   },
   sliderContainer: {
     width: '100%',
-    marginBottom: -10
-
+    marginBottom: -10,
   },
   label: {
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 8,
-    color: 'white'
+    color: 'white',
   },
   slider: {
     width: '100%',

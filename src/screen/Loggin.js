@@ -1,18 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from 'react';
 import Modal from 'react-native-modal';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { I18nextProvider, useTranslation } from 'react-i18next';
-import {ip,met} from'@env'
-import { ActivityIndicator,
+import { ip, newip } from '@env'
+import {
+  ActivityIndicator,
   Image,
   StatusBar,
   StyleSheet,
   ImageBackground,
   Text,
   Button,
-  TouchableOpacity,Alert ,
-  View,} from 'react-native';
-  import CustomBox from "react-native-customized-box";
+  TouchableOpacity, Alert,
+  View,
+} from 'react-native';
+import CustomBox from "react-native-customized-box";
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle'
@@ -28,104 +30,104 @@ const LoginScreen = () => {
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [loading, setLoading] = useState(false);
-    const navigation = useNavigation();
-    const handleLogin = async () => {
+  const navigation = useNavigation();
+  const handleLogin = async () => {
 
-      try {
-        const response = await axios.post(`http://10.135.51.159:9000/api/v1/users/signin`, {
-            account: getEmailId,
-            password: getPassword
-        }, {
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-    
-        
+    try {
+      const response = await axios.post(`http://${ip}:9000/api/v1/users/signin`, {
+        account: getEmailId,
+        password: getPassword
+      }, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
 
-   if (response.data) {
-    // Assuming you have obtained user data after login
-const userData = response.data.data;
-console.log(userData);
-// Save the user data to AsyncStorage
-await AsyncStorage.setItem('userData', JSON.stringify(userData))
-  .then(() => {
-    console.log('User data saved successfully');  
-    setEmailId("");
-    setPassword("");
-    setPasswordError("");
-    setEmailError("");
-    navigation.navigate('Home');
-  })
-  .catch((error) => {
-    console.error('Error saving user data: ', error);
-  });
 
- 
-    }
-    else{
-      
-    }
+
+      if (response.data) {
+        // Assuming you have obtained user data after login
+        const userData = response.data.data;
+        console.log(userData);
+        // Save the user data to AsyncStorage
+        await AsyncStorage.setItem('userData', JSON.stringify(userData))
+          .then(() => {
+            console.log('User data saved successfully');
+            setEmailId("");
+            setPassword("");
+            setPasswordError("");
+            setEmailError("");
+            navigation.navigate('Home');
+          })
+          .catch((error) => {
+            console.error('Error saving user data: ', error);
+          });
+
+
+      }
+      else {
+
+      }
     } catch (error) {
-       setShowErrorModal(true);
+      setShowErrorModal(true);
     }
-    
-    }
-      const moveToRegister = () => {
-        // Perform login logic here
-    
-        // Navigate to the home screen
-        navigation.navigate('Register');
-    
-      };
 
-      const handleEmailChange = (value) => {
-        setEmailId(value);
-        setError(false);
-        setEmailError('');
-      
-        // Validate email format
-        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailPattern.test(value)) {
-        
-          setEmailError('Please enter a valid email address.');
-        }
-        // ... rest of the function
-      };
-      const handlePasswordChange = (value) => {
-        setPassword(value);
-        setError(false);
-        setPasswordError("");
-        // Validate password complexity
-        if (
-          value.length < 8 ||
-          !/[A-Z]/.test(value) ||
-          !/[a-z]/.test(value) ||
-          !/[!@#$%^&*?.]/.test(value)
-        ) {
-         
-          setPasswordError(
-            
-            ' Password must be at least 8 characters long,\n Contain at least one uppercase letter,\n One special character (!@#$%^&*).'
-          );
-        }
-        else{
-          setPasswordError(
-            <Text style={{ color: 'green' ,marginTop:'10'}}>
-              Password is valid.
-              <FontAwesomeIcon style={{color:"green"}} icon={ faCheckCircle    } ></FontAwesomeIcon>
-            </Text>
-          );
-        }
-      };
+  }
+  const moveToRegister = () => {
+    // Perform login logic here
+
+    // Navigate to the home screen
+    navigation.navigate('Register');
+
+  };
+
+  const handleEmailChange = (value) => {
+    setEmailId(value);
+    setError(false);
+    setEmailError('');
+
+    // Validate email format
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(value)) {
+
+      setEmailError('Please enter a valid email address.');
+    }
+    // ... rest of the function
+  };
+  const handlePasswordChange = (value) => {
+    setPassword(value);
+    setError(false);
+    setPasswordError("");
+    // Validate password complexity
+    if (
+      value.length < 8 ||
+      !/[A-Z]/.test(value) ||
+      !/[a-z]/.test(value) ||
+      !/[!@#$%^&*?.]/.test(value)
+    ) {
+
+      setPasswordError(
+
+        ' Password must be at least 8 characters long,\n Contain at least one uppercase letter,\n One special character (!@#$%^&*).'
+      );
+    }
+    else {
+      setPasswordError(
+        <Text style={{ color: 'green', marginTop: '10' }}>
+          Password is valid.
+          <FontAwesomeIcon style={{ color: "green" }} icon={faCheckCircle} ></FontAwesomeIcon>
+        </Text>
+      );
+    }
+  };
   return (
     <ImageBackground
       source={require('../assets/bg.png')}
       style={styles.backgroundImage}
     >
-        <View style={styles.container}><Text style={styles.header}>{t('loggin')}{ip}</Text>
-     
-      {/* <Image
+      <View style={styles.container}><Text style={styles.header}>{t('loggin')}{ip}</Text>
+
+        {/* <Image
         style={styles.myLogo}
         source={require('../assets/logo.jpg')}
       />
@@ -134,129 +136,129 @@ await AsyncStorage.setItem('userData', JSON.stringify(userData))
         style={styles.loginImage}
         source={require('../assets/loginbg.jpg')}
       /> */}
-      {getError ? (
-        <View style={styles.errorCard}>
-          <TouchableOpacity
-            style={styles.cross}
-            onPress={() => {
-              setError(false);
-            }}
-          >
-            <Text style={{ color: "white", fontWeight: "bold" }}>X</Text>
-          </TouchableOpacity>
-          <Text style={styles.errorCardText}>{throwError}</Text>
-        </View>
-      ) : null}
-      <CustomBox
-      style={{backgroundColor:'white'}}
-      tabIndex={1}
-        placeholder={"Email"}
-        boxColor={"dodgerblue"}
-        focusColor={"#e65c40"}
-        keyboardType="email-address"
-        boxStyle={{ borderRadius: 40, borderWidth: 2 }}
-        inputStyle={{
-          fontWeight: "bold",
-          color: "#30302e",
-          paddingLeft: 20,
-          borderRadius: 40,
-        }}
-        labelConfig={{
-          text: "Email",
-          style: {
-            color: "#0e0e21",
-            fontWeight: "bold",
-          },
-        }}
-        requiredConfig={{
-          text: <Text style={{ color: 'black' }}>{emailError}</Text>,
-        }}
-        values={getEmailId}
-        onChangeText={(value) => {
-          handleEmailChange(value)
-        }}
-      />
-      <CustomBox
-      tabIndex={2}    
-        placeholder={"Password"}
-        toggle={true}
-        boxColor={"dodgerblue"}
-        focusColor={"#e65c40"}
-        boxStyle={{ borderRadius: 40, borderWidth: 2 }}
-        inputStyle={{
-          fontWeight: "bold",
-          color: "#30302e",
-          paddingLeft: 20,
-          borderRadius: 40,
-        }}
-        labelConfig={{
-          text: "Password",
-          style: {
-            color: "#0e0e21",
-            fontWeight: "bold",
-          },
-        }}
-        requiredConfig={{
-          text: <Text style={{ color: 'red' }}>{passwordError}</Text>,
-        }}
-        values={getPassword}
-        onChangeText={(value) => {
-          handlePasswordChange(value)
-        }}
-      />
-      {/* ForgotPassword */}
-      <TouchableOpacity
-        style={styles.forgotBtn}
-        onPress={() => {
-          navigation.navigate("ForgotPassword");
-        }}
-      >
-        <Text style={styles.forgotBtnText}>Forgot Password?</Text>
-      </TouchableOpacity>
-
-      {/* Login Button */}
-      <TouchableOpacity
-        style={styles.loginBtn}
-        onPress={handleLogin}
-        disabled={getDisabled}
-      >
-        <Text style={styles.loginBtnText}>LogIn</Text>
-        {loading && loading ? (
-          <ActivityIndicator style={styles.indicator} color={"white"} />
-        ) : null}
-      </TouchableOpacity>
-     
-      <Modal isVisible={showErrorModal}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-          <Image
-           source={require('../assets/logginfail.png')}
-          
-              style={styles.modalImage}
-            />
-            <Text style={styles.modalTitle}>Login Failed</Text>
-            <Text style={styles.modalText}>Incorrect username or password. Please try again.</Text>
-            <Button title="Try Again" onPress={() => setShowErrorModal(false)} />
+        {getError ? (
+          <View style={styles.errorCard}>
+            <TouchableOpacity
+              style={styles.cross}
+              onPress={() => {
+                setError(false);
+              }}
+            >
+              <Text style={{ color: "white", fontWeight: "bold" }}>X</Text>
+            </TouchableOpacity>
+            <Text style={styles.errorCardText}>{throwError}</Text>
           </View>
-        </View>
-      </Modal>
-      {/* Register Button */}
-      <View style={styles.createAccount}>
-        <Text style={styles.createAccountText}>
-          {`Don't have an Account? `}
-        </Text>
+        ) : null}
+        <CustomBox
+          style={{ backgroundColor: 'white' }}
+          tabIndex={1}
+          placeholder={"Email"}
+          boxColor={"dodgerblue"}
+          focusColor={"#e65c40"}
+          keyboardType="email-address"
+          boxStyle={{ borderRadius: 40, borderWidth: 2 }}
+          inputStyle={{
+            fontWeight: "bold",
+            color: "#30302e",
+            paddingLeft: 20,
+            borderRadius: 40,
+          }}
+          labelConfig={{
+            text: "Email",
+            style: {
+              color: "#0e0e21",
+              fontWeight: "bold",
+            },
+          }}
+          requiredConfig={{
+            text: <Text style={{ color: 'black' }}>{emailError}</Text>,
+          }}
+          values={getEmailId}
+          onChangeText={(value) => {
+            handleEmailChange(value)
+          }}
+        />
+        <CustomBox
+          tabIndex={2}
+          placeholder={"Password"}
+          toggle={true}
+          boxColor={"dodgerblue"}
+          focusColor={"#e65c40"}
+          boxStyle={{ borderRadius: 40, borderWidth: 2 }}
+          inputStyle={{
+            fontWeight: "bold",
+            color: "#30302e",
+            paddingLeft: 20,
+            borderRadius: 40,
+          }}
+          labelConfig={{
+            text: "Password",
+            style: {
+              color: "#0e0e21",
+              fontWeight: "bold",
+            },
+          }}
+          requiredConfig={{
+            text: <Text style={{ color: 'red' }}>{passwordError}</Text>,
+          }}
+          values={getPassword}
+          onChangeText={(value) => {
+            handlePasswordChange(value)
+          }}
+        />
+        {/* ForgotPassword */}
         <TouchableOpacity
-          style={styles.registerBtn}
-          onPress={moveToRegister}
+          style={styles.forgotBtn}
+          onPress={() => {
+            navigation.navigate("ForgotPassword");
+          }}
         >
-          <Text style={styles.registerBtnText}>Register for Free!</Text>
+          <Text style={styles.forgotBtnText}>Forgot Password?</Text>
         </TouchableOpacity>
+
+        {/* Login Button */}
+        <TouchableOpacity
+          style={styles.loginBtn}
+          onPress={handleLogin}
+          disabled={getDisabled}
+        >
+          <Text style={styles.loginBtnText}>LogIn</Text>
+          {loading && loading ? (
+            <ActivityIndicator style={styles.indicator} color={"white"} />
+          ) : null}
+        </TouchableOpacity>
+
+        <Modal isVisible={showErrorModal}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Image
+                source={require('../assets/logginfail.png')}
+
+                style={styles.modalImage}
+              />
+              <Text style={styles.modalTitle}>Login Failed</Text>
+              <Text style={styles.modalText}>Incorrect username or password. Please try again.</Text>
+              <Button title="Try Again" onPress={() => setShowErrorModal(false)} />
+            </View>
+          </View>
+        </Modal>
+        {/* Register Button */}
+        <View style={styles.createAccount}>
+          <Text style={styles.createAccountText}>
+            {`Don't have an Account? `}
+          </Text>
+          <TouchableOpacity
+            style={styles.registerBtn}
+            onPress={moveToRegister}
+          >
+            <Text style={styles.registerBtnText}>Register for Free!</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
     </ImageBackground>
   );
 
-  
+
 };
 
 const styles = StyleSheet.create({
@@ -267,14 +269,13 @@ const styles = StyleSheet.create({
   },
   container: {
     alignSelf: 'center',
-    marginTop:200,
-  padding:30,
-  paddingTop:50,
-  borderRadius:10,
-   backgroundColor:'white',
+    marginTop: 200,
+    padding: 30,
+    paddingTop: 50,
+    borderRadius: 10,
+    backgroundColor: 'white',
     alignItems: "center",
     justifyContent: "center",
-    width:'94%',
   },
   errorCard: {
     width: 300,
@@ -380,7 +381,7 @@ const styles = StyleSheet.create({
   modalText: {
     marginBottom: 20,
     textAlign: 'center',
-  },  modalImage: {
+  }, modalImage: {
     width: 100,
     height: 100,
     marginBottom: 20,

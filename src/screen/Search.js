@@ -18,7 +18,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 const Fuse = require('fuse.js');
 import axios from 'axios';
-import { ip } from '@env'
+import { ip, newip } from '@env'
 import Star from './Star';
 function SearchScreen() {
   const navigation = useNavigation();
@@ -30,7 +30,7 @@ function SearchScreen() {
   const [inputValue, setInputValue] = useState('');
   useEffect(() => {
     axios
-      .get(`http://10.135.51.159:9000/api/v1/info`)
+      .get(`http://${ip}:9000/api/v1/info`)
       .then(function (response) {
         console.log("cc")
         setData(response.data.data);
@@ -143,7 +143,7 @@ function SearchScreen() {
     <ScrollView style={styles.container}>
       <View style={{ height: 150, width: '100%', padding: 10, flexDirection: "row" }}>
         <View style={{ width: '50%', flexDirection: 'column', justifyContent: 'space-evenly' }}>
-          <Text style={{ color: 'white',fontSize:24,fontWeight:'600' }}>Hi , {userData.username}</Text>
+          <Text style={{ color: 'white', fontSize: 24, fontWeight: '600' }}>Hi , {userData.username}</Text>
           {/* <Text style={{ color: 'white' }}>{filmFilterData.length}</Text> */}
           <Text style={{ color: 'white' }}> See What's next</Text>
         </View>
@@ -257,25 +257,25 @@ function SearchScreen() {
 
         </ScrollView>
 
-        <ScrollView  showsVerticalScrollIndicator={false} style={{marginTop:20,width:400}}>
+        <ScrollView showsVerticalScrollIndicator={false} style={{ marginTop: 20, width: 400 }}>
 
           {filmFilterData.length > 0 ? (filmFilterData.map((movie) => (
-          <ImageBackground source={{ uri: 'https://image.tmdb.org/t/p/w600_and_h900_bestv2/' + movie.filmInfo.backdrop_path }} style={{width:400,height:200,marginBottom:20}} >
-            <TouchableOpacity
-              key={movie.id}
-              style={styles.movieContainer}
-              onPress={() => handleMoviePress(movie)}
-            >
+            <ImageBackground source={{ uri: 'https://image.tmdb.org/t/p/w600_and_h900_bestv2/' + movie.filmInfo.backdrop_path }} style={{ width: 400, height: 200, marginBottom: 20 }} >
+              <TouchableOpacity
+                key={movie.id}
+                style={styles.movieContainer}
+                onPress={() => handleMoviePress(movie)}
+              >
 
-              <View key={movie.id} style={styles.movieDetails}>
-                <Text style={{textTransform:'uppercase',fontSize:30,color:'black',width:'100%',fontWeight:'900'}}>{(movie.filmInfo.title)?movie.filmInfo.title:movie.filmInfo.name}</Text>
-                <View style={{ flexDirection: 'row', justifyContent: "space-between" }}>
+                <View key={movie.id} style={styles.movieDetails}>
+                  <Text style={{ textTransform: 'uppercase', fontSize: 30, color: 'black', width: '100%', fontWeight: '900' }}>{(movie.filmInfo.title) ? movie.filmInfo.title : movie.filmInfo.name}</Text>
+                  <View style={{ flexDirection: 'row', justifyContent: "space-between" }}>
+
+                  </View>
 
                 </View>
-
-              </View>
-            </TouchableOpacity>
-          </ImageBackground>
+              </TouchableOpacity>
+            </ImageBackground>
 
           ))) : (<Text>loadding</Text>)}
         </ScrollView>

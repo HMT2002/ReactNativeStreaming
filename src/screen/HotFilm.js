@@ -1,99 +1,117 @@
 import { React, useRef, useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, ScrollView,TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+} from 'react-native';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
-import {ip} from '@env'
-const movies = [
-  {
-    id: 1,
-    title: 'Movie 1',
-    releaseDate: 'October 2023',
-    image: require('../imagePoster/local/banner1.png'),
-    description: 'This is the description for Movie 1.',
-  },
-  {
-    id: 2,
-    title: 'Movie 2',
-    releaseDate: 'November 2023',
-    image: require('../imagePoster/local/banner2.png'),
-    description: 'This is the description for Movie 2.',
-  },
-  {
-    id: 3,
-    title: 'Movie 2',
-    releaseDate: 'November 2023',
-    image: require('../imagePoster/local/banner2.png'),
-    description: 'This is the description for Movie 2.',
-  },
-  {
-    id: 4,
-    title: 'Movie 2',
-    releaseDate: 'November 2023',
-    image: require('../imagePoster/local/banner2.png'),
-    description: 'This is the description for Movie 2.',
-  },
-  {
-    id: 5,
-    title: 'Movie 2',
-    releaseDate: 'November 2023',
-    image: require('../imagePoster/local/banner2.png'),
-    description: 'This is the description for Movie 2.',
-  },
-  {
-    id: 6,
-    title: 'Movie 2',
-    releaseDate: 'November 2023',
-    image: require('../imagePoster/local/banner2.png'),
-    description: 'This is the description for Movie 2.',
-  },
-  {
-    id: 7,
-    title: 'Movie 2',
-    releaseDate: 'November 2023',
-    image: require('../imagePoster/local/banner2.png'),
-    description: 'This is the description for Movie 2.',
-  },
-  // Add more movies here
-];
-
-function MovieScreen() {
+import { PROXY_CLOUD, PROXY_TUE_LOCAL } from '@env';
+import { ip } from '@env';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useIsFocused } from '@react-navigation/native';
+const MovieScreen = () => {
   const navigation = useNavigation();
   const [datas, setData] = useState({});
+  const [userData, setUser] = useState({});
+  const [selectedTag, setSelectedTag] = useState('rated');
+  const isFocused = useIsFocused();
+
+  const [ratedList, setRatedList] = useState([]);
+  const [playlist, setPlaylist] = useState([]);
   const handleMoviePress = (movie) => {
     navigation.navigate('MovieDetail', { movie });
   };
-  useEffect(() => {     
-    axios
-    .get(`http://10.135.51.159:9000/api/v1/info`)
-    .then(function (response) {
-      setData(response.data.data);
+  async function getPlaylistForMovie(movieId) {
+    try {
+      const response = await axios.get(`http://${ip}:9000/playlists/all/${userData.id}`);
+      setPlaylist(response.data[0].movieArr);
+      if (response) { console.log("playlist " + response.data[0].movieArr.length) }
+    } catch (error) {
+      throw new Error(error.response.data.message);
+    }
+  }
+  async function getRatingListForMovie(movieId) {
+    try {
 
-      console.log(response.data);
-    })
-    .catch(function (error) {
-      console.log("homescreen"+error);
-    });
+      const response = await axios.get(`http://${ip}:9000/rating/getfull/${userData.id}`);
+      setRatedList(response.data);
+      console.log(ratedList.length);
+    } catch (error) {
+      throw error;
+    }
+  }
+  useEffect(() => {
+    const retrieveUserData = async () => {
+      try {
+        await AsyncStorage.getItem('userData').then((data) => {
+          const parsedUserData = JSON.parse(data);
+          setUser(parsedUserData);
+          console.log('Retrieved user data: ' + parsedUserData.id);
+
+        });
+
+      } catch (error) {
+        console.error('Error retrieving user data: ', error);
+      }
+    };
+
+    retrieveUserData();
+
+
   }, []);
+  useEffect(() => {
+
+
+    getRatingListForMovie();
+    getPlaylistForMovie();
+  }, [userData]);
+  useEffect(() => {
+
+
+    getRatingListForMovie();
+    getPlaylistForMovie();
+  }, [isFocused]);
+
+
+
+
+  const renderArray = () => {
+    if (selectedTag === 'rated') {
+      return (
+        <View>
+          {ratedList && ratedList.map((item, index) => (
+            <Text key={index}>{item.movie.filmInfo.title ? item.movie.filmInfo.title : item.movie.filmInfo.name}</Text>
+          ))}
+        </View>
+      );
+    } else {
+      return (
+        <View>
+          {playlist && playlist.map((item, index) => (
+            <Text key={index}>{item.filmInfo.title ? item.filmInfo.title : item.filmInfo.name}</Text>
+          ))}
+        </View>
+      );
+    }
+  };
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-    { datas.length > 0 ? ( datas.map((movie) => (
-        <TouchableOpacity
-          key={movie.id}
-          style={styles.movieContainer}
-          onPress={() => handleMoviePress(movie)}
-        >
-          <Image source={{uri:'https://image.tmdb.org/t/p/w600_and_h900_bestv2/'+movie.filmInfo.backdrop_path}} style={styles.poster} />
-          <View key={movie.id} style={styles.movieDetails}>
-            <Text style={styles.title}>{movie.title}</Text>
-            <Text style={styles.genre}>{movie.genre}</Text>
-          </View>
+    <View>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
+        <TouchableOpacity onPress={() => setSelectedTag('rated')}>
+          <Text style={{ fontWeight: selectedTag === 'rated' ? 'bold' : 'normal' }}>rated{ratedList.length}</Text>
         </TouchableOpacity>
-      ))):(<Text>loadding</Text>)}
-      <Text>cc t met lam r do </Text>
-    </ScrollView>
+        <TouchableOpacity onPress={() => setSelectedTag('playlist')}>
+          <Text style={{ fontWeight: selectedTag === 'playlist' ? 'bold' : 'normal' }}>dsad{playlist.length}</Text>
+        </TouchableOpacity>
+      </View>
+      {renderArray()}
+    </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
@@ -113,8 +131,7 @@ const styles = StyleSheet.create({
   banner: {
     height: 200,
 
-
-    backgroundColor: '#FFFFFF'
+    backgroundColor: '#FFFFFF',
   },
   bannerImage: {
     flex: 1,
@@ -150,9 +167,9 @@ const styles = StyleSheet.create({
   genre: {
     fontSize: 14,
     color: '#fff',
-  }, 
+  },
   modalContainer: {
-    position : 'absolute',
+    position: 'absolute',
     top: 70,
     left: 0,
     right: 0,
@@ -187,9 +204,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingVertical: 3,
     paddingHorizontal: 3,
-    display:'flex',
-    
-
+    display: 'flex',
   },
 });
 export default MovieScreen;

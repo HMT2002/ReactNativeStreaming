@@ -3,8 +3,8 @@ import React, { useState } from 'react';
 import { Modal, View, Button, Text } from 'react-native';
 import StarRating from './StarRating';
 
-const RatingModal = ({ visible, onClose }) => {
-  const [rating, setRating] = useState(0);
+const RatingModal = ({ visible, onClose, point }) => {
+  const [rating, setRating] = useState(point);
 
   const handleRating = (rated) => {
     // Handle the rating logic, e.g., send the rating to a server
@@ -19,7 +19,7 @@ const RatingModal = ({ visible, onClose }) => {
       transparent={true}
       onRequestClose={onClose}
     >
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)', padding: 20 }}>
         <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 10 }}>
           <Text style={{ fontSize: 20, marginBottom: 10 }}>Rate this movie</Text>
           <StarRating rating={rating} onRating={handleRating} />
