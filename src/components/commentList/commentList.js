@@ -7,6 +7,7 @@ import {
   FlatList,
   ScrollView,
   StyleSheet,
+  SafeAreaView,
 } from 'react-native';
 import {commentItem} from '../commentItem/commentItem';
 import {Avatar} from 'react-native-elements';
@@ -63,39 +64,41 @@ const CommentList = props => {
     loadComment();
   }, [props.video]);
   return (
-    <ScrollView>
-      {comments.map(comment => {
-        let commentModel = new commentItem(
-          comment.user,
-          comment.content,
-          comment.user.photo.link,
-        );
-        return (
-          <View style={styles.commentContainer} key={comment._id}>
-            <Avatar
-              rounded
-              source={commentModel.img}
-              size="small"
-              containerStyle={styles.avatar}
-            />
-            <View style={styles.commentContent}>
-              <Text style={styles.commentUser}>
-                {commentModel.user.username}
-              </Text>
-              <Text style={styles.commentText}>{commentModel.content}</Text>
+    <SafeAreaView>
+      <ScrollView>
+        {comments.map(comment => {
+          let commentModel = new commentItem(
+            comment.user,
+            comment.content,
+            comment.user.photo.link,
+          );
+          return (
+            <View style={styles.commentContainer} key={comment._id}>
+              <Avatar
+                rounded
+                source={commentModel.img}
+                size="small"
+                containerStyle={styles.avatar}
+              />
+              <View style={styles.commentContent}>
+                <Text style={styles.commentUser}>
+                  {commentModel.user.username}
+                </Text>
+                <Text style={styles.commentText}>{commentModel.content}</Text>
+              </View>
             </View>
-          </View>
-        );
-      })}
-      <View>
-        <TextInput
-          placeholder="Add a comment..."
-          value={newComment}
-          onChangeText={text => setNewComment(text)}
-        />
-        <Button title="Add Comment" onPress={handleAddComment} />
-      </View>
-    </ScrollView>
+          );
+        })}
+        <View>
+          <TextInput
+            placeholder="Add a comment..."
+            value={newComment}
+            onChangeText={text => setNewComment(text)}
+          />
+          <Button title="Add Comment" onPress={handleAddComment} />
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 

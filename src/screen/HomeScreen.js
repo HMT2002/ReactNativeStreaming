@@ -37,7 +37,7 @@ const HomeScreen = () => {
   const {t, i18n} = useTranslation();
   useEffect(() => {
     axios
-      .get(PROXY_TUE_LOCAL + `/api/v1/info`)
+      .get(PROXY_CLOUD + `/api/v1/info`)
       .then(function (response) {
         setData(response.data.data);
 

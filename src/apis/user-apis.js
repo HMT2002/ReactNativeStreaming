@@ -6,7 +6,7 @@ export const GETUserInfoAction = async (account, token) => {
 
   try {
     console.log(PROXY_CLOUD);
-    var url = PROXY_TUE_LOCAL + '/api/v1/users/' + account;
+    var url = PROXY_CLOUD + '/api/v1/users/' + account;
     const {data} = await axios({
       method: 'get',
       url: url,
@@ -27,8 +27,8 @@ export const GETSelfUserInfoAction = async token => {
   if (token == null) return null;
 
   try {
-    console.log(PROXY_TUE_LOCAL);
-    var url = PROXY_TUE_LOCAL + '/api/v1/users/self';
+    console.log(PROXY_CLOUD);
+    var url = PROXY_CLOUD + '/api/v1/users/self';
     const {data} = await axios({
       method: 'get',
       url: url,

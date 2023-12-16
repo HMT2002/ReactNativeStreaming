@@ -7,7 +7,7 @@ export const LoginAction = async userData => {
   }
   console.log(userData);
 
-  var url = PROXY_TUE_LOCAL + '/api/v1/users/signin';
+  var url = PROXY_CLOUD + '/api/v1/users/signin';
   const {data} = await axios({
     method: 'post',
     url: url,
@@ -22,7 +22,7 @@ export const RegisterAction = async userData => {
   if (!userData) {
     return null;
   }
-  var url = PROXY_TUE_LOCAL + '/api/v1/users/signup';
+  var url = PROXY_CLOUD + '/api/v1/users/signup';
   const {data} = await axios({
     method: 'post',
     url: url,

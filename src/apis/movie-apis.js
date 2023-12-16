@@ -25,7 +25,7 @@ export const GETAllThreadAction = async () => {
   try {
     const {data} = await axios({
       method: 'get',
-      url: PROXY_TUE_LOCAL + '/api/v1/info',
+      url: PROXY_CLOUD + '/api/v1/info',
       validateStatus: () => true,
       headers: {
         authorization:
@@ -348,7 +348,7 @@ export const GETAllThreadsByUserIdAction = async id => {
 };
 
 export const getDashUrl = async filename => {
-  var url = PROXY_TUE_LOCAL + '/redirect/dash/' + filename + '/' + filename;
+  var url = PROXY_CLOUD + '/redirect/dash/' + filename + '/' + filename;
 
   const {data} = await axios({
     method: 'get',

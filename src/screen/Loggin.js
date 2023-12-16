@@ -21,6 +21,8 @@ import axios from 'axios';
 import {faCheckCircle} from '@fortawesome/free-solid-svg-icons/faCheckCircle';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AuthContext from '../store/auth-context';
+import {LoginAction} from '../apis/auth-apis';
+
 const LoginScreen = () => {
   const [getEmailId, setEmailId] = useState('');
   const [getPassword, setPassword] = useState('');
@@ -34,43 +36,57 @@ const LoginScreen = () => {
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
   const authCtx = useContext(AuthContext);
+  if (authCtx.isStayLoggedIn) {
+    navigation.navigate('Home');
+  }
   const handleLogin = async () => {
     try {
-      const response = await axios.post(
-        PROXY_TUE_LOCAL + `/api/v1/users/signin`,
-        {
-          account: getEmailId,
-          password: getPassword,
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        },
-      );
+      // const response = await axios.post(
+      //   PROXY_CLOUD + `/api/v1/users/signin`,
+      //   {
+      //     account: getEmailId,
+      //     password: getPassword,
+      //   },
+      //   {
+      //     headers: {
+      //       'Content-Type': 'application/json',
+      //     },
+      //   },
+      // );
 
-      if (response.data) {
-        // Assuming you have obtained user data after login
-        const userData = response.data.data;
-        console.log(userData);
-        // Save the user data to AsyncStorage
+      // if (response.data) {
+      //   // Assuming you have obtained user data after login
+      //   const userData = response.data.data;
+      //   console.log(userData);
+      //   // Save the user data to AsyncStorage
 
-        authCtx.OnUserLogin(userData);
+      //   authCtx.OnUserLogin(userData);
 
-        await AsyncStorage.setItem('userData', JSON.stringify(userData))
-          .then(() => {
-            console.log('User data saved successfully');
-            setEmailId('');
-            setPassword('');
-            setPasswordError('');
-            setEmailError('');
-            navigation.navigate('Home');
-          })
-          .catch(error => {
-            console.error('Error saving user data: ', error);
-          });
-      } else {
+      //   await AsyncStorage.setItem('userData', JSON.stringify(userData))
+      //     .then(() => {
+      //       console.log('User data saved successfully');
+      //       setEmailId('');
+      //       setPassword('');
+      //       setPasswordError('');
+      //       setEmailError('');
+      //       navigation.navigate('Home');
+      //     })
+      //     .catch(error => {
+      //       console.error('Error saving user data: ', error);
+      //     });
+      // } else {
+      // }
+      console.log('hihi');
+      const userData = {account: account, password: password};
+      const data = await LoginAction(userData);
+      if (data === null || data === undefined) {
+        console.log('failed login');
+        return;
       }
+      authCtx.OnUserLogin(data);
+
+      // Navigate to the home screen
+      navigation.navigate('Home');
     } catch (error) {
       console.log(error);
       setShowErrorModal(true);

@@ -60,7 +60,7 @@ const PaymentSceen = () => {
         // onRequestClose={ ()=> {setShowPaymentModal(false)}}
       >
         <WebView
-          source={{uri: PROXY_TUE_LOCAL + `/pay`}}
+          source={{uri: PROXY_CLOUD + `/pay`}}
           onNavigationStateChange={data => this.handleResponse(data)}
           injectedJavaScript={`document.f1.submit()`}
         />

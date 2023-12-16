@@ -313,7 +313,11 @@ import {useIsFocused} from '@react-navigation/native';
 import videojs from 'video.js';
 import Hls from 'hls.js';
 import {I18nextProvider, useTranslation} from 'react-i18next';
-import {BottomSheetModal, BottomSheetModalProvider} from '@gorhom/bottom-sheet';
+import BottomSheet, {
+  BottomSheetModal,
+  BottomSheetModalProvider,
+  BottomSheetScrollView,
+} from '@gorhom/bottom-sheet';
 
 import axios from 'axios';
 import {faMugSaucer} from '@fortawesome/free-solid-svg-icons/faMugSaucer';
@@ -343,6 +347,8 @@ const MovieDetailScreen = ({route, navigation}) => {
   const [src, setSrc] = useState();
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
+  const [modalPlaylistVisible, setModalPlaylistVisible] = useState(false);
+
   const bottomSheetModalRef = useRef(BottomSheetModal);
   const snapPoints = useMemo(() => ['25%', '50%'], []);
   const [video, setVideo] = useState(null);
@@ -359,7 +365,7 @@ const MovieDetailScreen = ({route, navigation}) => {
         const responses = await Promise.all(
           movie.videos.map(video =>
             axios.get(
-              `${PROXY_TUE_LOCAL}/redirect/dash/` +
+              `${PROXY_CLOUD}/redirect/dash/` +
                 video.videoname +
                 `/` +
                 video.videoname,
@@ -411,7 +417,16 @@ const MovieDetailScreen = ({route, navigation}) => {
     console.log('handleSheetChanges', index);
   }, []);
   const addToPlaylistHandler = async () => {
-    bottomSheetModalRef.current.present();
+    // bottomSheetModalRef.current.present();
+    console.log(bottomSheetModalRef.current);
+    if (modalPlaylistVisible) {
+      bottomSheetModalRef.current.close();
+    } else {
+      bottomSheetModalRef.current.snapToIndex(0);
+    }
+    setModalPlaylistVisible(prevState => {
+      return !prevState;
+    });
   };
   const renderItem = ({item}) => {
     return (
@@ -586,19 +601,30 @@ const MovieDetailScreen = ({route, navigation}) => {
           <CommentList video={video} />
         </View>
       </ScrollView>
-
-      <BottomSheetModal
+      <BottomSheet
         ref={bottomSheetModalRef}
-        index={1}
+        index={-1}
         snapPoints={snapPoints}
-        onChange={handleSheetChanges}>
-        <NewPlaylistBottomSheet video={video} info={movie} />
-      </BottomSheetModal>
+        onChange={handleSheetChanges}
+        style={{flex: 1}}>
+        <BottomSheetScrollView contentContainerStyle={styles.contentContainer}>
+          <NewPlaylistBottomSheet video={video} info={movie} />
+        </BottomSheetScrollView>
+      </BottomSheet>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  contentContainer: {
+    backgroundColor: 'white',
+  },
+  itemContainer: {
+    padding: 6,
+    margin: 6,
+    backgroundColor: '#eee',
+  },
+
   spsCtainer: {
     flex: 1,
     justifyContent: 'center',
