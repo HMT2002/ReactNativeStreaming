@@ -50,6 +50,26 @@ export const POSTAddVideoToPlaylistAction = async (
   return data;
 };
 
+export const POSTRemoveVideoFromPlaylistAction = async (
+  videoID,
+  token,
+  playlistID,
+) => {
+  console.log({videoID, infoID, token, playlistID});
+  var url = PROXY_CLOUD + '/api/v1/playlist/remove-from-playlist';
+  const {data} = await axios.post(
+    url,
+    {playlistID: playlistID, videoID: videoID},
+    {
+      validateStatus: () => true,
+      headers: {
+        authorization: 'Bearer ' + token,
+      },
+    },
+  );
+  return data;
+};
+
 export const DELETEPlaylistAction = async playlistID => {
   console.log({playlistID});
   var url = PROXY_CLOUD + '/api/v1/playlist/delete-playlist';
@@ -68,6 +88,7 @@ const playlistAPIs = {
   GETAllPlaylistByUser,
   POSTCreatePlaylist,
   DELETEPlaylistAction,
+  POSTRemoveVideoFromPlaylistAction,
 };
 
 export default playlistAPIs;

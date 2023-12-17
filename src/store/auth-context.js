@@ -79,9 +79,8 @@ export const AuthContextProvider = props => {
             setAvatar(userInfo.avatar);
             setDisplayName(userInfo.username);
             setRole(userInfo.role);
-            setIsAuthorized(userInfo.role === 'admin' ? true : false);
+            // setIsAuthorized(userInfo.role === 'admin' ? true : false);
             setUsername(userInfo.username);
-            setIsStayLoggedIn(true);
           }
         } else {
           console.log('Failed to retrieve user info!');
@@ -101,12 +100,10 @@ export const AuthContextProvider = props => {
       if (localUsername != null && localToken != null && localAvatar != null) {
         console.log('User already logged in!');
         console.log({localToken, localUsername});
-        setIsAuthorized(true);
-        setIsStayLoggedIn(true);
-        setUsername(localUsername);
         setToken(localToken);
-        setAvatar(localAvatar);
         RetrieveUserInfoHandler(localToken);
+        setIsStayLoggedIn(true);
+        setIsAuthorized(true);
       }
     };
     getAsyncStorageData();
