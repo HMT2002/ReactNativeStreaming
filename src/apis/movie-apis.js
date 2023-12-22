@@ -20,7 +20,6 @@ export const GETThreadAction = async slug => {
   //   console.log(data);
   return data;
 };
-
 export const GETAllThreadAction = async () => {
   try {
     const {data} = await axios({

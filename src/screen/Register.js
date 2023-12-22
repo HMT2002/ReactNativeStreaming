@@ -14,7 +14,7 @@ import CustomBox from "react-native-customized-box";
 import { useNavigation } from '@react-navigation/native';
 import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
-import {ip} from'@env'
+import { ip } from '@env'
 const RegisterScreen = () => {
   const [getFirstName, setFirstName] = useState("");
   const [getLastName, setLastName] = useState("");
@@ -35,21 +35,22 @@ const RegisterScreen = () => {
     // Navigate to the home screen
     const registedData = {
       account: getEmailId.trim(),
-      username: getFirstName.trim()+getLastName.trim(),
+      username: getFirstName.trim() + getLastName.trim(),
       email: getEmailId.trim(),
       password: getPassword.trim(),
       passwordConfirm: getPassword.trim(),
       role: 'user',
     };
-    const response = await fetch(`http://${ip}:7000/api/v1/users/signup`, {
+    console.log("register hadle")
+    const response = await fetch(`http://192.168.1.2:9000/api/v1/users/signup`, {
       method: 'POST',
       body: JSON.stringify(registedData),
       headers: {
-          'Content-Type': 'application/json',
+        'Content-Type': 'application/json',
       },
-  });
-  const data = await response.json();
-   console.log(data.status);
+    });
+    const data = await response.json();
+    console.log(data.status);
     if (data.status === 'success create new user') {
       Alert.alert(
         'wrong user name or password',
@@ -59,7 +60,7 @@ const RegisterScreen = () => {
         ],
         { cancelable: false }
       );
-  
+
     }
     else {
       Alert.alert(
@@ -83,11 +84,11 @@ const RegisterScreen = () => {
     setEmailId(value);
     setError(false);
     setEmailError('');
-  
+
     // Validate email format
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailPattern.test(value)) {
-    
+
       setEmailError('Please enter a valid email address.');
     }
     // ... rest of the function
@@ -103,202 +104,202 @@ const RegisterScreen = () => {
       !/[a-z]/.test(value) ||
       !/[!@#$%^&*?.]/.test(value)
     ) {
-     
+
       setPasswordError(
-        
+
         ' Password must be at least 8 characters long,\n Contain at least one uppercase letter,\n One special character (!@#$%^&*).'
       );
     }
-    else{
+    else {
       setPasswordError(
-        <Text style={{ color: 'green' ,marginTop:'10'}}>
+        <Text style={{ color: 'green', marginTop: '10' }}>
           Password is valid.
-          <FontAwesomeIcon style={{color:"green"}} icon={ faCheckCircle    } ></FontAwesomeIcon>
+          <FontAwesomeIcon style={{ color: "green" }} icon={faCheckCircle} ></FontAwesomeIcon>
         </Text>
       );
     }
   };
   return (
     <View style={{ backgroundColor: "white" }}>
-    <StatusBar barStyle="light-content" />
-    <ScrollView style={{ paddingTop: 20 }}>
-      <View style={styles.container}>
-        <Image
-          style={styles.myLogo}
-          source={{
-            uri: "https://raw.githubusercontent.com/hirishu10/my-assets/main/top_log.png",
-          }}
-        />
-        <Text style={styles.header}>Create Account for Free!</Text>
-        <Image
-          style={styles.registerImage}
-          source={{
-            uri: "https://raw.githubusercontent.com/hirishu10/my-assets/main/register.png",
-          }}
-        />
-        {getError ? (
-          <View style={styles.errorCard}>
-            <TouchableOpacity
-              style={styles.cross}
-              onPress={() => {
-                setError(false);
-              }}
-            >
-              <Text style={{ color: "white", fontWeight: "bold" }}>X</Text>
-            </TouchableOpacity>
-            <Text style={styles.errorCardText}>{throwError}</Text>
-          </View>
-        ) : null}
-        {/* UserId */}
-      
-        {/* First Name */}
-        <CustomBox
-          placeholder={"First Name"}
-          boxColor={"silver"}
-          focusColor={"#e07964"}
-          boxStyle={{ borderRadius: 40, borderWidth: 2 }}
-          inputStyle={{
-            fontWeight: "bold",
-            color: "#30302e",
-            paddingLeft: 20,
-            borderRadius: 40,
-          }}
-          labelConfig={{
-            text: "First Name",
-            style: {
-              color: "#0e0e21",
-              fontWeight: "bold",
-            },
-          }}
-          requiredConfig={{
-            text: <Text>{firstError}</Text>,
-            style: {
-              marginBottom: 10,
-            },
-          }}
-          values={getFirstName}
-          onChangeText={(value) => {
-            setFirstName(value);
-            setError(false);
-            setFirstError("");
-          }}
-        />
-        {/* Last Name */}
-        <CustomBox
-          placeholder={"Last Name"}
-          boxColor={"silver"}
-          focusColor={"#e07964"}
-          boxStyle={{ borderRadius: 40, borderWidth: 2 }}
-          inputStyle={{
-            fontWeight: "bold",
-            color: "#30302e",
-            paddingLeft: 20,
-            borderRadius: 40,
-          }}
-          labelConfig={{
-            text: "Last Name",
-            style: {
-              color: "#0e0e21",
-              fontWeight: "bold",
-            },
-          }}
-          requiredConfig={{
-            text: <Text>{lastError}</Text>,
-            style: {
-              marginBottom: 10,
-            },
-          }}
-          values={getLastName}
-          onChangeText={(value) => {
-            setLastName(value);
-            setError(false);
-            setLastError("");
-          }}
-        />
-        {/* Email Id */}
-        <CustomBox
-          placeholder={"Email"}
-          boxColor={"silver"}
-          focusColor={"#e07964"}
-          type={"email"}
-          boxStyle={{ borderRadius: 40, borderWidth: 2 }}
-          inputStyle={{
-            fontWeight: "bold",
-            color: "#30302e",
-            paddingLeft: 20,
-            borderRadius: 40,
-          }}
-          labelConfig={{
-            text: "Email",
-            style: {
-              color: "#0e0e21",
-              fontWeight: "bold",
-            },
-          }}
-          requiredConfig={{
-            text: <Text>{emailError}</Text>,
-            style: {
-              marginBottom: 10,
-            },
-          }}
-          values={getEmailId}
-          onChangeText={(value) => {
-          
-            handleEmailChange(value);
-          }}
-        />
-        {/* Password */}
-        <CustomBox
-          placeholder={"Password"}
-          boxColor={"silver"}
-          focusColor={"#e07964"}
-          boxStyle={{ borderRadius: 40, borderWidth: 2 }}
-          inputStyle={{
-            fontWeight: "bold",
-            color: "#30302e",
-            paddingLeft: 20,
-            borderRadius: 40,
-            overflow: "hidden",
-          }}
-          labelConfig={{
-            text: "Password",
-            style: {
-              color: "#0e0e21",
-              fontWeight: "bold",
-            },
-          }}
-          toggle={true}
-          requiredConfig={{
-            text: <Text>{passwordError}</Text>,
-            style: {
-              marginBottom: 10,
-            },
-          }}
-          values={getPassword}
-          onChangeText={(value) => {
-            
-            handlePasswordChange(value);
-          }}
-        />
-        {/* Login Button */}
-        <TouchableOpacity
-          style={styles.registerbtn}
-          onPress={handleRegister}
-        >
-          <Text style={styles.registerBtnText}>Register</Text>
-          {loading && loading ? (
-            <ActivityIndicator style={styles.indicator} color={"white"} />
+      <StatusBar barStyle="light-content" />
+      <ScrollView style={{ paddingTop: 20 }}>
+        <View style={styles.container}>
+          <Image
+            style={styles.myLogo}
+            source={{
+              uri: "https://raw.githubusercontent.com/hirishu10/my-assets/main/top_log.png",
+            }}
+          />
+          <Text style={styles.header}>Create Account for Free!</Text>
+          <Image
+            style={styles.registerImage}
+            source={{
+              uri: "https://raw.githubusercontent.com/hirishu10/my-assets/main/register.png",
+            }}
+          />
+          {getError ? (
+            <View style={styles.errorCard}>
+              <TouchableOpacity
+                style={styles.cross}
+                onPress={() => {
+                  setError(false);
+                }}
+              >
+                <Text style={{ color: "white", fontWeight: "bold" }}>X</Text>
+              </TouchableOpacity>
+              <Text style={styles.errorCardText}>{throwError}</Text>
+            </View>
           ) : null}
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={{height:30 ,marginBottom:30}}
-          onPress={moveToLogin}
-        >
-          <Text style={{color:"red",marginBottom:30,height:50}}>Already have account ?!</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
-  </View>
+          {/* UserId */}
+
+          {/* First Name */}
+          <CustomBox
+            placeholder={"First Name"}
+            boxColor={"silver"}
+            focusColor={"#e07964"}
+            boxStyle={{ borderRadius: 40, borderWidth: 2 }}
+            inputStyle={{
+              fontWeight: "bold",
+              color: "#30302e",
+              paddingLeft: 20,
+              borderRadius: 40,
+            }}
+            labelConfig={{
+              text: "First Name",
+              style: {
+                color: "#0e0e21",
+                fontWeight: "bold",
+              },
+            }}
+            requiredConfig={{
+              text: <Text>{firstError}</Text>,
+              style: {
+                marginBottom: 10,
+              },
+            }}
+            values={getFirstName}
+            onChangeText={(value) => {
+              setFirstName(value);
+              setError(false);
+              setFirstError("");
+            }}
+          />
+          {/* Last Name */}
+          <CustomBox
+            placeholder={"Last Name"}
+            boxColor={"silver"}
+            focusColor={"#e07964"}
+            boxStyle={{ borderRadius: 40, borderWidth: 2 }}
+            inputStyle={{
+              fontWeight: "bold",
+              color: "#30302e",
+              paddingLeft: 20,
+              borderRadius: 40,
+            }}
+            labelConfig={{
+              text: "Last Name",
+              style: {
+                color: "#0e0e21",
+                fontWeight: "bold",
+              },
+            }}
+            requiredConfig={{
+              text: <Text>{lastError}</Text>,
+              style: {
+                marginBottom: 10,
+              },
+            }}
+            values={getLastName}
+            onChangeText={(value) => {
+              setLastName(value);
+              setError(false);
+              setLastError("");
+            }}
+          />
+          {/* Email Id */}
+          <CustomBox
+            placeholder={"Email"}
+            boxColor={"silver"}
+            focusColor={"#e07964"}
+            type={"email"}
+            boxStyle={{ borderRadius: 40, borderWidth: 2 }}
+            inputStyle={{
+              fontWeight: "bold",
+              color: "#30302e",
+              paddingLeft: 20,
+              borderRadius: 40,
+            }}
+            labelConfig={{
+              text: "Email",
+              style: {
+                color: "#0e0e21",
+                fontWeight: "bold",
+              },
+            }}
+            requiredConfig={{
+              text: <Text>{emailError}</Text>,
+              style: {
+                marginBottom: 10,
+              },
+            }}
+            values={getEmailId}
+            onChangeText={(value) => {
+
+              handleEmailChange(value);
+            }}
+          />
+          {/* Password */}
+          <CustomBox
+            placeholder={"Password"}
+            boxColor={"silver"}
+            focusColor={"#e07964"}
+            boxStyle={{ borderRadius: 40, borderWidth: 2 }}
+            inputStyle={{
+              fontWeight: "bold",
+              color: "#30302e",
+              paddingLeft: 20,
+              borderRadius: 40,
+              overflow: "hidden",
+            }}
+            labelConfig={{
+              text: "Password",
+              style: {
+                color: "#0e0e21",
+                fontWeight: "bold",
+              },
+            }}
+            toggle={true}
+            requiredConfig={{
+              text: <Text>{passwordError}</Text>,
+              style: {
+                marginBottom: 10,
+              },
+            }}
+            values={getPassword}
+            onChangeText={(value) => {
+
+              handlePasswordChange(value);
+            }}
+          />
+          {/* Login Button */}
+          <TouchableOpacity
+            style={styles.registerbtn}
+            onPress={handleRegister}
+          >
+            <Text style={styles.registerBtnText}>Register</Text>
+            {loading && loading ? (
+              <ActivityIndicator style={styles.indicator} color={"white"} />
+            ) : null}
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{ height: 30, marginBottom: 30 }}
+            onPress={moveToLogin}
+          >
+            <Text style={{ color: "red", marginBottom: 30, height: 50 }}>Already have account ?!</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </View>
   );
 };
 

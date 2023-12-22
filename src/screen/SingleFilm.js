@@ -1,295 +1,4 @@
-// import {
-//   React,
-//   useContext,
-//   useRef,
-//   useEffect,
-//   useState,
-//   useMemo,
-//   useCallback,
-// } from 'react';
-// import {
-//   View,
-//   Text,
-//   Image,
-//   StyleSheet,
-//   TouchableOpacity,
-//   ScrollView,
-// } from 'react-native';
-// import {Avatar} from 'react-native-elements';
-// import {GetNoteAction} from '../actions/GetNote';
-// import Video from 'react-native-video';
-// import WDHT from './test.mp4';
-// // import WDHT from './World Domination How-To.m3u8'
-// import AppController from '../controllers/AppController';
-// import AppContext from '../utils/AppContext';
-// import Clipboard from '@react-native-clipboard/clipboard';
-// import {useIsFocused} from '@react-navigation/native';
-// import videojs from 'video.js';
-// import Hls from 'hls.js';
-// import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
-// import Orientation from 'react-native-orientation-locker';
-// import CommentList from '../components/commentList/commentList.js';
-// import movieAPIs from '../apis/movie-apis';
-// import commentAPIs from '../apis/comment-apis';
-// import NewPlaylistBottomSheet from '../components/newPlaylistBottomSheet/NewPlaylistBottomSheet';
-// import {BottomSheetModal, BottomSheetModalProvider} from '@gorhom/bottom-sheet';
-// import playlistAPIs from '../apis/playlist-apis';
-// const MovieDetailScreen = ({route, navigation}) => {
-//   const {movie} = route.params;
-//   const isFocus = useIsFocused();
-//   const [videoUri, setVideoUri] = useState({uri: ''});
-
-//   const bottomSheetModalRef = useRef(BottomSheetModal);
-//   const snapPoints = useMemo(() => ['25%', '50%'], []);
-
-//   const videoRef = useRef();
-//   console.log('movie SingleFilm');
-//   const handleAddToWatchList = () => {
-//     // Check if the movie is not already in the watch list
-//     if (!watchList.some(item => item.id === movie.id)) {
-//       setWatchList([...watchList, movie]);
-//     }
-//   };
-//   const LoadVideo = async () => {
-//     let url = '';
-//     if (
-//       movie.videos.length !== 0 &&
-//       movie.videos !== null &&
-//       movie !== undefined &&
-//       movie !== null
-//     ) {
-//       url = await movieAPIs.getDashUrl(movie.videos[0].videoname);
-//       setVideoUri(prevState => {
-//         return {uri: url};
-//       });
-//     }
-//   };
-
-//   const [showVideo, setShowVideo] = useState(false);
-//   useEffect(() => {
-//     LoadVideo();
-//   }, []);
-//   const handleGoBack = () => {
-//     navigation.goBack();
-//   };
-//   const handlePlay = async () => {
-//     let url = '';
-
-//     url = await movieAPIs.getDashUrl(movie.videos[0].videoname);
-//     console.log(url);
-//     setVideoUri(prevState => {
-//       return {uri: url};
-//     });
-
-//     setShowVideo(true);
-//   };
-
-//   const onFullscreenPlayerWillPresent = () => {
-//     Orientation.lockToLandscape();
-//   };
-
-//   const onFullscreenPlayerWillDismiss = () => {
-//     Orientation.lockToPortrait();
-//   };
-
-//   // callbacks
-
-//   const handleSheetChanges = useCallback(index => {
-//     console.log('handleSheetChanges', index);
-//   }, []);
-
-//   const addToPlaylistHandler = async () => {
-//     bottomSheetModalRef.current.present();
-//   };
-//   return (
-//     <ScrollView style={styles.container}>
-//       <TouchableOpacity style={{width: '20%'}} onPress={handleGoBack}>
-//         <Text style={styles.buttonText}> Back</Text>
-//       </TouchableOpacity>
-//       {showVideo ? (
-//         <Video
-//           setControls
-//           controls
-//           resizeMode="cover"
-//           source={videoUri} // the video file
-//           // source={{uri: "https://tzvodacomcontent.s3.amazonaws.com/video-1654952965085/video-1654952965085.m3u8"}}
-//           // source={{uri: 'http://34.87.76.48/videos/N0PIosNDash/init.mpd'}}
-//           // source={{uri: 'http://34.87.76.48/videos/TQrz49o/init.mpd'}}
-//           onFullscreenPlayerWillPresent={onFullscreenPlayerWillPresent}
-//           onFullscreenPlayerWillDismiss={onFullscreenPlayerWillDismiss}
-//           paused={false} // make it start    r
-//           style={styles.image} // any style you want
-//           repeat={false} // make it a loop
-//           ref={videoRef} // Store reference
-//           onBuffer={this.onBuffer} // Callback when remote video is buffering
-//           onError={error => {
-//             console.log(error);
-//           }}
-//         />
-//       ) : (
-//         <Image source={movie.poster} style={styles.image} resizeMode="cover" />
-//       )}
-//       <Text style={styles.episodes}>Episodes: 10</Text>
-//       <Text style={styles.ageRestriction}>Age Restriction: 18+</Text>
-//       <Text style={styles.numMovies}>Number of Movies: 5</Text>
-
-//       <TouchableOpacity style={styles.button} onPress={handlePlay}>
-//         <Text style={styles.buttonText}>Play Video</Text>
-//       </TouchableOpacity>
-//       <Text style={styles.description}>{movie.filmInfo.overview}</Text>
-//       <View style={styles.buttonContainer}>
-//         <TouchableOpacity style={styles.button} onPress={addToPlaylistHandler}>
-//           <Text style={styles.buttonText}>Add to Playlist</Text>
-//         </TouchableOpacity>
-//         <TouchableOpacity
-//           style={styles.button}
-//           onPress={() => console.log('Rate Movie')}>
-//           <Text style={styles.buttonText}>Rate Movie</Text>
-//         </TouchableOpacity>
-//         <TouchableOpacity
-//           style={styles.button}
-//           onPress={() => console.log('Share')}>
-//           <Text style={styles.buttonText}>Share</Text>
-//         </TouchableOpacity>
-//         <TouchableOpacity style={styles.button} onPress={handleAddToWatchList}>
-//           <Text style={styles.buttonText}>Add to Watch List</Text>
-//         </TouchableOpacity>
-//         <TouchableOpacity
-//           style={styles.button}
-//           onPress={() => console.log('Download')}>
-//           <Text style={styles.buttonText}>Download</Text>
-//         </TouchableOpacity>
-//       </View>
-
-//       <View>
-//         <BottomSheetModal
-//           ref={bottomSheetModalRef}
-//           index={1}
-//           snapPoints={snapPoints}
-//           onChange={handleSheetChanges}>
-//           <NewPlaylistBottomSheet video={movie.videos[0]} info={movie} />
-//         </BottomSheetModal>
-//         <Text style={styles.commentsTitle}>Comments</Text>
-
-//         {/* Add more comments here */}
-//         {movie !== undefined && movie !== null ? (
-//           <CommentList video={movie.videos[0]} />
-//         ) : null}
-//       </View>
-//     </ScrollView>
-//   );
-// };
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: '#000',
-//   },
-//   button: {
-//     position: 'absolute',
-//     top: 16,
-//     left: 16,
-//     padding: 8,
-//     backgroundColor: '#fff',
-//     borderRadius: 8,
-//   },
-//   image: {
-//     width: '100%',
-//     height: 200,
-//     marginBottom: 16,
-//   },
-//   episodes: {
-//     fontSize: 16,
-//     color: '#fff',
-//     marginBottom: 8,
-//   },
-//   ageRestriction: {
-//     fontSize: 16,
-//     color: '#fff',
-//     marginBottom: 8,
-//   },
-//   numMovies: {
-//     fontSize: 16,
-//     color: '#fff',
-//     marginBottom: 16,
-//   },
-//   button: {
-//     backgroundColor: '#e50914',
-//     padding: 5,
-//     borderRadius: 4,
-//     margin: 8,
-//   },
-//   buttonText: {
-//     color: '#fff',
-//     fontSize: 16,
-//     fontWeight: 'bold',
-//     textAlign: 'center',
-//   },
-//   commentsContainer: {
-//     marginTop: 16,
-//   },
-//   commentsTitle: {
-//     fontSize: 20,
-//     fontWeight: 'bold',
-//     color: '#fff',
-//     marginBottom: 8,
-//   },
-//   commentsScrollView: {
-//     maxHeight: 200,
-//     borderWidth: 1,
-//     borderColor: '#fff',
-//     borderRadius: 4,
-//     padding: 8,
-//   },
-//   commentContainer: {
-//     flexDirection: 'row',
-//     marginBottom: 8,
-//   },
-//   avatar: {
-//     marginRight: 8,
-//   },
-//   commentContent: {
-//     flex: 1,
-//   },
-//   commentUser: {
-//     fontWeight: 'bold',
-//     color: '#fff',
-//     marginBottom: 4,
-//   },
-//   commentText: {
-//     fontSize: 16,
-//     color: '#fff',
-//   },
-//   description: {
-//     fontSize: 16,
-//     color: '#fff',
-//   },
-//   buttonContainer: {
-//     flexDirection: 'row',
-//     marginBottom: 8,
-//   },
-//   backgroundVideo: {
-//     position: 'absolute',
-//     top: 50,
-//     left: 0,
-//     bottom: 0,
-//     right: 0,
-//     width: 300,
-//     height: 500,
-//   },
-// });
-
-// export default MovieDetailScreen;
-
-import {
-  React,
-  useContext,
-  useRef,
-  useEffect,
-  useState,
-  useMemo,
-  useCallback,
-} from 'react';
+import {React, useContext, useRef, useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -299,43 +8,29 @@ import {
   ScrollView,
   Button,
   FlatList,
+  TextInput,
+  Modal,
 } from 'react-native';
 import {Avatar} from 'react-native-elements';
-import {GetNoteAction} from '../actions/GetNote';
 import Video from 'react-native-video';
-
-import Icon from 'react-native-vector-icons/FontAwesome';
-// import WDHT from './World Domination How-To.m3u8'
-import AppController from '../controllers/AppController';
-import AppContext from '../utils/AppContext';
-import Clipboard from '@react-native-clipboard/clipboard';
-import {useIsFocused} from '@react-navigation/native';
-import videojs from 'video.js';
-import Hls from 'hls.js';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {I18nextProvider, useTranslation} from 'react-i18next';
-import BottomSheet, {
-  BottomSheetModal,
-  BottomSheetModalProvider,
-  BottomSheetScrollView,
-} from '@gorhom/bottom-sheet';
-
 import axios from 'axios';
-import {faMugSaucer} from '@fortawesome/free-solid-svg-icons/faMugSaucer';
 import {faAdd} from '@fortawesome/free-solid-svg-icons/faAdd';
 import {faArrowDown} from '@fortawesome/free-solid-svg-icons/faArrowDown';
 import {faShare} from '@fortawesome/free-solid-svg-icons/faShare';
+import {faCalendarDays} from '@fortawesome/free-solid-svg-icons/faCalendarDays';
 import {faRankingStar} from '@fortawesome/free-solid-svg-icons/faRankingStar';
 import {faHomeUser} from '@fortawesome/free-solid-svg-icons/faHomeUser';
-import RatingModal from './RatingModal';
-import StarRating from './StarRating';
+import {faTimeline} from '@fortawesome/free-solid-svg-icons/faTimeline';
+import {faFileMedicalAlt} from '@fortawesome/free-solid-svg-icons/faFileMedicalAlt';
 import Star from './Star';
 import Slider from '@react-native-community/slider';
 import {PROXY_CLOUD, PROXY_TUE_LOCAL} from '@env';
-
+import {ip, newip} from '@env';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
-import NewPlaylistBottomSheet from '../components/newPlaylistBottomSheet/NewPlaylistBottomSheet';
-import CommentList from '../components/commentList/commentList';
-import movieAPIs from '../apis/movie-apis';
+import {LogBox} from 'react-native';
+LogBox.ignoreLogs(['Warning: ...']);
 const MovieDetailScreen = ({route, navigation}) => {
   const {t} = useTranslation();
   const {movie} = route.params;
@@ -343,17 +38,132 @@ const MovieDetailScreen = ({route, navigation}) => {
   const [quality, setQuality] = useState('auto');
   const [clickedButton, setClickedButton] = useState(null);
   const [showVideo, setShowVideo] = useState(false);
+  const [userData, setUser] = useState({});
   const [datas, setData] = useState([]);
   const [src, setSrc] = useState();
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
-  const [modalPlaylistVisible, setModalPlaylistVisible] = useState(false);
+  const [commentList, setCommentList] = useState([{}]);
+  const [commentListIndex, setCommentListIndex] = useState('');
+  const [comment, setComment] = useState('');
+  const [rating, setRating] = useState(0);
+  const [ratingId, setRatingId] = useState(0);
+  const [playlistArr, setPlaylistArr] = useState(['cc']);
+  const [playlistId, setPlaylistId] = useState('');
+  const stars = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
-  const bottomSheetModalRef = useRef(BottomSheetModal);
-  const snapPoints = useMemo(() => ['25%', '50%'], []);
-  const [video, setVideo] = useState(null);
+  const [esIndex, setEsIndex] = useState(0);
+  const handleMPaymentPress = movie => {
+    setModalVisible(!modalVisible);
+    navigation.navigate('Payment');
+  };
+  // Create a new comment
+  //   {
+
+  //     "movieId":"657b1699158f683d2116299c",
+  //     "conversation":[{"user":"642ea70f73c5bc05cbc5585f","text": "This movie was amazing!"}]
+
+  // }
+  async function createComment(conversation) {
+    try {
+      const response = await axios.post(`http://${ip}:9000/comments`, {
+        movieId: movie._id,
+        conversation: [{user: userData.id, text: comment}],
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Get comments for a particular movie
+  async function getCommentsForMovie(movieId) {
+    try {
+      console.log(`http://${newip}:9000/comments/${movieId}`);
+      const response = await axios.get(`http://${ip}:9000/comments/${movieId}`);
+      setCommentList(response.data);
+
+      setCommentListIndex(commentList[0]._id | '');
+    } catch (error) {
+      throw error;
+    }
+  }
+  // Get comments for a particular movie
+  async function getRatingsForMovie(movieId) {
+    try {
+      console.log(`http://${newip}:9000/rating/${movieId}`);
+      const response = await axios.get(`http://${ip}:9000/comments/${movieId}`);
+      setCommentList(response.data);
+
+      setCommentListIndex(commentList[0]._id | '');
+    } catch (error) {
+      throw new Error(error.response.data.message);
+    }
+  }
+  async function getRatingForMovie(movieId) {
+    try {
+      console.log(`http://${ip}:9000/rating/${userData.id}/${movieId}`);
+      const response = await axios.get(
+        `http://${ip}:9000/rating/${userData.id}/${movieId}`,
+      );
+      setRating(response.data.point);
+      setRatingId(response.data._id);
+    } catch (error) {
+      throw error;
+    }
+  }
+  async function updateRatingForMovie(movieId) {
+    try {
+      console.log(`http://${ip}:9000/rating`);
+      const response = await axios.put(`http://${ip}:9000/rating`, {
+        ratingId: ratingId,
+        point: rating,
+      });
+      setRating(response.data.point);
+    } catch (error) {
+      throw error;
+    }
+  }
+  async function getPlaylistForMovie(movieId) {
+    try {
+      console.log(`http://${ip}:9000/rating/${userData.id}/${movieId}`);
+      const response = await axios.get(
+        `http://${ip}:9000/playlists/${userData.id}`,
+      );
+      setPlaylistArr(response.data.movieArr);
+
+      setPlaylistId(response.data._id);
+    } catch (error) {
+      throw error;
+    }
+  }
+  async function updatePLaylistForMovie(cc) {
+    try {
+      setPlaylistArr(cc);
+      const response = await axios.put(`http://${ip}:9000/playlists`, {
+        playlistId: playlistId,
+        movieArr: cc,
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Delete a comment
+  async function deleteComment(commentId) {
+    try {
+      await axios.delete(`http://${ip}:9000/comments/${commentId}`);
+      return 'Comment deleted';
+    } catch (error) {
+      throw new Error(error.response.data.message);
+    }
+  }
+
   const handleSpeedChange = value => {
     setSpeed(value); // Set the playback speed based on the slider value
+  };
+  const handleSetRating = value => {
+    setRating(value); // Set the playback speed based on the slider value
   };
   const handleQualityChange = value => {
     setQuality(value === 0 ? 'auto' : '720'); // Set the video quality based on the slider value
@@ -364,13 +174,9 @@ const MovieDetailScreen = ({route, navigation}) => {
       try {
         const responses = await Promise.all(
           movie.videos.map(video =>
-            axios.get(
-              `${PROXY_CLOUD}/redirect/dash/` +
-                video.videoname +
-                `/` +
-                video.videoname,
-              {headers: {myaxiosfetch: '123'}},
-            ),
+            axios.get(`http://${ip}:9000/redirect/hls/` + video.videoname, {
+              headers: {myaxiosfetch: '123'},
+            }),
           ),
         );
         console.log(responses);
@@ -379,16 +185,49 @@ const MovieDetailScreen = ({route, navigation}) => {
         );
         setData(videoDataArray);
         setSrc(videoDataArray[0]);
+        console.log(src);
       } catch (error) {
         console.error('Error fetching video data:', error);
       }
     };
 
     fetchData();
-    console.log('MOVIE!!!!!!!!!!!!!!!!!!!!!');
-    console.log(movie);
-    setVideo(movie.videos[0]);
+    const retrieveUserData = async () => {
+      try {
+        await AsyncStorage.getItem('userData').then(data => {
+          const parsedUserData = JSON.parse(data);
+          setUser(parsedUserData);
+          console.log('Retrieved user data: ' + parsedUserData.id);
+        });
+      } catch (error) {
+        console.error('Error retrieving user data: ', error);
+      }
+    };
+
+    retrieveUserData();
+    getCommentsForMovie(movie._id);
+
+    console.log(rating);
   }, []);
+  useEffect(() => {
+    // Second fetch based on the firstData
+    getRatingForMovie(movie._id);
+    getPlaylistForMovie();
+  }, [userData]);
+
+  const AddComment = () => {
+    createComment(comment);
+    getCommentsForMovie(movie._id);
+    setComment('');
+  };
+  const DeleteComment = comment => {
+    deleteComment(comment);
+    getCommentsForMovie(movie._id);
+    setComment('');
+  };
+  const handleType = textSearch => {
+    setComment(textSearch);
+  };
   const toggleCollapse = () => {
     setIsCollapsed(!isCollapsed);
   };
@@ -399,10 +238,7 @@ const MovieDetailScreen = ({route, navigation}) => {
     console.log('Playing video:', videoUrl);
     setClickedButton(index);
     setSrc(videoUrl);
-    console.log(index);
-    setVideo(prevState => {
-      return movie.videos[index];
-    });
+    setEsIndex(index);
   };
   const handleCloseModal = () => {
     setModalVisible(false);
@@ -410,24 +246,21 @@ const MovieDetailScreen = ({route, navigation}) => {
   const handleGoBack = () => {
     navigation.goBack();
   };
+  const onUpdateRating = () => {
+    setModalVisible('false');
+    updateRatingForMovie();
+  };
   const handlePlay = () => {
     setShowVideo(true);
   };
-  const handleSheetChanges = useCallback(index => {
-    console.log('handleSheetChanges', index);
-  }, []);
-  const addToPlaylistHandler = async () => {
-    // bottomSheetModalRef.current.present();
-    console.log(bottomSheetModalRef.current);
-    if (modalPlaylistVisible) {
-      bottomSheetModalRef.current.close();
-    } else {
-      bottomSheetModalRef.current.snapToIndex(0);
+  const handleAddtoPlaylist = () => {
+    if (!playlistArr.includes(movie._id)) {
+      const updatedPlaylistArr = [...playlistArr, movie._id];
+      console.log(updatedPlaylistArr);
+      updatePLaylistForMovie(updatedPlaylistArr);
     }
-    setModalPlaylistVisible(prevState => {
-      return !prevState;
-    });
   };
+
   const renderItem = ({item}) => {
     return (
       <TouchableOpacity
@@ -442,79 +275,83 @@ const MovieDetailScreen = ({route, navigation}) => {
     );
   };
   return (
-    <View>
-      <ScrollView style={styles.container}>
-        <TouchableOpacity
+    <ScrollView style={styles.container}>
+      <TouchableOpacity
+        style={{
+          width: 40,
+          height: 40,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: '#2f94aa',
+          margin: 6,
+          borderRadius: 10,
+        }}
+        onPress={handleGoBack}>
+        <FontAwesomeIcon
           style={{
-            width: '20%',
-            height: 50,
-            justifyContent: 'center',
-            alignItems: 'center',
-            backgroundColor: 'white',
-            margin: 6,
+            color: 'white',
+            fontSize: '39em',
+
+            padding: 16,
           }}
-          onPress={handleGoBack}>
-          <FontAwesomeIcon
-            style={{
-              color: 'red',
-              fontSize: '39em',
-              width: '200px',
-              height: '50px',
-            }}
-            icon={faHomeUser}
+          icon={faHomeUser}
+        />
+      </TouchableOpacity>
+      {showVideo ? (
+        <View style={styles.containerr}>
+          <Video
+            source={{uri: src}}
+            style={styles.video}
+            controls={true}
+            rate={speed}
+            resizeMode={quality}
           />
-        </TouchableOpacity>
-        {showVideo ? (
-          <View style={styles.containerr}>
-            <Video
-              source={{uri: src}}
-              style={styles.video}
-              controls={true}
-              rate={speed}
-              resizeMode={quality}
+          <View style={styles.sliderContainer}>
+            <Text style={styles.label}>{t('play speed')}</Text>
+            <Slider
+              style={styles.slider}
+              minimumValue={0.5}
+              maximumValue={2.0}
+              step={0.1}
+              value={speed}
+              onValueChange={handleSpeedChange}
             />
-            <View style={styles.sliderContainer}>
-              <Text style={styles.label}>{t('play speed')}</Text>
-              <Slider
-                style={styles.slider}
-                minimumValue={0.5}
-                maximumValue={2.0}
-                step={0.1}
-                value={speed}
-                onValueChange={handleSpeedChange}
-              />
-              <Text style={styles.value}>{speed.toFixed(2)}x</Text>
-            </View>
+            <Text style={styles.value}>{speed.toFixed(2)}x</Text>
           </View>
-        ) : (
-          <Image
-            source={{
-              uri:
-                'https://image.tmdb.org/t/p/w600_and_h900_bestv2/' +
-                movie.filmInfo.backdrop_path,
-            }}
-            style={styles.image}
-            resizeMode="cover"
-          />
-        )}
-
-        <View style={styles.spsCtainer}>
-          {datas.map((item, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.spsButton}
-              onPress={() => handleVideoClick(item, index)}>
-              <Text style={styles.spsTitle}>
-                {t('espisode')} {index + 1}
-              </Text>
-            </TouchableOpacity>
-          ))}
         </View>
+      ) : (
+        <Image
+          source={{
+            uri:
+              'https://image.tmdb.org/t/p/w600_and_h900_bestv2/' +
+              movie.filmInfo.backdrop_path,
+          }}
+          style={styles.image}
+          resizeMode="cover"
+        />
+      )}
 
-        {!showVideo && (
+      <View style={styles.spsCtainer}>
+        {datas.map((item, index) => (
+          <TouchableOpacity
+            key={index}
+            style={[
+              styles.spsButton,
+              index === esIndex ? {backgroundColor: '#a3cfd9'} : {},
+            ]}
+            onPress={() => handleVideoClick(item, index)}>
+            <Text style={{color: 'white'}}>
+              {t('espisode')} {index + 1}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {!showVideo &&
+        (!movie.primaryTag ? (
           <TouchableOpacity
             style={{
-              backgroundColor: 'orange',
+              backgroundColor: '#2f94aa',
               width: 160,
               padding: 10,
               margin: 10,
@@ -524,107 +361,287 @@ const MovieDetailScreen = ({route, navigation}) => {
             onPress={handlePlay}>
             <Text style={styles.buttonText}>{t('play video')}</Text>
           </TouchableOpacity>
+        ) : userData.isVip ? (
+          <TouchableOpacity
+            style={{
+              backgroundColor: '#2f94aa',
+              width: 160,
+              padding: 10,
+              margin: 10,
+              borderRadius: 6,
+              alignSelf: 'center',
+            }}
+            onPress={handlePlay}>
+            <Text style={styles.buttonText}>{t('play video')}</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            style={{
+              backgroundColor: '#2f94aa',
+              width: 160,
+              padding: 10,
+              margin: 10,
+              borderRadius: 6,
+              alignSelf: 'center',
+            }}
+            key={3}
+            onPress={() => handleMPaymentPress()}>
+            <Text style={{fontWeight: 'bold', color: 'white'}}>
+              Buy Primium Package
+            </Text>
+          </TouchableOpacity>
+        ))}
+
+      <View style={styles.buttonContainer}>
+        <Text style={styles.buttonText}>{movie.filmInfo.original_title}</Text>
+        <Star rating={movie.filmInfo.vote_average} />
+      </View>
+      <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
+        {movie.filmInfo.adult ? (
+          <View
+            style={{
+              flexDirection: 'column',
+              backgroundColor: '#3f4445',
+              borderRadius: 3,
+              padding: 10,
+              alignItems: 'center',
+              margin: 5,
+            }}>
+            <Text style={styles.ageRestriction}>{t('age restriction')}</Text>
+            <View style={{flexDirection: 'row'}}>
+              <Text style={styles.ageRestriction}>18+</Text>
+              <FontAwesomeIcon
+                style={{
+                  color: '#a3cfd9',
+                  fontSize: '39em',
+
+                  padding: 26,
+                }}
+                icon={faTimeline}
+              />
+            </View>
+          </View>
+        ) : (
+          <View
+            style={{
+              flexDirection: 'column',
+              flex: 1,
+              backgroundColor: '#3f4445',
+              borderRadius: 3,
+              padding: 10,
+              alignItems: 'center',
+              margin: 5,
+            }}>
+            <Text
+              style={{
+                fontWeight: 'bold',
+                margin: 2,
+                fontSize: 19,
+                color: 'white',
+              }}>
+              6+
+            </Text>
+            <Text style={{fontWeight: '200', margin: 2, color: 'white'}}>
+              {t('age restriction')}
+            </Text>
+
+            <FontAwesomeIcon
+              style={{
+                color: '#a3cfd9',
+
+                padding: 10,
+              }}
+              icon={faTimeline}
+            />
+          </View>
         )}
-        <View style={styles.buttonContainer}>
-          <Text style={styles.buttonText}>{movie.filmInfo.original_title}</Text>
-          <Star rating={movie.filmInfo.vote_average / 2} />
-        </View>
-        <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-          {movie.filmInfo.adult ? (
-            <Text style={styles.ageRestriction}>
-              {t('age restriction')} :18+
-            </Text>
-          ) : (
-            <Text style={styles.ageRestriction}>
-              {t('age restriction')} :6+
-            </Text>
-          )}
+        <View
+          style={{
+            flexDirection: 'column',
+            flex: 1,
+            backgroundColor: '#3f4445',
+            borderRadius: 3,
+            padding: 10,
+            alignItems: 'center',
+            margin: 5,
+          }}>
           <Text style={styles.ageRestriction}>
-            {t('number of movies')}: {Object.keys(movie.videos).length}
+            {' '}
+            {Object.keys(movie.videos).length}
           </Text>
+          <Text style={styles.ageRestriction}>{t('number of movies')}</Text>
+          <View style={{flexDirection: 'row'}}>
+            <FontAwesomeIcon
+              style={{
+                color: '#a3cfd9',
+                fontSize: '39em',
+
+                padding: 16,
+              }}
+              icon={faFileMedicalAlt}
+            />
+          </View>
+        </View>
+
+        <View
+          style={{
+            flexDirection: 'column',
+            alignItems: 'stretch',
+            flex: 1,
+            backgroundColor: '#3f4445',
+            borderRadius: 3,
+            padding: 10,
+            alignItems: 'center',
+            margin: 5,
+          }}>
           <Text style={styles.ageRestriction}>
             {movie.filmInfo.release_date}
           </Text>
-        </View>
+          <View style={{flexDirection: 'row'}}>
+            <FontAwesomeIcon
+              style={{
+                color: '#a3cfd9',
+                fontSize: '39em',
 
-        <View style={{alignItems: 'start', flexDirection: 'column'}}>
-          <Text
-            style={styles.description}
-            numberOfLines={isCollapsed ? 1 : undefined}>
-            {movie.filmInfo.overview}
-          </Text>
+                padding: 16,
+              }}
+              icon={faCalendarDays}
+            />
+          </View>
         </View>
-        <TouchableOpacity style={{}} onPress={toggleCollapse}>
-          <Text style={{color: 'white'}}>
-            {isCollapsed ? t('read more') : t('read less')} ...
+      </View>
+
+      <View style={{alignItems: 'start', flexDirection: 'column'}}>
+        <Text
+          style={styles.description}
+          numberOfLines={isCollapsed ? 1 : undefined}>
+          {movie.filmInfo.overview}
+        </Text>
+      </View>
+      <TouchableOpacity style={{}} onPress={toggleCollapse}>
+        <Text style={{color: 'white'}}>
+          {isCollapsed ? t('read more') : t('read less')} ...
+        </Text>
+      </TouchableOpacity>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={{flex: 1, backgroundColor: '#2f94aa', margin: 10, padding: 5}}
+          onPress={handleAddtoPlaylist}>
+          <Text style={styles.buttonText}>
+            {t('add to playlist')}{' '}
+            <FontAwesomeIcon style={{color: '#a3cfd9'}} icon={faAdd} />
           </Text>
         </TouchableOpacity>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={addToPlaylistHandler}>
-            <Text style={styles.buttonText}>
-              {t('add to playlist')}{' '}
-              <FontAwesomeIcon style={{color: 'white'}} icon={faAdd} />
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={handleRatingButtonPress}>
-            <Text style={styles.buttonText}>
-              {t('rate movie')}{' '}
-              <FontAwesomeIcon style={{color: 'white'}} icon={faRankingStar} />
-            </Text>
-          </TouchableOpacity>
-          <RatingModal visible={modalVisible} onClose={handleCloseModal} />
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => console.log('Share')}>
-            <Text style={styles.buttonText}>
-              {t('share')}{' '}
-              <FontAwesomeIcon style={{color: 'white'}} icon={faShare} />
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => console.log('Download')}>
-            <Text style={styles.buttonText}>
-              {t('download')}{' '}
-              <FontAwesomeIcon style={{color: 'white'}} icon={faArrowDown} />
-            </Text>
-          </TouchableOpacity>
-        </View>
-        <View>
-          <Text style={styles.commentsTitle}>Comments</Text>
+
+        <TouchableOpacity
+          style={{flex: 1, backgroundColor: '#2f94aa', margin: 10, padding: 5}}
+          onPress={handleRatingButtonPress}>
+          <Text style={styles.buttonText}>
+            {t('rate movie')}{' '}
+            <FontAwesomeIcon style={{color: 'white'}} icon={faRankingStar} />
+          </Text>
+        </TouchableOpacity>
+        <Modal
+          visible={modalVisible}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={onUpdateRating}>
+          <View
+            style={{
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              padding: 20,
+            }}>
+            <View
+              style={{backgroundColor: 'white', padding: 20, borderRadius: 10}}>
+              <Text style={{fontSize: 20, marginBottom: 10}}>
+                Rate this movie
+              </Text>
+              <View style={{flexDirection: 'row', padding: 3, margin: 10}}>
+                {stars.map(index => (
+                  <TouchableOpacity
+                    key={index}
+                    onPress={() => handleSetRating(index)}>
+                    <Text style={{fontSize: 20}}>
+                      {index <= rating ? '★' : '☆'}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              <Button title="Close" onPress={onUpdateRating} />
+            </View>
+          </View>
+        </Modal>
+      </View>
+
+      <View style={styles.commentsContainer}>
+        <Text style={styles.commentsTitle}>{t('comment')}</Text>
+        <ScrollView style={styles.commentsScrollView}>
+          {commentList.length > 0 &&
+            commentList.map(singleOne => {
+              return (
+                singleOne.conversation &&
+                singleOne.conversation.map(comment => (
+                  <View key={comment._id} style={styles.commentContainer}>
+                    <Avatar
+                      rounded
+                      source={{uri: comment.user.photo.link}}
+                      size="small"
+                      containerStyle={styles.avatar}
+                    />
+                    <View style={styles.commentContent}>
+                      <Text style={styles.commentUser}>
+                        {comment.user.username}
+                      </Text>
+                      <Text style={styles.commentText}>{comment.text}</Text>
+                      {comment.user._id === userData.id && (
+                        <TouchableOpacity
+                          onPress={() => DeleteComment(comment._id)}>
+                          <Text style={{color: 'red'}}>Delete</Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                  </View>
+                ))
+              );
+            })}
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-evenly',
+              alignItems: 'center',
+            }}>
+            <TextInput
+              placeholder="Write down something..."
+              style={{color: 'white'}}
+              value={comment}
+              placeholderTextColor="gray"
+              onChangeText={handleType}
+            />
+
+            <TouchableOpacity
+              style={{
+                width: 60,
+                height: 30,
+                backgroundColor: '#2f94aa',
+                flexDirection: 'row',
+                justifyContent: 'center',
+              }}
+              onPress={AddComment}>
+              <Text style={{color: 'white'}}>send</Text>
+            </TouchableOpacity>
+          </View>
 
           {/* Add more comments here */}
-          <CommentList video={video} />
-        </View>
-      </ScrollView>
-      <BottomSheet
-        ref={bottomSheetModalRef}
-        index={-1}
-        snapPoints={snapPoints}
-        onChange={handleSheetChanges}
-        style={{flex: 1}}>
-        <BottomSheetScrollView contentContainerStyle={styles.contentContainer}>
-          <NewPlaylistBottomSheet video={video} info={movie} />
-        </BottomSheetScrollView>
-      </BottomSheet>
-    </View>
+        </ScrollView>
+      </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  contentContainer: {
-    backgroundColor: 'white',
-  },
-  itemContainer: {
-    padding: 6,
-    margin: 6,
-    backgroundColor: '#eee',
-  },
-
   spsCtainer: {
     flex: 1,
     justifyContent: 'center',
@@ -635,7 +652,7 @@ const styles = StyleSheet.create({
   spsButton: {
     margin: 6,
     padding: 6,
-    backgroundColor: '#f2f2f2',
+    backgroundColor: '#555959',
     borderRadius: 1,
   },
   spsTittle: {
@@ -644,14 +661,15 @@ const styles = StyleSheet.create({
   },
 
   container: {
-    backgroundColor: '#000',
+    flex: 1,
+    backgroundColor: '#2a2f30',
   },
   button: {
     position: 'absolute',
     top: 16,
     left: 16,
     padding: 8,
-    backgroundColor: 'orange',
+    backgroundColor: '#2f94aa',
     borderRadius: 8,
     width: 'auto',
   },
@@ -659,6 +677,11 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 200,
     marginBottom: 16,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    color: 'black',
   },
   episodes: {
     fontSize: 16,
@@ -668,7 +691,7 @@ const styles = StyleSheet.create({
   ageRestriction: {
     fontSize: 16,
     color: '#fff',
-    marginBottom: 8,
+    marginBottom: 2,
   },
   numMovies: {
     margin: 5,
@@ -689,6 +712,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   commentsContainer: {
+    margin: 13,
+    height: 'auto',
     marginTop: 16,
   },
   commentsTitle: {
@@ -698,7 +723,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   commentsScrollView: {
-    maxHeight: 200,
+    maxHeight: 1000,
     borderWidth: 1,
     borderColor: '#fff',
     borderRadius: 4,

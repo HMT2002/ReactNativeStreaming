@@ -3,14 +3,14 @@ import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 
 const Star = ({ rating }) => {
-  const stars = [1, 2, 3, 4, 5];
+  const stars = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
   return (
-    <View style={{ flexDirection: 'row',marginLeft:10 }}>
+    <View style={{ flexDirection: 'row', marginLeft: 10 }}>
       {stars.map((star) => (
-       
-          <Text style={{color:'yellow'}}>{star <= rating ? '★' : '☆'}</Text>
-      
+
+        <Text key={star} style={{ color: 'yellow' }}>{star <= rating ? '★' : '☆'}</Text>
+
       ))}
     </View>
   );

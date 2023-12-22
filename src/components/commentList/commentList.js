@@ -7,16 +7,17 @@ import {
   FlatList,
   ScrollView,
   StyleSheet,
-  SafeAreaView,
 } from 'react-native';
 import {commentItem} from '../commentItem/commentItem';
 import {Avatar} from 'react-native-elements';
 import commentAPIs from '../../apis/comment-apis';
 import AuthContext from '../../store/auth-context';
 const CommentList = props => {
-  const [video, setVideo] = useState(null);
+  const [video, setVideo] = useState(props.video);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
+
+  console.log('CommentList');
 
   const authCtx = useContext(AuthContext);
   const handleAddComment = async () => {
@@ -29,6 +30,9 @@ const CommentList = props => {
         authCtx.token,
         newComment,
       );
+      console.log('$$$$$$$$$$$$$$$$');
+      console.log(result);
+      console.log(authCtx);
       setComments([
         ...comments,
         {
@@ -48,57 +52,49 @@ const CommentList = props => {
   };
   useEffect(() => {
     const loadComment = async () => {
-      console.log('!!!!!!!!@@@@@@@@@@!!!!!!!!' + props.video._id);
-      let comments = await commentAPIs.GETAllCommentByVideoAction(
-        props.video._id,
-      );
-      console.log('############@@@@@@@@@@@@@@@');
+      let comments = await commentAPIs.GETAllCommentByVideoAction(video._id);
+      console.log(comments);
       setComments(prevState => {
         return comments;
       });
     };
-    console.log('CommentList');
-
-    console.log(props);
-    setVideo(props.video);
     loadComment();
-  }, [props.video]);
+  }, []);
   return (
-    <SafeAreaView>
-      <ScrollView>
-        {comments.map(comment => {
-          let commentModel = new commentItem(
-            comment.user,
-            comment.content,
-            comment.user.photo.link,
-          );
-          return (
-            <View style={styles.commentContainer} key={comment._id}>
-              <Avatar
-                rounded
-                source={commentModel.img}
-                size="small"
-                containerStyle={styles.avatar}
-              />
-              <View style={styles.commentContent}>
-                <Text style={styles.commentUser}>
-                  {commentModel.user.username}
-                </Text>
-                <Text style={styles.commentText}>{commentModel.content}</Text>
-              </View>
+    <ScrollView>
+      {comments.map(comment => {
+        console.log('Here is 1 comment');
+        let commentModel = new commentItem(
+          comment.user,
+          comment.content,
+          comment.user.photo.link,
+        );
+        return (
+          <View style={styles.commentContainer} key={comment._id}>
+            <Avatar
+              rounded
+              source={commentModel.img}
+              size="small"
+              containerStyle={styles.avatar}
+            />
+            <View style={styles.commentContent}>
+              <Text style={styles.commentUser}>
+                {commentModel.user.username}
+              </Text>
+              <Text style={styles.commentText}>{commentModel.content}</Text>
             </View>
-          );
-        })}
-        <View>
-          <TextInput
-            placeholder="Add a comment..."
-            value={newComment}
-            onChangeText={text => setNewComment(text)}
-          />
-          <Button title="Add Comment" onPress={handleAddComment} />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+          </View>
+        );
+      })}
+      <View>
+        <TextInput
+          placeholder="Add a comment..."
+          value={newComment}
+          onChangeText={text => setNewComment(text)}
+        />
+        <Button title="Add Comment" onPress={handleAddComment} />
+      </View>
+    </ScrollView>
   );
 };
 

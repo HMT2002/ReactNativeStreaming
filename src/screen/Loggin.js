@@ -2,7 +2,7 @@ import React, {useState, useContext} from 'react';
 import Modal from 'react-native-modal';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {I18nextProvider, useTranslation} from 'react-i18next';
-import {ip, met, PROXY_CLOUD, PROXY_TUE_LOCAL} from '@env';
+import {ip, newip} from '@env';
 import {
   ActivityIndicator,
   Image,
@@ -20,9 +20,6 @@ import {useNavigation} from '@react-navigation/native';
 import axios from 'axios';
 import {faCheckCircle} from '@fortawesome/free-solid-svg-icons/faCheckCircle';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import AuthContext from '../store/auth-context';
-import {LoginAction} from '../apis/auth-apis';
-
 const LoginScreen = () => {
   const [getEmailId, setEmailId] = useState('');
   const [getPassword, setPassword] = useState('');
@@ -35,60 +32,41 @@ const LoginScreen = () => {
   const [passwordError, setPasswordError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
-  const authCtx = useContext(AuthContext);
-  if (authCtx.isStayLoggedIn) {
-    navigation.navigate('Home');
-  }
   const handleLogin = async () => {
+    console.log(`http://${ip}:9000/api/v1/users/signin`);
     try {
-      // const response = await axios.post(
-      //   PROXY_CLOUD + `/api/v1/users/signin`,
-      //   {
-      //     account: getEmailId,
-      //     password: getPassword,
-      //   },
-      //   {
-      //     headers: {
-      //       'Content-Type': 'application/json',
-      //     },
-      //   },
-      // );
-
-      // if (response.data) {
-      //   // Assuming you have obtained user data after login
-      //   const userData = response.data.data;
-      //   console.log(userData);
-      //   // Save the user data to AsyncStorage
-
-      //   authCtx.OnUserLogin(userData);
-
-      //   await AsyncStorage.setItem('userData', JSON.stringify(userData))
-      //     .then(() => {
-      //       console.log('User data saved successfully');
-      //       setEmailId('');
-      //       setPassword('');
-      //       setPasswordError('');
-      //       setEmailError('');
-      //       navigation.navigate('Home');
-      //     })
-      //     .catch(error => {
-      //       console.error('Error saving user data: ', error);
-      //     });
-      // } else {
-      // }
-      console.log('hihi');
-      const userData = {account: account, password: password};
-      const data = await LoginAction(userData);
-      if (data === null || data === undefined) {
-        console.log('failed login');
-        return;
+      const response = await axios.post(
+        `http://${ip}:9000/api/v1/users/signin`,
+        {
+          account: getEmailId,
+          password: getPassword,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+      if (response.data) {
+        // Assuming you have obtained user data after login
+        const userData = response.data.data;
+        console.log(userData);
+        // Save the user data to AsyncStorage
+        await AsyncStorage.setItem('userData', JSON.stringify(userData))
+          .then(() => {
+            console.log('User data saved successfully');
+            setEmailId('');
+            setPassword('');
+            setPasswordError('');
+            setEmailError('');
+            navigation.navigate('Home');
+          })
+          .catch(error => {
+            console.error('Error saving user data: ', error);
+          });
+      } else {
       }
-      authCtx.OnUserLogin(data);
-
-      // Navigate to the home screen
-      navigation.navigate('Home');
     } catch (error) {
-      console.log(error);
       setShowErrorModal(true);
     }
   };
@@ -404,124 +382,3 @@ const styles = StyleSheet.create({
   },
 });
 export default LoginScreen;
-
-// import React, {useContext, useState} from 'react';
-// import {
-//   View,
-//   Text,
-//   TextInput,
-//   TouchableOpacity,
-//   StyleSheet,
-//   Button,
-// } from 'react-native';
-// import {useNavigation} from '@react-navigation/native';
-// import {LoginAction} from '../apis/auth-apis';
-// import AuthContext from '../store/auth-context';
-
-// const LoginScreen = () => {
-//   const navigation = useNavigation();
-//   const [account, setAccount] = useState('');
-//   const [password, setPassword] = useState('');
-//   const authCtx = useContext(AuthContext);
-//   if (authCtx.isStayLoggedIn) {
-//     navigation.navigate('Home');
-//   }
-//   const handleLogin = async () => {
-//     // Perform login logic here
-//     console.log('hihi');
-//     const userData = {account: account, password: password};
-//     const data = await LoginAction(userData);
-//     if (data === null || data === undefined) {
-//       console.log('failed login');
-//       return;
-//     }
-//     authCtx.OnUserLogin(data);
-
-//     // Navigate to the home screen
-//     navigation.navigate('Home');
-//   };
-//   const moveToRegister = () => {
-//     // Perform login logic here
-
-//     // Navigate to the home screen
-//     navigation.navigate('Register');
-//   };
-//   return (
-//     <View style={styles.container}>
-//       <Text style={styles.logo}> Login</Text>
-//       <View style={styles.inputContainer}>
-//         <TextInput
-//           style={styles.input}
-//           placeholder="Account"
-//           placeholderTextColor="#030000"
-//           keyboardType="email-address"
-//           autoCapitalize="none"
-//           value={account}
-//           onChangeText={text => setAccount(text)}
-//         />
-//         <TextInput
-//           style={styles.input}
-//           placeholder="Password"
-//           placeholderTextColor="#030000"
-//           secureTextEntry
-//           value={password}
-//           onChangeText={text => setPassword(text)}
-//         />
-//       </View>
-//       <Button title="Login" onPress={handleLogin} />
-//       <Button title="Register" onPress={moveToRegister} />
-//       <TouchableOpacity style={styles.forgotPasswordButton}>
-//         <Text style={styles.forgotPasswordButtonText}>Forgot Password?</Text>
-//       </TouchableOpacity>
-//     </View>
-//   );
-// };
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     backgroundColor: '#fff',
-//   },
-//   logo: {
-//     fontSize: 24,
-//     fontWeight: 'bold',
-//     marginBottom: 50,
-//   },
-//   inputContainer: {
-//     width: '80%',
-//     marginBottom: 20,
-//   },
-//   input: {
-//     height: 40,
-//     borderColor: '#000000',
-//     borderWidth: 1,
-//     borderRadius: 5,
-//     paddingHorizontal: 10,
-//     marginBottom: 10,
-//   },
-//   loginButton: {
-//     backgroundColor: '#ff6f00',
-//     borderRadius: 5,
-//     paddingVertical: 10,
-//     paddingHorizontal: 20,
-//     marginBottom: 10,
-//   },
-//   loginButtonText: {
-//     color: '#fff',
-//     fontSize: 16,
-//     fontWeight: 'bold',
-//     textAlign: 'center',
-//   },
-//   forgotPasswordButton: {
-//     marginBottom: 20,
-//   },
-//   forgotPasswordButtonText: {
-//     color: '#aaa',
-//     fontSize: 14,
-//     textDecorationLine: 'underline',
-//   },
-// });
-
-// export default LoginScreen;
